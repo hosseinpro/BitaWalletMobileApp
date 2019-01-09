@@ -8,7 +8,8 @@ export default class App extends Component {
     super(props);
     this.state = {
       supported: false,
-      bitaWalletCard: null
+      bitaWalletCard: null,
+      cardInfo: {}
     };
   }
 
@@ -46,7 +47,7 @@ export default class App extends Component {
       .then(() => NfcManager.registerTagEvent())
       .then(() => NfcManager.requestTechnology(NfcTech.IsoDep))
       .then(() => NfcManager.getTag())
-      .then(() => this.cardBootstrap())
+      .then(() => this.getCardInfo())
       .then(() => eventFunction())
       .then(() => NfcManager.closeTechnology())
       .then(() => NfcManager.unregisterTagEvent())
@@ -56,7 +57,7 @@ export default class App extends Component {
       });
   };
 
-  cardBootstrap() {
+  getCardInfo() {
     let cardInfo = {};
     this.state.bitaWalletCard
       .selectApplet()
@@ -75,7 +76,7 @@ export default class App extends Component {
                 this.state.bitaWalletCard
                   .getLabel()
                   .then(res => (cardInfo.label = res.label))
-                  .then(() => console.log(cardInfo))
+                  .then(() => this.setState({ cardInfo }))
               )
           )
       )
@@ -85,7 +86,10 @@ export default class App extends Component {
   cardVerifyPIN() {
     this.state.bitaWalletCard
       .verifyPIN("1234")
-      .then(() => console.log("PIN verified"))
+      .then(() => {
+        console.log("PIN verified");
+        console.log(this.state.cardInfo);
+      })
       .catch(error => console.log("Error:" + error.message));
   }
 
