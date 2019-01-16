@@ -1,7 +1,9 @@
 import React, { Component } from "react";
-import { StyleSheet, Text, View, Button } from "react-native";
+import { StackNavigator } from "react-navigation";
+import { StyleSheet, Text, View } from "react-native";
 import NfcManager, { NfcTech } from "react-native-nfc-manager";
 import BitaWalletCard from "./BitaWalletCard";
+import MainScreen from "./components/MainScreen";
 
 export default class App extends Component {
   constructor(props) {
@@ -94,18 +96,14 @@ export default class App extends Component {
   }
 
   render() {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.welcome}>My first app!</Text>
-        <Button
-          onPress={() => this.cardDetection(this.cardVerifyPIN.bind(this))}
-          title="cardVerifyPIN"
-          color="#841584"
-        />
-      </View>
-    );
+    return <AppStackNavigator />;
+    // return <View />;
   }
 }
+
+const AppStackNavigator = StackNavigator({
+  Main: { screen: MainScreen }
+});
 
 const styles = StyleSheet.create({
   container: {
@@ -113,15 +111,5 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#F5FCFF"
-  },
-  welcome: {
-    fontSize: 20,
-    textAlign: "center",
-    margin: 10
-  },
-  instructions: {
-    textAlign: "center",
-    color: "#333333",
-    marginBottom: 5
   }
 });
