@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { Modal, Image } from "react-native";
 import { Content, Text, Button } from "native-base";
 
-export default class WelcomeScreen extends Component {
+export default class WelcomeModal extends Component {
   state = {
     visible: false
   };

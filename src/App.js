@@ -11,7 +11,7 @@ import {
   Button,
   Text
 } from "native-base";
-import WelcomeScreen from "./components/WelcomeScreen";
+import WelcomeModal from "./components/WelcomeModal";
 import NfcReader from "./lib/NfcReader";
 import CardTab from "./components/CardTab";
 import SendTab from "./components/SendTab";
@@ -27,7 +27,7 @@ export default class App extends Component {
       supported: false,
       selectedTab: "cardTab"
     };
-    global.welcomeScreen = React.createRef();
+    global.welcomeModal = React.createRef();
   }
 
   componentDidMount() {
@@ -39,7 +39,7 @@ export default class App extends Component {
       }
     });
     this.setState({ showWelcomeSreen: true });
-    global.welcomeScreen.show();
+    global.welcomeModal.show();
   }
 
   cardVerifyPIN() {
@@ -77,8 +77,8 @@ export default class App extends Component {
   render() {
     return (
       <Container>
-        <WelcomeScreen
-          ref={welcomeScreen => (global.welcomeScreen = welcomeScreen)}
+        <WelcomeModal
+          ref={welcomeModal => (global.welcomeModal = welcomeModal)}
         />
         <Header>
           <Text style={{ marginLeft: 30, fontSize: 10 }}>

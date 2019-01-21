@@ -10,7 +10,7 @@ export default class CardTab extends Component {
   componentDidMount() {}
 
   onPressMy() {
-    global.welcomeScreen.show();
+    global.welcomeModal.show();
   }
 
   render() {
