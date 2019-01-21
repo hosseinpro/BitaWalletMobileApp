@@ -24,7 +24,6 @@ export default class WelcomeModal extends Component {
         <Content
           contentContainerStyle={{
             flex: 1,
-            height: 930,
             backgroundColor: "#004dcf"
           }}
         >
@@ -42,6 +41,7 @@ export default class WelcomeModal extends Component {
           </Content>
           <Content contentContainerStyle={{ justifyContent: "flex-end" }}>
             <Button
+              rounded
               block
               light
               style={{ margin: 20 }}
