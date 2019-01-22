@@ -28,17 +28,15 @@ export default class CardTab extends Component {
           />
           <Text style={{ fontSize: 20 }}>{2.5} BTC</Text>
         </Content>
-        <Content contentContainerStyle={{ justifyContent: "flex-end" }}>
-          <Button
-            rounded
-            block
-            primary
-            style={{ margin: 20 }}
-            onPress={() => this.onPressDisconnect()}
-          >
-            <Text>Disconnect</Text>
-          </Button>
-        </Content>
+        <Button
+          rounded
+          block
+          primary
+          style={{ margin: 20 }}
+          onPress={() => this.onPressDisconnect()}
+        >
+          <Text>Disconnect</Text>
+        </Button>
       </Content>
     );
   }

@@ -1,15 +1,37 @@
 import React, { Component } from "react";
-import { Text, View } from "react-native";
+import { Text, Icon, List, ListItem, Left, Right } from "native-base";
 
 export default class MoreTab extends Component {
-  // static navigationOptions = {
-  //   title: "More"
-  // };
   render() {
     return (
-      <View>
-        <Text> MoreTab </Text>
-      </View>
+      <List>
+        <ListItem
+          onPress={() => this.props.navigation.navigate("ChangePassword")}
+        >
+          <Left>
+            <Text>Change Card Password</Text>
+          </Left>
+          <Right>
+            <Icon name="arrow-forward" />
+          </Right>
+        </ListItem>
+        <ListItem onPress={() => this.props.navigation.navigate("ChangeLabel")}>
+          <Left>
+            <Text>Change Card Label</Text>
+          </Left>
+          <Right>
+            <Icon name="arrow-forward" />
+          </Right>
+        </ListItem>
+        <ListItem onPress={() => this.props.navigation.navigate("BackupCard")}>
+          <Left>
+            <Text>Backup Card</Text>
+          </Left>
+          <Right>
+            <Icon name="arrow-forward" />
+          </Right>
+        </ListItem>
+      </List>
     );
   }
 }

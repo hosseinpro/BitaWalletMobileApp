@@ -39,17 +39,15 @@ export default class WelcomeModal extends Component {
             />
             <Text style={{ fontSize: 25, color: "white" }}>tap your card</Text>
           </Content>
-          <Content contentContainerStyle={{ justifyContent: "flex-end" }}>
-            <Button
-              rounded
-              block
-              light
-              style={{ margin: 20 }}
-              onPress={() => this.setState({ visible: false })}
-            >
-              <Text>Wipe</Text>
-            </Button>
-          </Content>
+          <Button
+            rounded
+            block
+            light
+            style={{ margin: 20 }}
+            onPress={() => this.setState({ visible: false })}
+          >
+            <Text>Wipe</Text>
+          </Button>
         </Content>
       </Modal>
     );

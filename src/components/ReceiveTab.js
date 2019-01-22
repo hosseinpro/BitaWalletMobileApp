@@ -10,6 +10,7 @@ import {
   Form,
   Picker
 } from "native-base";
+import { View } from "react-native";
 import QRCode from "react-native-qrcode";
 
 export default class ReceiveTab extends Component {
@@ -32,52 +33,39 @@ export default class ReceiveTab extends Component {
   render() {
     return (
       <Content contentContainerStyle={{ flex: 1 }}>
-        <Content
-          contentContainerStyle={{
-            flex: 1,
-            alignItems: "center",
-            marginLeft: 20,
-            marginRight: 20
-          }}
-        >
-          <Form style={{ width: "100%" }}>
-            <Picker
-              mode="dialog"
-              selectedValue={this.state.selectedCoin}
-              onValueChange={value =>
-                this.setState({
-                  selectedCoin: value
-                })
-              }
-            >
-              <Picker.Item label="Bitcoin" value="Bitcoin" />
-            </Picker>
-            <Content contentContainerStyle={{ alignItems: "center" }}>
-              <Content contentContainerStyle={{ margin: 20 }}>
-                <QRCode
-                  value={this.state.address}
-                  size={200}
-                  bgColor="black"
-                  fgColor="white"
-                />
-              </Content>
-              <Text style={{ fontSize: 20, fontWeight: "bold" }}>
-                {this.state.address}
-              </Text>
-            </Content>
-          </Form>
-        </Content>
-        <Content contentContainerStyle={{ justifyContent: "flex-end" }}>
-          <Button
-            rounded
-            block
-            primary
-            style={{ margin: 20 }}
-            onPress={() => this.onPressCopy()}
+        <Content contentContainerStyle={{ marginLeft: 20, marginRight: 20 }}>
+          <Picker
+            mode="dialog"
+            selectedValue={this.state.selectedCoin}
+            onValueChange={value =>
+              this.setState({
+                selectedCoin: value
+              })
+            }
           >
-            <Text>Copy</Text>
-          </Button>
+            <Picker.Item label="Bitcoin" value="Bitcoin" />
+          </Picker>
+          <Content contentContainerStyle={{ margin: 20, alignItems: "center" }}>
+            <QRCode
+              value={this.state.address}
+              size={200}
+              bgColor="black"
+              fgColor="white"
+            />
+          </Content>
+          <Text style={{ fontSize: 20, fontWeight: "bold" }}>
+            {this.state.address}
+          </Text>
         </Content>
+        <Button
+          rounded
+          block
+          primary
+          style={{ margin: 20 }}
+          onPress={() => this.onPressCopy()}
+        >
+          <Text>Copy</Text>
+        </Button>
       </Content>
     );
   }

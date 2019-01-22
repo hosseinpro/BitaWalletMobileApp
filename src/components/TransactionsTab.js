@@ -49,11 +49,9 @@ export default class TransactionsTab extends Component {
             marginRight: 20
           }}
         >
-          <Content>
-            <Text style={{ fontWeight: "bold", marginTop: 20 }}>
-              Balance: {2.5} BTC
-            </Text>
-          </Content>
+          <Text style={{ fontWeight: "bold", marginTop: 20 }}>
+            Balance: {2.5} BTC
+          </Text>
           <Form style={{ width: "100%" }}>
             <Item>
               <Picker
@@ -139,17 +137,15 @@ export default class TransactionsTab extends Component {
             </List>
           </Form>
         </Content>
-        <Content contentContainerStyle={{ justifyContent: "flex-end" }}>
-          <Button
-            rounded
-            block
-            primary
-            style={{ margin: 20 }}
-            onPress={() => this.onPressRefresh()}
-          >
-            <Text>Refresh</Text>
-          </Button>
-        </Content>
+        <Button
+          rounded
+          block
+          primary
+          style={{ margin: 20 }}
+          onPress={() => this.onPressRefresh()}
+        >
+          <Text>Refresh</Text>
+        </Button>
       </Content>
     );
   }

@@ -70,17 +70,15 @@ export default class SendTab extends Component {
             <Textarea rowSpan={3} bordered placeholder="Memo" />
           </Form>
         </Content>
-        <Content contentContainerStyle={{ justifyContent: "flex-end" }}>
-          <Button
-            rounded
-            block
-            primary
-            style={{ margin: 20 }}
-            onPress={() => this.onPressSend()}
-          >
-            <Text>Send</Text>
-          </Button>
-        </Content>
+        <Button
+          rounded
+          block
+          primary
+          style={{ margin: 20 }}
+          onPress={() => this.onPressSend()}
+        >
+          <Text>Send</Text>
+        </Button>
       </Content>
     );
   }
