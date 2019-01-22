@@ -1,7 +1,8 @@
 import React, { Component } from "react";
 import IconFontAwesome from "react-native-vector-icons/FontAwesome";
 import IconMaterialIcons from "react-native-vector-icons/MaterialIcons";
-import { Container, Text, Content } from "native-base";
+import { Container, Header, Body, Title, Subtitle } from "native-base";
+import { Image } from "react-native";
 import {
   createStackNavigator,
   createBottomTabNavigator,
@@ -70,34 +71,19 @@ export default class App extends Component {
         <PasswordModal
           ref={passwordModal => (global.passwordModal = passwordModal)}
         />
-        {/* <Content
-          contentContainerStyle={{
-            backgroundColor: "#004dcf",
-            flex: 1,
-            height: 20
-          }}
-        > */}
-        <Text
-          style={{
-            color: "white",
-            fontSize: 10,
-            backgroundColor: "#004dcf",
-            height: 30
-          }}
-        >
-          {global.cardInfo.label}
-        </Text>
-        <Text
-          style={{
-            color: "white",
-            fontSize: 10,
-            backgroundColor: "#004dcf",
-            height: 30
-          }}
-        >
-          {global.cardInfo.serialNumber}
-        </Text>
-        {/* </Content> */}
+        <Header>
+          <Image
+            source={require("./img/card.png")}
+            style={{ width: 40, height: 40, marginTop: 5 }}
+          />
+          <Body style={{ marginLeft: 15 }}>
+            <Title>{global.cardInfo.label}</Title>
+            <Subtitle style={{ fontSize: 12 }}>
+              {global.cardInfo.serialNumber}
+            </Subtitle>
+          </Body>
+        </Header>
+
         <TabContainer />
       </Container>
     );
