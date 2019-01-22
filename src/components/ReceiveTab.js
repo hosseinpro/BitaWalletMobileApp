@@ -1,16 +1,5 @@
 import React, { Component } from "react";
-import {
-  Content,
-  Text,
-  Button,
-  Item,
-  Icon,
-  Input,
-  Textarea,
-  Form,
-  Picker
-} from "native-base";
-import { View } from "react-native";
+import { Content, Text, Button, Picker } from "native-base";
 import QRCode from "react-native-qrcode";
 
 export default class ReceiveTab extends Component {

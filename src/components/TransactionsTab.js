@@ -4,19 +4,15 @@ import {
   Text,
   Button,
   Item,
-  Icon,
   Input,
-  Textarea,
   Form,
   Picker,
   DatePicker,
   Label,
   List,
   ListItem,
-  Left,
   Right,
-  Body,
-  Thumbnail
+  Body
 } from "native-base";
 import IconFontAwesome from "react-native-vector-icons/FontAwesome";
 
@@ -67,10 +63,6 @@ export default class TransactionsTab extends Component {
               </Picker>
             </Item>
             <Item>
-              <Input placeholder="Search" />
-              <IconFontAwesome name="search" />
-            </Item>
-            <Item>
               <Label>Start date :</Label>
               <DatePicker
                 defaultDate={this.state.startDate}
@@ -100,6 +92,10 @@ export default class TransactionsTab extends Component {
                 onDateChange={newDate => this.setState({ endDate: newDate })}
                 disabled={false}
               />
+            </Item>
+            <Item>
+              <Input placeholder="Search" />
+              <IconFontAwesome name="search" />
             </Item>
             <List>
               <ListItem thumbnail>

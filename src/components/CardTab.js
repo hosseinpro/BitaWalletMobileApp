@@ -4,7 +4,7 @@ import { Content, Text, Button } from "native-base";
 
 export default class CardTab extends Component {
   onPressDisconnect() {
-    global.welcomeModal.show();
+    global.tapCardModal.show(null, null, true);
   }
 
   render() {
@@ -18,9 +18,9 @@ export default class CardTab extends Component {
             marginRight: 20
           }}
         >
-          <Text style={{ fontSize: 16 }}>{this.props.serialNumber}</Text>
+          <Text style={{ fontSize: 16 }}>{global.cardInfo.serialNumber}</Text>
           <Text style={{ fontSize: 20, fontWeight: "bold" }}>
-            {this.props.label}
+            {global.cardInfo.label}
           </Text>
           <Image
             source={require("../img/card.png")}

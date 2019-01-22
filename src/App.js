@@ -8,7 +8,6 @@ import {
   createAppContainer
 } from "react-navigation";
 
-import WelcomeModal from "./components/WelcomeModal";
 import NfcReader from "./lib/NfcReader";
 import CardTab from "./components/CardTab";
 import SendTab from "./components/SendTab";
@@ -18,6 +17,9 @@ import MoreTab from "./components/MoreTab";
 import ChangePasswordStack from "./components/ChangePasswordStack";
 import ChangeLabelStack from "./components/ChangeLabelStack";
 import BackupCardStack from "./components/BackupCardStack";
+import TapCardModal from "./components/TapCardModal";
+import WipeModal from "./components/WipeModal";
+import PasswordModal from "./components/PasswordModal";
 
 export default class App extends Component {
   constructor(props) {
@@ -25,9 +27,14 @@ export default class App extends Component {
     this.state = {
       nfcReader: null,
       supported: false
-      // selectedTab: "cardTab"
     };
-    // global.welcomeModal = React.createRef();
+    let cardInfo = {
+      serialNumber: "11223344",
+      type: "B",
+      version: "1.0",
+      label: "Hossein Spending Wallet"
+    };
+    global.cardInfo = cardInfo;
   }
 
   componentDidMount() {
@@ -39,7 +46,7 @@ export default class App extends Component {
       }
     });
     this.setState({ showWelcomeSreen: true });
-    global.welcomeModal.show();
+    global.tapCardModal.show(null, null, true);
   }
 
   cardVerifyPIN() {
@@ -47,38 +54,21 @@ export default class App extends Component {
       .verifyPIN("1234")
       .then(() => {
         console.log("PIN verified");
-        console.log(this.state.nfcReader.cardInfo);
+        this.setState({ cardInfo: this.state.nfcReader.cardInfo });
+        console.log(this.state.cardInfo);
       })
       .catch(error => console.log("Error:" + error.message));
   }
 
-  // renderSelectedTab() {
-  //   switch (this.state.selectedTab) {
-  //     case "cardTab":
-  //       return (
-  //         <CardTab
-  //           style={{ flex: 1 }}
-  //           serialNumber="45367833"
-  //           label="Hossein Spending Card"
-  //         />
-  //       );
-  //     case "sendTab":
-  //       return <SendTab />;
-  //     case "receiveTab":
-  //       return <ReceiveTab />;
-  //     case "transactionsTab":
-  //       return <TransactionsTab />;
-  //     case "moreTab":
-  //       return <MoreTab />;
-  //     default:
-  //   }
-  // }
-
   render() {
     return (
       <Container>
-        <WelcomeModal
-          ref={welcomeModal => (global.welcomeModal = welcomeModal)}
+        <TapCardModal
+          ref={tapCardModal => (global.tapCardModal = tapCardModal)}
+        />
+        <WipeModal ref={wipeModal => (global.wipeModal = wipeModal)} />
+        <PasswordModal
+          ref={passwordModal => (global.passwordModal = passwordModal)}
         />
         {/* <Content
           contentContainerStyle={{
@@ -92,37 +82,20 @@ export default class App extends Component {
             color: "white",
             fontSize: 10,
             backgroundColor: "#004dcf",
-            height: 60
+            height: 30
           }}
         >
-          <Text
-            style={{
-              color: "white",
-              fontSize: 10,
-              backgroundColor: "#004dcf",
-              height: 20
-            }}
-          >
-            {this.state.nfcReader === null
-              ? ""
-              : this.state.nfcReader.cardInfo === null
-              ? ""
-              : this.state.nfcReader.cardInfo.label}
-          </Text>
-          <Text
-            style={{
-              color: "white",
-              fontSize: 10,
-              backgroundColor: "#004dcf",
-              height: 20
-            }}
-          >
-            {this.state.nfcReader === null
-              ? ""
-              : this.state.nfcReader.cardInfo === null
-              ? ""
-              : this.state.nfcReader.cardInfo.serialNumber}
-          </Text>
+          {global.cardInfo.label}
+        </Text>
+        <Text
+          style={{
+            color: "white",
+            fontSize: 10,
+            backgroundColor: "#004dcf",
+            height: 30
+          }}
+        >
+          {global.cardInfo.serialNumber}
         </Text>
         {/* </Content> */}
         <TabContainer />
@@ -133,7 +106,8 @@ export default class App extends Component {
 
 const MoreStack = createStackNavigator({
   More: {
-    screen: MoreTab
+    screen: MoreTab,
+    navigationOptions: { header: null }
   },
   ChangePassword: {
     screen: ChangePasswordStack,
@@ -198,75 +172,3 @@ const Tabs = createBottomTabNavigator({
 });
 
 const TabContainer = createAppContainer(Tabs);
-
-// render() {
-//   return (
-//     <Container>
-//       <WelcomeModal
-//         ref={welcomeModal => (global.welcomeModal = welcomeModal)}
-//       />
-//       <Header>
-//         <Text style={{ marginLeft: 30, fontSize: 10 }}>
-//           {this.state.nfcReader === null
-//             ? ""
-//             : this.state.nfcReader.cardInfo === null
-//             ? ""
-//             : this.state.nfcReader.cardInfo.label}
-//         </Text>
-//         <Text style={{ marginLeft: 30, fontSize: 10 }}>
-//           {this.state.nfcReader === null
-//             ? ""
-//             : this.state.nfcReader.cardInfo === null
-//             ? ""
-//             : this.state.nfcReader.cardInfo.serialNumber}
-//         </Text>
-//       </Header>
-//       <Content>{this.renderSelectedTab()}</Content>
-//       <Footer>
-//         <FooterTab>
-//           <Button
-//             vertical
-//             active={this.state.selectedTab === "cardTab"}
-//             onPress={() => this.setState({ selectedTab: "cardTab" })}
-//           >
-//             <IconFontAwesome name="credit-card" size={30} color="white" />
-//             <Text>Card</Text>
-//           </Button>
-//           <Button
-//             vertical
-//             active={this.state.selectedTab === "sendTab"}
-//             onPress={() => this.setState({ selectedTab: "sendTab" })}
-//           >
-//             <IconFontAwesome name="send-o" size={30} color="white" />
-//             <Text>Send</Text>
-//           </Button>
-//           <Button
-//             vertical
-//             active={this.state.selectedTab === "receiveTab"}
-//             onPress={() => this.setState({ selectedTab: "receiveTab" })}
-//           >
-//             <IconFontAwesome active name="qrcode" size={30} color="white" />
-//             <Text>Receive</Text>
-//           </Button>
-//           <Button
-//             vertical
-//             active={this.state.selectedTab === "transactionsTab"}
-//             onPress={() => this.setState({ selectedTab: "transactionsTab" })}
-//           >
-//             <IconFontAwesome name="list" size={30} color="white" />
-//             <Text>Txs</Text>
-//           </Button>
-//           <Button
-//             vertical
-//             active={this.state.selectedTab === "moreTab"}
-//             onPress={() => this.setState({ selectedTab: "moreTab" })}
-//           >
-//             <IconMaterialIcons name="more-horiz" size={30} color="white" />
-//             <Text>More</Text>
-//           </Button>
-//         </FooterTab>
-//       </Footer>
-//     </Container>
-//   );
-// }
-// }

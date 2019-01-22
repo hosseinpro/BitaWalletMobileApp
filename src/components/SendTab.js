@@ -4,7 +4,6 @@ import {
   Text,
   Button,
   Item,
-  Icon,
   Input,
   Textarea,
   Form,
@@ -12,6 +11,7 @@ import {
 } from "native-base";
 import IconFontAwesome from "react-native-vector-icons/FontAwesome";
 import IconMaterialIcons from "react-native-vector-icons/MaterialIcons";
+import AlertBox from "./AlertBox";
 
 export default class SendTab extends Component {
   constructor(props) {
@@ -21,8 +21,15 @@ export default class SendTab extends Component {
       selectedFee: "Regular"
     };
   }
+  send() {
+    console.log("send Pressed");
+  }
 
-  onPressSend() {}
+  onPressSend() {
+    // AlertBox.confirm("Send", "Send?", this.send);
+    // AlertBox.info("Info", "Mess");
+    global.passwordModal.show("Enter Card Passcode");
+  }
 
   render() {
     return (
@@ -49,7 +56,7 @@ export default class SendTab extends Component {
             </Picker>
             <Item>
               <IconFontAwesome name="bitcoin" />
-              <Input placeholder="Amount" />
+              <Input placeholder="Amount" keyboardType="numeric" />
             </Item>
             <Item>
               <IconMaterialIcons name="person-pin" />

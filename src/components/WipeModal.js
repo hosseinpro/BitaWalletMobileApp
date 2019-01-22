@@ -1,8 +1,8 @@
 import React, { Component } from "react";
-import { Modal, Image } from "react-native";
+import { Modal } from "react-native";
 import { Content, Text, Button } from "native-base";
 
-export default class WelcomeModal extends Component {
+export default class WipeModal extends Component {
   state = {
     visible: false
   };
@@ -23,8 +23,7 @@ export default class WelcomeModal extends Component {
       >
         <Content
           contentContainerStyle={{
-            flex: 1,
-            backgroundColor: "#004dcf"
+            flex: 1
           }}
         >
           <Content
@@ -33,20 +32,26 @@ export default class WelcomeModal extends Component {
               alignItems: "center"
             }}
           >
-            <Image
-              source={require("../img/card.png")}
-              style={{ width: 350, height: 230 }}
-            />
-            <Text style={{ fontSize: 25, color: "white" }}>tap your card</Text>
+            <Text style={{ fontSize: 20, color: "white" }}>hi</Text>
+            <Text style={{ fontSize: 16, color: "white" }}>hoo</Text>
           </Content>
           <Button
             rounded
             block
-            light
-            style={{ margin: 20 }}
+            primary
+            style={{ marginLeft: 20, marginRight: 20, marginBottom: 20 }}
             onPress={() => this.setState({ visible: false })}
           >
             <Text>Wipe</Text>
+          </Button>
+          <Button
+            rounded
+            block
+            primary
+            style={{ marginLeft: 20, marginRight: 20, marginBottom: 20 }}
+            onPress={() => this.setState({ visible: false })}
+          >
+            <Text>Cancel</Text>
           </Button>
         </Content>
       </Modal>
