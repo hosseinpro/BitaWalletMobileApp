@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import IconFontAwesome from "react-native-vector-icons/FontAwesome";
 import IconMaterialIcons from "react-native-vector-icons/MaterialIcons";
-import { Container } from "native-base";
+import { Container, Text, Content } from "native-base";
 import {
   createStackNavigator,
   createBottomTabNavigator,
@@ -52,27 +52,27 @@ export default class App extends Component {
       .catch(error => console.log("Error:" + error.message));
   }
 
-  renderSelectedTab() {
-    switch (this.state.selectedTab) {
-      case "cardTab":
-        return (
-          <CardTab
-            style={{ flex: 1 }}
-            serialNumber="45367833"
-            label="Hossein Spending Card"
-          />
-        );
-      case "sendTab":
-        return <SendTab />;
-      case "receiveTab":
-        return <ReceiveTab />;
-      case "transactionsTab":
-        return <TransactionsTab />;
-      case "moreTab":
-        return <MoreTab />;
-      default:
-    }
-  }
+  // renderSelectedTab() {
+  //   switch (this.state.selectedTab) {
+  //     case "cardTab":
+  //       return (
+  //         <CardTab
+  //           style={{ flex: 1 }}
+  //           serialNumber="45367833"
+  //           label="Hossein Spending Card"
+  //         />
+  //       );
+  //     case "sendTab":
+  //       return <SendTab />;
+  //     case "receiveTab":
+  //       return <ReceiveTab />;
+  //     case "transactionsTab":
+  //       return <TransactionsTab />;
+  //     case "moreTab":
+  //       return <MoreTab />;
+  //     default:
+  //   }
+  // }
 
   render() {
     return (
@@ -80,7 +80,52 @@ export default class App extends Component {
         <WelcomeModal
           ref={welcomeModal => (global.welcomeModal = welcomeModal)}
         />
-        <AppContainer />
+        {/* <Content
+          contentContainerStyle={{
+            backgroundColor: "#004dcf",
+            flex: 1,
+            height: 20
+          }}
+        > */}
+        <Text
+          style={{
+            color: "white",
+            fontSize: 10,
+            backgroundColor: "#004dcf",
+            height: 60
+          }}
+        >
+          <Text
+            style={{
+              color: "white",
+              fontSize: 10,
+              backgroundColor: "#004dcf",
+              height: 20
+            }}
+          >
+            {this.state.nfcReader === null
+              ? ""
+              : this.state.nfcReader.cardInfo === null
+              ? ""
+              : this.state.nfcReader.cardInfo.label}
+          </Text>
+          <Text
+            style={{
+              color: "white",
+              fontSize: 10,
+              backgroundColor: "#004dcf",
+              height: 20
+            }}
+          >
+            {this.state.nfcReader === null
+              ? ""
+              : this.state.nfcReader.cardInfo === null
+              ? ""
+              : this.state.nfcReader.cardInfo.serialNumber}
+          </Text>
+        </Text>
+        {/* </Content> */}
+        <TabContainer />
       </Container>
     );
   }
@@ -91,14 +136,17 @@ const MoreStack = createStackNavigator({
     screen: MoreTab
   },
   ChangePassword: {
-    screen: ChangePasswordStack
+    screen: ChangePasswordStack,
+    navigationOptions: { title: "Change Password" }
   },
   ChangeLabel: {
-    screen: ChangeLabelStack
+    screen: ChangeLabelStack,
+    navigationOptions: { title: "Change Label" }
   },
 
   BackupCard: {
-    screen: BackupCardStack
+    screen: BackupCardStack,
+    navigationOptions: { title: "Backup Card" }
   }
 });
 
@@ -149,7 +197,7 @@ const Tabs = createBottomTabNavigator({
   }
 });
 
-const AppContainer = createAppContainer(Tabs);
+const TabContainer = createAppContainer(Tabs);
 
 // render() {
 //   return (
