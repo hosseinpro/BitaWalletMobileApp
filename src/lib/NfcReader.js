@@ -45,13 +45,15 @@ export default class NfcReader {
       .then(() => NfcManager.getTag())
       .then(() => this.getCardInfo())
       .then(() => eventFunction())
-      .then(() => NfcManager.closeTechnology())
-      .then(() => NfcManager.unregisterTagEvent())
       .catch(err => {
         console.warn(err);
         this.setState({ enabled: false });
       });
   };
+
+  disconnectCard() {
+    NfcManager.closeTechnology().then(() => NfcManager.unregisterTagEvent());
+  }
 
   getCardInfo() {
     return new Promise((resolve, reject) => {

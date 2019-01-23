@@ -49,18 +49,14 @@ class App extends Component {
   }
 
   pinEntered(pin) {
-    this.props.nfcReader.cardDetection(this.verifyPIN.bind(this));
-  }
-
-  verifyPIN() {
     this.props.nfcReader.bitaWalletCard
       .verifyPIN(pin)
       .then(() => {
         console.log("PIN verified");
         this.props.setCardInfo(this.props.nfcReader.cardInfo);
-        console.log(this.props.cardInfo);
       })
-      .catch(error => console.log("Error:" + error.message));
+      .catch(error => console.log("Error:" + error.message))
+      .finally(() => this.props.nfcReader.disconnectCard());
   }
 
   render() {
