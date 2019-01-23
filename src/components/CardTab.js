@@ -1,10 +1,19 @@
 import React, { Component } from "react";
 import { Image } from "react-native";
 import { Content, Text, Button } from "native-base";
+import { connect } from "react-redux";
+import redux from "../redux/redux";
 
-export default class CardTab extends Component {
+class CardTab extends Component {
   onPressDisconnect() {
-    global.tapCardModal.show(null, null, true);
+    // global.tapCardModal.show(null, null, true);
+    const cardInfo = {
+      serialNumber: "11223344",
+      type: "B",
+      version: "1.0",
+      label: "Negar"
+    };
+    this.props.setCardInfo(cardInfo);
   }
 
   render() {
@@ -18,9 +27,11 @@ export default class CardTab extends Component {
             marginRight: 20
           }}
         >
-          <Text style={{ fontSize: 16 }}>{global.cardInfo.serialNumber}</Text>
+          <Text style={{ fontSize: 16 }}>
+            {this.props.cardInfo.serialNumber}
+          </Text>
           <Text style={{ fontSize: 20, fontWeight: "bold" }}>
-            {global.cardInfo.label}
+            {this.props.cardInfo.label}
           </Text>
           <Image
             source={require("../img/card.png")}
@@ -41,3 +52,20 @@ export default class CardTab extends Component {
     );
   }
 }
+
+const mapStateToProps = state => {
+  return {
+    cardInfo: state.cardInfo
+  };
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+    setCardInfo: cardInfo => dispatch(redux.setCardInfo(cardInfo))
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(CardTab);

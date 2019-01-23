@@ -8,6 +8,8 @@ import {
   createBottomTabNavigator,
   createAppContainer
 } from "react-navigation";
+import { connect } from "react-redux";
+import redux from "./redux/redux";
 
 import NfcReader from "./lib/NfcReader";
 import CardTab from "./components/CardTab";
@@ -22,32 +24,15 @@ import TapCardModal from "./components/TapCardModal";
 import WipeModal from "./components/WipeModal";
 import PasswordModal from "./components/PasswordModal";
 
-export default class App extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      nfcReader: null,
-      supported: false
-    };
-    let cardInfo = {
-      serialNumber: "11223344",
-      type: "B",
-      version: "1.0",
-      label: "Hossein Spending Wallet"
-    };
-    global.cardInfo = cardInfo;
-  }
-
+class App extends Component {
   componentDidMount() {
     const nfcReader = new NfcReader();
     nfcReader.isSupported().then(supported => {
-      this.setState({ supported });
       if (supported) {
-        this.setState({ nfcReader });
+        this.props.setNfcReader(nfcReader);
+        global.tapCardModal.show(null, null, true);
       }
     });
-    this.setState({ showWelcomeSreen: true });
-    global.tapCardModal.show(null, null, true);
   }
 
   cardVerifyPIN() {
@@ -77,9 +62,9 @@ export default class App extends Component {
             style={{ width: 40, height: 40, marginTop: 5 }}
           />
           <Body style={{ marginLeft: 15 }}>
-            <Title>{global.cardInfo.label}</Title>
+            <Title>{this.props.cardInfo.label}</Title>
             <Subtitle style={{ fontSize: 12 }}>
-              {global.cardInfo.serialNumber}
+              {this.props.cardInfo.serialNumber}
             </Subtitle>
           </Body>
         </Header>
@@ -158,3 +143,21 @@ const Tabs = createBottomTabNavigator({
 });
 
 const TabContainer = createAppContainer(Tabs);
+
+const mapStateToProps = state => {
+  return {
+    nfcReader: state.nfcReader,
+    cardInfo: state.cardInfo
+  };
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+    setNfcReader: nfcReader => dispatch(redux.setNfcReader(nfcReader))
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(App);

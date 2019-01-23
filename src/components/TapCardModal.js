@@ -12,6 +12,12 @@ export default class TabCardModal extends Component {
 
   show(message, cardInfo, wipe) {
     this.setState({ visible: true, message, cardInfo, wipe });
+    global.nfcReader.cardDetection(this.setCardInfo.bind(this));
+  }
+
+  setCardInfo() {
+    global.cardInfo = global.nfcReader.cardInfo;
+    this.setState({ visible: false });
   }
 
   render() {
