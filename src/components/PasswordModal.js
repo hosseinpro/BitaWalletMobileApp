@@ -6,11 +6,11 @@ import PinView from "react-native-pin-view";
 export default class PasswordModal extends Component {
   state = {
     visible: false,
-    pinValue: null
+    onComplete: null
   };
 
-  show(message) {
-    this.setState({ visible: true, message });
+  show(message, onComplete) {
+    this.setState({ visible: true, message, onComplete });
   }
 
   render() {
@@ -41,9 +41,10 @@ export default class PasswordModal extends Component {
             {this.state.message}
           </Text>
           <PinView
-            onComplete={(val, clear) => {
+            onComplete={(password, clear) => {
               clear();
-              this.setState({ pinValue: val });
+              // this.setState({ pinValue: val });
+              this.state.onComplete(password);
               this.setState({ visible: false });
             }}
             pinLength={4}

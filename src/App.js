@@ -30,18 +30,35 @@ class App extends Component {
     nfcReader.isSupported().then(supported => {
       if (supported) {
         this.props.setNfcReader(nfcReader);
-        global.tapCardModal.show(null, null, true);
+        global.tapCardModal.show(
+          null,
+          null,
+          true,
+          this.cardDetected.bind(this)
+        );
       }
     });
+    // global.tapCardModal.show(null, null, true, this.cardDetected.bind(this));
   }
 
-  cardVerifyPIN() {
-    this.state.nfcReader.bitaWalletCard
-      .verifyPIN("1234")
+  cardDetected(cardInfo) {
+    global.passwordModal.show(
+      "Enter Card Passcode",
+      this.pinEntered.bind(this)
+    );
+  }
+
+  pinEntered(pin) {
+    this.props.nfcReader.cardDetection(this.verifyPIN.bind(this));
+  }
+
+  verifyPIN() {
+    this.props.nfcReader.bitaWalletCard
+      .verifyPIN(pin)
       .then(() => {
         console.log("PIN verified");
-        this.setState({ cardInfo: this.state.nfcReader.cardInfo });
-        console.log(this.state.cardInfo);
+        this.props.setCardInfo(this.props.nfcReader.cardInfo);
+        console.log(this.props.cardInfo);
       })
       .catch(error => console.log("Error:" + error.message));
   }
@@ -68,7 +85,6 @@ class App extends Component {
             </Subtitle>
           </Body>
         </Header>
-
         <TabContainer />
       </Container>
     );
@@ -153,7 +169,8 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    setNfcReader: nfcReader => dispatch(redux.setNfcReader(nfcReader))
+    setNfcReader: nfcReader => dispatch(redux.setNfcReader(nfcReader)),
+    setCardInfo: cardInfo => dispatch(redux.setCardInfo(cardInfo))
   };
 };
 

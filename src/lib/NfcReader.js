@@ -3,7 +3,7 @@
 import NfcManager, { NfcTech } from "react-native-nfc-manager";
 import BitaWalletCard from "./BitaWalletCard";
 
-module.exports = class NfcReader {
+export default class NfcReader {
   isSupported() {
     return new Promise((resolve, reject) => {
       NfcManager.isSupported()
@@ -83,4 +83,4 @@ module.exports = class NfcReader {
         });
     });
   }
-};
+}
