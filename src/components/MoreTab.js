@@ -6,7 +6,7 @@ export default class MoreTab extends Component {
     return (
       <List>
         <ListItem
-          onPress={() => this.props.navigation.navigate("ChangePassword")}
+          onPress={() => this.props.navigation.navigate("ChangePasswordStack")}
         >
           <Left>
             <Text>Change Card Password</Text>
@@ -15,7 +15,9 @@ export default class MoreTab extends Component {
             <Icon name="arrow-forward" />
           </Right>
         </ListItem>
-        <ListItem onPress={() => this.props.navigation.navigate("ChangeLabel")}>
+        <ListItem
+          onPress={() => this.props.navigation.navigate("ChangeLabelStack")}
+        >
           <Left>
             <Text>Change Card Label</Text>
           </Left>
@@ -23,7 +25,9 @@ export default class MoreTab extends Component {
             <Icon name="arrow-forward" />
           </Right>
         </ListItem>
-        <ListItem onPress={() => this.props.navigation.navigate("BackupCard")}>
+        <ListItem
+          onPress={() => this.props.navigation.navigate("BackupCardStack")}
+        >
           <Left>
             <Text>Backup Card</Text>
           </Left>

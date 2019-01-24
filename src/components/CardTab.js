@@ -35,6 +35,7 @@ class CardTab extends Component {
       .verifyPIN(pin)
       .then(() => {
         this.props.setCardInfo(this.props.nfcReader.cardInfo);
+        this.props.setCardPin(pin);
       })
       .catch(leftTries => {
         AlertBox.info(
@@ -98,7 +99,8 @@ const mapDispatchToProps = dispatch => {
   return {
     setNfcReader: nfcReader => dispatch(redux.setNfcReader(nfcReader)),
     setCardInfo: cardInfo => dispatch(redux.setCardInfo(cardInfo)),
-    unsetCardInfo: () => dispatch(redux.unsetCardInfo())
+    unsetCardInfo: () => dispatch(redux.unsetCardInfo()),
+    setCardPin: pin => dispatch(redux.setCardPin(pin))
   };
 };
 

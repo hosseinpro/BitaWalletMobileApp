@@ -3,6 +3,7 @@ import { createStore } from "redux";
 const SET_NFC_READER = "SET_NFC_READER";
 const SET_CARD_INFO = "SET_CARD_INFO";
 const UNSET_CARD_INFO = "UNSET_CARD_INFO";
+const SET_CARD_PIN = "SET_CARD_PIN";
 
 const initialState = {
   nfcReader: null,
@@ -11,7 +12,8 @@ const initialState = {
     type: "X",
     version: "0.0",
     label: "Unknown"
-  }
+  },
+  pin: null
 };
 
 function setNfcReader(nfcReader) {
@@ -24,6 +26,10 @@ function setCardInfo(cardInfo) {
 
 function unsetCardInfo() {
   return { type: UNSET_CARD_INFO };
+}
+
+function setCardPin(pin) {
+  return { type: SET_CARD_PIN, pin };
 }
 
 function rootReducer(state = initialState, action) {
@@ -41,7 +47,13 @@ function rootReducer(state = initialState, action) {
     case UNSET_CARD_INFO:
       return {
         ...state,
-        cardInfo: initialState.cardInfo
+        cardInfo: initialState.cardInfo,
+        pin: null
+      };
+    case SET_CARD_PIN:
+      return {
+        ...state,
+        pin: action.pin
       };
   }
   return state;
@@ -49,4 +61,4 @@ function rootReducer(state = initialState, action) {
 
 const store = createStore(rootReducer);
 
-export default { store, setNfcReader, setCardInfo, unsetCardInfo };
+export default { store, setNfcReader, setCardInfo, unsetCardInfo, setCardPin };

@@ -15,10 +15,22 @@ const AlertBox = {
       { cancelable: false }
     );
   },
-  info: function(title, message, okFunction) {
-    Alert.alert(title, message, [{ text: "Ok", onPress: () => okFunction() }], {
-      cancelable: false
-    });
+  info: function(title, message, okFunction = null) {
+    Alert.alert(
+      title,
+      message,
+      [
+        {
+          text: "Ok",
+          onPress: () => {
+            if (okFunction !== null) okFunction();
+          }
+        }
+      ],
+      {
+        cancelable: false
+      }
+    );
   }
 };
 

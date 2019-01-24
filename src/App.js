@@ -55,20 +55,20 @@ class App extends Component {
 }
 
 const MoreStack = createStackNavigator({
-  More: {
+  MoreTab: {
     screen: MoreTab,
     navigationOptions: { header: null }
   },
-  ChangePassword: {
+  ChangePasswordStack: {
     screen: ChangePasswordStack,
     navigationOptions: { title: "Change Password" }
   },
-  ChangeLabel: {
+  ChangeLabelStack: {
     screen: ChangeLabelStack,
     navigationOptions: { title: "Change Label" }
   },
 
-  BackupCard: {
+  BackupCardStack: {
     screen: BackupCardStack,
     navigationOptions: { title: "Backup Card" }
   }

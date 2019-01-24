@@ -10,7 +10,8 @@ class TabCardModal extends Component {
     message: null,
     cardInfo: null,
     wipe: false,
-    onComplete: null
+    onComplete: null,
+    error: false
   };
 
   show(message, cardInfo, wipe, onComplete) {
@@ -19,6 +20,16 @@ class TabCardModal extends Component {
   }
 
   cardDetected() {
+    if (
+      this.state.cardInfo !== null &&
+      this.state.cardInfo.serialNumber !==
+        this.props.nfcReader.cardInfo.serialNumber
+    ) {
+      this.setState({ error: true });
+      this.props.nfcReader.cardDetection(this.cardDetected.bind(this));
+      return;
+    }
+
     this.state.onComplete(this.props.nfcReader.cardInfo);
     this.setState({ visible: false });
   }
@@ -61,6 +72,9 @@ class TabCardModal extends Component {
               {this.state.cardInfo !== null
                 ? this.state.cardInfo.serialNumber
                 : ""}
+            </Text>
+            <Text style={{ fontSize: 20, color: "red" }}>
+              {this.state.error ? "tap correct card" : ""}
             </Text>
           </Content>
           {this.state.wipe && (
