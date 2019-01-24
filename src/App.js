@@ -11,7 +11,6 @@ import {
 import { connect } from "react-redux";
 import redux from "./redux/redux";
 
-import NfcReader from "./lib/NfcReader";
 import CardTab from "./components/CardTab";
 import SendTab from "./components/SendTab";
 import ReceiveTab from "./components/ReceiveTab";
@@ -25,39 +24,7 @@ import WipeModal from "./components/WipeModal";
 import PasswordModal from "./components/PasswordModal";
 
 class App extends Component {
-  componentDidMount() {
-    const nfcReader = new NfcReader();
-    nfcReader.isSupported().then(supported => {
-      if (supported) {
-        this.props.setNfcReader(nfcReader);
-        global.tapCardModal.show(
-          null,
-          null,
-          true,
-          this.cardDetected.bind(this)
-        );
-      }
-    });
-    // global.tapCardModal.show(null, null, true, this.cardDetected.bind(this));
-  }
-
-  cardDetected(cardInfo) {
-    global.passwordModal.show(
-      "Enter Card Passcode",
-      this.pinEntered.bind(this)
-    );
-  }
-
-  pinEntered(pin) {
-    this.props.nfcReader.bitaWalletCard
-      .verifyPIN(pin)
-      .then(() => {
-        console.log("PIN verified");
-        this.props.setCardInfo(this.props.nfcReader.cardInfo);
-      })
-      .catch(error => console.log("Error:" + error.message))
-      .finally(() => this.props.nfcReader.disconnectCard());
-  }
+  componentDidMount() {}
 
   render() {
     return (
@@ -158,19 +125,11 @@ const TabContainer = createAppContainer(Tabs);
 
 const mapStateToProps = state => {
   return {
-    nfcReader: state.nfcReader,
     cardInfo: state.cardInfo
-  };
-};
-
-const mapDispatchToProps = dispatch => {
-  return {
-    setNfcReader: nfcReader => dispatch(redux.setNfcReader(nfcReader)),
-    setCardInfo: cardInfo => dispatch(redux.setCardInfo(cardInfo))
   };
 };
 
 export default connect(
   mapStateToProps,
-  mapDispatchToProps
+  null
 )(App);
