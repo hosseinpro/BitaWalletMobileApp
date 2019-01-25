@@ -1,13 +1,12 @@
 "use strict";
 
-// const bs58 = require("bs58");
-
 module.exports = class BitaWalletCard {
   constructor(cardreaderTransmit) {
     this.cardreaderTransmit = cardreaderTransmit;
   }
 
   ////Begin of Utils
+
   parseResponseAPDU(responseAPDU) {
     responseAPDU = responseAPDU.toUpperCase();
     const data = responseAPDU.substring(0, responseAPDU.length - 4);
@@ -75,6 +74,54 @@ module.exports = class BitaWalletCard {
     return r;
   }
 
+  static b58Encode(C) {
+    const A = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+    let B = BitaWalletCard.hex2Bytes(C);
+    var d = [],
+      s = "",
+      i,
+      j,
+      c,
+      n;
+    for (i in B) {
+      (j = 0), (c = B[i]);
+      s += c || s.length ^ i ? "" : 1;
+      while (j in d || c) {
+        n = d[j];
+        n = n ? n * 256 + c : c;
+        c = (n / 58) | 0;
+        d[j] = n % 58;
+        j++;
+      }
+    }
+    while (j--) s += A[d[j]];
+    return s;
+  }
+
+  static b58Decode(S) {
+    const A = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+    var d = [],
+      b = [],
+      i,
+      j,
+      c,
+      n;
+    for (i in S) {
+      (j = 0), (c = A.indexOf(S[i]));
+      if (c < 0) return undefined;
+      c || b.length ^ i ? i : b.push(0);
+      while (j in d || c) {
+        n = d[j];
+        n = n ? n * 58 + c : c;
+        c = n >> 8;
+        d[j] = n % 256;
+        j++;
+      }
+    }
+    while (j--) b.push(d[j]);
+    return BitaWalletCard.bytes2Hex(b);
+  }
+
   static rotateHex(hex) {
     let hex2 = "";
     for (let i = hex.length; i >= 2; i -= 2) {
@@ -111,9 +158,7 @@ module.exports = class BitaWalletCard {
               8
             )
           );
-          let publicKeyHash = bs58
-            .decode(addressInfo[i].address)
-            .toString("Hex");
+          let publicKeyHash = BitaWalletCard.b58Decode(addressInfo[i].address);
           publicKeyHash = publicKeyHash.substring(2, 42);
           inputSection += "1976a914" + publicKeyHash + "88ac";
           inputSection += "FFFFFFFF";
@@ -342,7 +387,21 @@ module.exports = class BitaWalletCard {
           (i + 1) * addressLength + 2
         );
       }
-      return { addressList };
+
+      const keyPathFirst = keyPath;
+      const address_index = parseInt(keyPathFirst.substring(10, 14), 16);
+      const keyPath_no_index = keyPathFirst.substring(0, 10);
+
+      let addressInfo = [];
+      for (let i = 0; i < addressList.length; i++) {
+        const address = BitaWalletCard.b58Encode(addressList[i]);
+        const keyPath =
+          keyPath_no_index +
+          BitaWalletCard.padHex((address_index + i).toString(16), 4);
+        addressInfo[i] = { address, keyPath };
+      }
+
+      return { addressInfo };
     });
   }
 
@@ -366,7 +425,14 @@ module.exports = class BitaWalletCard {
           (i + 1) * addressLength + 2
         );
       }
-      return { addressList };
+
+      let addressInfo = [];
+      for (let i = 0; i < addressList.length; i++) {
+        const address = BitaWalletCard.b58Encode(addressList[i]);
+        addressInfo[i] = { address };
+      }
+
+      return { addressInfo };
     });
   }
 
@@ -489,10 +555,12 @@ module.exports = class BitaWalletCard {
     //P1=9E: digital signature
     //P2=9A: plain data to be signed
 
+    const destAddressHex = BitaWalletCard.b58Decode(destAddress);
+
     let payload =
       BitaWalletCard.padHex(spend.toString(16), 16) +
       BitaWalletCard.padHex(fee.toString(16), 16) +
-      destAddress;
+      destAddressHex;
 
     let payloadLength = BitaWalletCard.padHex(
       (payload.length / 2).toString(16),
