@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { Clipboard } from "react-native";
 import {
   Content,
   Text,
@@ -158,6 +159,13 @@ class SendTab extends Component {
                 placeholder="To"
                 value={this.state.to}
                 onChangeText={to => this.setState({ to })}
+              />
+              <IconFontAwesome
+                name="paste"
+                style={{ width: 30 }}
+                onPress={() =>
+                  Clipboard.getString().then(str => this.setState({ to: str }))
+                }
               />
             </Item>
             <Picker
