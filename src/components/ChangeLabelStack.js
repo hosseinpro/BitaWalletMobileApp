@@ -17,12 +17,12 @@ class ChangeLabelStack extends Component {
         null,
         this.props.cardInfo,
         false,
-        this.cardDetected.bind(this)
+        this.changeLabel.bind(this)
       );
     }
   }
 
-  cardDetected(cardInfo) {
+  changeLabel(cardInfo) {
     this.props.nfcReader.bitaWalletCard
       .verifyPIN(this.props.pin)
       .then(() => {

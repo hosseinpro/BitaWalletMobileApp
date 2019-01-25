@@ -4,6 +4,8 @@ const SET_NFC_READER = "SET_NFC_READER";
 const SET_CARD_INFO = "SET_CARD_INFO";
 const UNSET_CARD_INFO = "UNSET_CARD_INFO";
 const SET_CARD_PIN = "SET_CARD_PIN";
+const SET_ADDRESS_INFO = "SET_ADDRESS_INFO";
+const SET_CHANGE_KEY = "SET_CHANGE_KEY";
 
 const initialState = {
   nfcReader: null,
@@ -13,7 +15,13 @@ const initialState = {
     version: "0.0",
     label: "Unknown"
   },
-  pin: null
+  pin: null,
+  addressInfo: [
+    {
+      address: "000000000000000"
+    }
+  ],
+  changeKey: null
 };
 
 function setNfcReader(nfcReader) {
@@ -30,6 +38,14 @@ function unsetCardInfo() {
 
 function setCardPin(pin) {
   return { type: SET_CARD_PIN, pin };
+}
+
+function setAddressInfo(addressInfo) {
+  return { type: SET_ADDRESS_INFO, addressInfo };
+}
+
+function setChangeKey(changeKey) {
+  return { type: SET_CHANGE_KEY, changeKey };
 }
 
 function rootReducer(state = initialState, action) {
@@ -55,10 +71,28 @@ function rootReducer(state = initialState, action) {
         ...state,
         pin: action.pin
       };
+    case SET_ADDRESS_INFO:
+      return {
+        ...state,
+        addressInfo: action.addressInfo
+      };
+    case SET_CHANGE_KEY:
+      return {
+        ...state,
+        changeKey: action.changeKey
+      };
   }
   return state;
 }
 
 const store = createStore(rootReducer);
 
-export default { store, setNfcReader, setCardInfo, unsetCardInfo, setCardPin };
+export default {
+  store,
+  setNfcReader,
+  setCardInfo,
+  unsetCardInfo,
+  setCardPin,
+  setAddressInfo,
+  setChangeKey
+};

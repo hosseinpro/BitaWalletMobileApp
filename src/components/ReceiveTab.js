@@ -1,8 +1,12 @@
 import React, { Component } from "react";
+import { Clipboard } from "react-native";
 import { Content, Text, Button, Picker } from "native-base";
 import QRCode from "react-native-qrcode";
+import { connect } from "react-redux";
+import redux from "../redux/redux";
+import AlertBox from "./AlertBox";
 
-export default class ReceiveTab extends Component {
+class ReceiveTab extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -10,13 +14,9 @@ export default class ReceiveTab extends Component {
     };
   }
 
-  state = {
-    address: "mvyQZq6UvkMB97K9bUeHp4VVS1N7SeDzRX",
-    selectedCoin: "Bitcoin"
-  };
-
   onPressCopy() {
-    this.setState({ address: "mvyQZq6UvkMB97K9bUeHp4VVS1N7SeDzRX" });
+    Clipboard.setString(this.props.addressInfo[0].address);
+    AlertBox.info("Receive", "The address is copied");
   }
 
   render() {
@@ -36,14 +36,14 @@ export default class ReceiveTab extends Component {
           </Picker>
           <Content contentContainerStyle={{ margin: 20, alignItems: "center" }}>
             <QRCode
-              value={this.state.address}
+              value={this.props.addressInfo[0].address}
               size={200}
               bgColor="black"
               fgColor="white"
             />
           </Content>
           <Text style={{ fontSize: 20, fontWeight: "bold" }}>
-            {this.state.address}
+            {this.props.addressInfo[0].address}
           </Text>
         </Content>
         <Button
@@ -59,3 +59,14 @@ export default class ReceiveTab extends Component {
     );
   }
 }
+
+const mapStateToProps = state => {
+  return {
+    addressInfo: state.addressInfo
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  null
+)(ReceiveTab);

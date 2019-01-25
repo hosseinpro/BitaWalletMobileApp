@@ -20,12 +20,12 @@ class ChangePasswordStack extends Component {
         null,
         this.props.cardInfo,
         false,
-        this.cardDetected.bind(this)
+        this.changePassword.bind(this)
       );
     }
   }
 
-  cardDetected(cardInfo) {
+  changePassword() {
     this.props.nfcReader.bitaWalletCard
       .verifyPIN(this.props.pin)
       .then(() => {

@@ -3,8 +3,8 @@ import { Image } from "react-native";
 import { Content, Text, Button } from "native-base";
 import { connect } from "react-redux";
 import redux from "../redux/redux";
-import AlertBox from "./AlertBox";
 import NfcReader from "../lib/NfcReader";
+import AlertBox from "./AlertBox";
 
 class CardTab extends Component {
   componentDidMount() {
@@ -36,6 +36,7 @@ class CardTab extends Component {
       .then(() => {
         this.props.setCardInfo(this.props.nfcReader.cardInfo);
         this.props.setCardPin(pin);
+        this.fillAddressInfo();
       })
       .catch(leftTries => {
         AlertBox.info(
@@ -45,6 +46,23 @@ class CardTab extends Component {
         );
       });
     // .finally(() => this.props.nfcReader.disconnectCard());
+  }
+
+  fillAddressInfo() {
+    this.props.nfcReader.bitaWalletCard
+      .getAddressList("6D2C0000000000", 1)
+      .then(res => {
+        let addressInfo = res.addressInfo;
+        addressInfo[0].txs = [];
+        let tx = {};
+        tx.txHash =
+          "a896270a198aa2146cdec81d18bc1fd358d4355f8d21be8e5335fae22c09244e";
+        tx.utxo = "0";
+        tx.value = "100000000";
+        addressInfo[0].txs[0] = tx;
+        this.props.setAddressInfo(addressInfo);
+        this.props.setChangeKey("6D2C0100010000");
+      });
   }
 
   onPressDisconnect() {
@@ -100,7 +118,9 @@ const mapDispatchToProps = dispatch => {
     setNfcReader: nfcReader => dispatch(redux.setNfcReader(nfcReader)),
     setCardInfo: cardInfo => dispatch(redux.setCardInfo(cardInfo)),
     unsetCardInfo: () => dispatch(redux.unsetCardInfo()),
-    setCardPin: pin => dispatch(redux.setCardPin(pin))
+    setCardPin: pin => dispatch(redux.setCardPin(pin)),
+    setAddressInfo: addressInfo => dispatch(redux.setAddressInfo(addressInfo)),
+    setChangeKey: changeKey => dispatch(redux.setChangeKey(changeKey))
   };
 };
 
