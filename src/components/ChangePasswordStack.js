@@ -44,7 +44,7 @@ class ChangePasswordStack extends Component {
 
   render() {
     return (
-      <Content contentContainerStyle={{ flex: 1 }}>
+      <Content contentContainerStyle={styles.container}>
         <Content
           contentContainerStyle={{
             flex: 1,
@@ -77,11 +77,10 @@ class ChangePasswordStack extends Component {
         <Button
           rounded
           block
-          primary
-          style={{ margin: 20 }}
+          style={styles.button}
           onPress={() => this.onPressChange()}
         >
-          <Text>Change</Text>
+          <Text style={styles.button}>Change</Text>
         </Button>
       </Content>
     );

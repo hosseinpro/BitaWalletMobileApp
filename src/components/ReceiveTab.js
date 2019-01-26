@@ -21,7 +21,7 @@ class ReceiveTab extends Component {
 
   render() {
     return (
-      <Content contentContainerStyle={{ flex: 1 }}>
+      <Content contentContainerStyle={styles.container}>
         <Content contentContainerStyle={{ marginLeft: 20, marginRight: 20 }}>
           <Picker
             mode="dialog"
@@ -34,12 +34,18 @@ class ReceiveTab extends Component {
           >
             <Picker.Item label="Bitcoin" value="Bitcoin" />
           </Picker>
-          <Content contentContainerStyle={{ margin: 20, alignItems: "center" }}>
+          <Content
+            contentContainerStyle={{
+              margin: 50,
+              alignSelf: "center",
+              width: 200
+            }}
+          >
             <QRCode
               value={this.props.addressInfo[0].address}
               size={200}
               bgColor="black"
-              fgColor="white"
+              fgColor="#B2AFAC"
             />
           </Content>
           <Text style={{ fontSize: 20, fontWeight: "bold" }}>
@@ -49,11 +55,10 @@ class ReceiveTab extends Component {
         <Button
           rounded
           block
-          primary
-          style={{ margin: 20 }}
+          style={styles.button}
           onPress={() => this.onPressCopy()}
         >
-          <Text>Copy</Text>
+          <Text style={styles.button}>Copy</Text>
         </Button>
       </Content>
     );

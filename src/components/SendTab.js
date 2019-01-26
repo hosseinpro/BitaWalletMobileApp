@@ -123,7 +123,7 @@ class SendTab extends Component {
 
   render() {
     return (
-      <Content contentContainerStyle={{ flex: 1 }}>
+      <Content contentContainerStyle={styles.container}>
         <Content
           contentContainerStyle={{
             flex: 1,
@@ -133,17 +133,19 @@ class SendTab extends Component {
           }}
         >
           <Form style={{ width: "100%" }}>
-            <Picker
-              mode="dialog"
-              selectedValue={this.state.selectedCoin}
-              onValueChange={value =>
-                this.setState({
-                  selectedCoin: value
-                })
-              }
-            >
-              <Picker.Item label="Bitcoin" value="Bitcoin" />
-            </Picker>
+            <Item>
+              <Picker
+                mode="dialog"
+                selectedValue={this.state.selectedCoin}
+                onValueChange={value =>
+                  this.setState({
+                    selectedCoin: value
+                  })
+                }
+              >
+                <Picker.Item label="Bitcoin" value="Bitcoin" />
+              </Picker>
+            </Item>
             <Item>
               <IconFontAwesome name="bitcoin" />
               <Input
@@ -168,29 +170,32 @@ class SendTab extends Component {
                 }
               />
             </Item>
-            <Picker
-              mode="dialog"
-              selectedValue={this.state.selectedFee}
-              onValueChange={value =>
-                this.setState({
-                  selectedFee: value
-                })
-              }
-            >
-              <Picker.Item label="Regular" value="Regular" />
-              <Picker.Item label="Express" value="Express" />
-            </Picker>
-            <Textarea rowSpan={3} bordered placeholder="Memo" />
+            <Item>
+              <Picker
+                mode="dialog"
+                selectedValue={this.state.selectedFee}
+                onValueChange={value =>
+                  this.setState({
+                    selectedFee: value
+                  })
+                }
+              >
+                <Picker.Item label="Regular" value="Regular" />
+                <Picker.Item label="Express" value="Express" />
+              </Picker>
+            </Item>
+            <Item>
+              <Textarea rowSpan={3} placeholder="Memo" />
+            </Item>
           </Form>
         </Content>
         <Button
           rounded
           block
-          primary
-          style={{ margin: 20 }}
+          style={styles.button}
           onPress={() => this.onPressSend()}
         >
-          <Text>Send</Text>
+          <Text style={styles.button}>Send</Text>
         </Button>
       </Content>
     );

@@ -6,7 +6,7 @@ export default class BackupCardStack extends Component {
 
   render() {
     return (
-      <Content contentContainerStyle={{ flex: 1 }}>
+      <Content contentContainerStyle={styles.container}>
         <Content
           contentContainerStyle={{
             flex: 1,
@@ -16,12 +16,10 @@ export default class BackupCardStack extends Component {
           }}
         >
           <Form style={{ width: "100%" }}>
-            <Text style={{ fontSize: 20, fontWeight: "bold", marginTop: 20 }}>
+            <Text style={{ fontSize: 20, marginTop: 20 }}>
               Tap your {"backup"} card
             </Text>
-            <Text style={{ fontWeight: "bold", marginTop: 20 }}>
-              Checkvalue
-            </Text>
+            <Text style={{ marginTop: 20 }}>Checkvalue</Text>
             <Card>
               <CardItem style={{ backgroundColor: "#DEDEDE" }}>
                 <Body>
@@ -36,11 +34,10 @@ export default class BackupCardStack extends Component {
         <Button
           rounded
           block
-          primary
-          style={{ margin: 20 }}
+          style={styles.button}
           onPress={() => this.onPressBackup()}
         >
-          <Text>Backup</Text>
+          <Text style={styles.button}>Backup</Text>
         </Button>
       </Content>
     );

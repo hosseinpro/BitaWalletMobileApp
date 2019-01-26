@@ -3,6 +3,7 @@ import { Modal, Image } from "react-native";
 import { Content, Text, Button } from "native-base";
 import { connect } from "react-redux";
 import redux from "../redux/redux";
+import styles from "../styles";
 
 class TabCardModal extends Component {
   state = {
@@ -44,12 +45,7 @@ class TabCardModal extends Component {
           Alert.alert("Modal has been closed.");
         }}
       >
-        <Content
-          contentContainerStyle={{
-            flex: 1,
-            backgroundColor: "#004dcf"
-          }}
-        >
+        <Content contentContainerStyle={styles.container}>
           <Content
             contentContainerStyle={{
               flex: 1,
@@ -60,15 +56,15 @@ class TabCardModal extends Component {
               source={require("../img/card.png")}
               style={{ width: 350, height: 230 }}
             />
-            <Text style={{ fontSize: 30, color: "white" }}>
+            <Text style={{ fontSize: 30 }}>
               {this.state.message !== null
                 ? this.state.message
                 : "tap your card"}
             </Text>
-            <Text style={{ fontSize: 20, color: "white" }}>
+            <Text style={{ fontSize: 20 }}>
               {this.state.cardInfo !== null ? this.state.cardInfo.label : ""}
             </Text>
-            <Text style={{ fontSize: 16, color: "white" }}>
+            <Text style={{ fontSize: 16 }}>
               {this.state.cardInfo !== null
                 ? this.state.cardInfo.serialNumber
                 : ""}
@@ -81,23 +77,21 @@ class TabCardModal extends Component {
             <Button
               rounded
               block
-              light
-              style={{ margin: 20 }}
+              style={styles.button}
               onPress={() => this.setState({ visible: false })}
               // onPress={() => global.wipeModal.show()}
             >
-              <Text>Wipe</Text>
+              <Text style={styles.button}>Wipe</Text>
             </Button>
           )}
           {!this.state.wipe && (
             <Button
               rounded
               block
-              light
-              style={{ margin: 20 }}
+              style={styles.button}
               onPress={() => this.setState({ visible: false })}
             >
-              <Text>Cancel</Text>
+              <Text style={styles.button}>Cancel</Text>
             </Button>
           )}
         </Content>

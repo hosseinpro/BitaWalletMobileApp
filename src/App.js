@@ -10,7 +10,7 @@ import {
 } from "react-navigation";
 import { connect } from "react-redux";
 import redux from "./redux/redux";
-
+import styles from "./styles";
 import CardTab from "./components/CardTab";
 import SendTab from "./components/SendTab";
 import ReceiveTab from "./components/ReceiveTab";
@@ -36,14 +36,14 @@ class App extends Component {
         <PasswordModal
           ref={passwordModal => (global.passwordModal = passwordModal)}
         />
-        <Header>
+        <Header style={styles.header}>
           <Image
             source={require("./img/card.png")}
             style={{ width: 40, height: 40, marginTop: 5 }}
           />
           <Body style={{ marginLeft: 15 }}>
-            <Title>{this.props.cardInfo.label}</Title>
-            <Subtitle style={{ fontSize: 12 }}>
+            <Title style={styles.header}>{this.props.cardInfo.label}</Title>
+            <Subtitle style={styles.header}>
               {this.props.cardInfo.serialNumber}
             </Subtitle>
           </Body>
@@ -54,72 +54,87 @@ class App extends Component {
   }
 }
 
-const MoreStack = createStackNavigator({
-  MoreTab: {
-    screen: MoreTab,
-    navigationOptions: { header: null }
-  },
-  ChangePasswordStack: {
-    screen: ChangePasswordStack,
-    navigationOptions: { title: "Change Password" }
-  },
-  ChangeLabelStack: {
-    screen: ChangeLabelStack,
-    navigationOptions: { title: "Change Label" }
-  },
-
-  BackupCardStack: {
-    screen: BackupCardStack,
-    navigationOptions: { title: "Backup Card" }
-  }
-});
-
-const Tabs = createBottomTabNavigator({
-  Card: {
-    screen: CardTab,
-    navigationOptions: {
-      tabBarIcon: ({ tintColor }) => {
-        return (
-          <IconFontAwesome name="credit-card" size={25} color={tintColor} />
-        );
-      }
+const MoreStack = createStackNavigator(
+  {
+    MoreTab: {
+      screen: MoreTab,
+      navigationOptions: { header: null }
+    },
+    ChangePasswordStack: {
+      screen: ChangePasswordStack,
+      navigationOptions: { title: "Change Password" }
+    },
+    ChangeLabelStack: {
+      screen: ChangeLabelStack,
+      navigationOptions: { title: "Change Label" }
+    },
+    BackupCardStack: {
+      screen: BackupCardStack,
+      navigationOptions: { title: "Backup Card" }
     }
   },
-  Send: {
-    screen: SendTab,
-    navigationOptions: {
-      tabBarIcon: ({ tintColor }) => {
-        return <IconFontAwesome name="send-o" size={25} color={tintColor} />;
-      }
-    }
-  },
-  Receive: {
-    screen: ReceiveTab,
-    navigationOptions: {
-      tabBarIcon: ({ tintColor }) => {
-        return <IconFontAwesome name="qrcode" size={25} color={tintColor} />;
-      }
-    }
-  },
-  Transactions: {
-    screen: TransactionsTab,
-    navigationOptions: {
-      tabBarIcon: ({ tintColor }) => {
-        return <IconFontAwesome name="list" size={25} color={tintColor} />;
-      }
-    }
-  },
-  More: {
-    screen: MoreStack,
-    navigationOptions: {
-      tabBarIcon: ({ tintColor }) => {
-        return (
-          <IconMaterialIcons name="more-horiz" size={25} color={tintColor} />
-        );
-      }
+  {
+    defaultNavigationOptions: {
+      headerStyle: styles.stack,
+      headerTitleStyle: styles.stack
     }
   }
-});
+);
+
+const Tabs = createBottomTabNavigator(
+  {
+    Card: {
+      screen: CardTab,
+      navigationOptions: {
+        tabBarIcon: ({ tintColor }) => {
+          return (
+            <IconFontAwesome name="credit-card" size={25} color={tintColor} />
+          );
+        }
+      }
+    },
+    Send: {
+      screen: SendTab,
+      navigationOptions: {
+        tabBarIcon: ({ tintColor }) => {
+          return <IconFontAwesome name="send-o" size={25} color={tintColor} />;
+        }
+      }
+    },
+    Receive: {
+      screen: ReceiveTab,
+      navigationOptions: {
+        tabBarIcon: ({ tintColor }) => {
+          return <IconFontAwesome name="qrcode" size={25} color={tintColor} />;
+        }
+      }
+    },
+    Transactions: {
+      screen: TransactionsTab,
+      navigationOptions: {
+        tabBarIcon: ({ tintColor }) => {
+          return <IconFontAwesome name="list" size={25} color={tintColor} />;
+        }
+      }
+    },
+    More: {
+      screen: MoreStack,
+      navigationOptions: {
+        tabBarIcon: ({ tintColor }) => {
+          return (
+            <IconMaterialIcons name="more-horiz" size={25} color={tintColor} />
+          );
+        }
+      }
+    }
+  },
+  {
+    tabBarOptions: {
+      activeTintColor: "#FFCE2B", //dandelion: yellow
+      style: styles.tab
+    }
+  }
+);
 
 const TabContainer = createAppContainer(Tabs);
 

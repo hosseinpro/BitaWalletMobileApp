@@ -36,7 +36,7 @@ export default class TransactionsTab extends Component {
 
   render() {
     return (
-      <Content contentContainerStyle={{ flex: 1 }}>
+      <Content contentContainerStyle={styles.container}>
         <Content
           contentContainerStyle={{
             flex: 1,
@@ -136,11 +136,10 @@ export default class TransactionsTab extends Component {
         <Button
           rounded
           block
-          primary
-          style={{ margin: 20 }}
+          style={styles.button}
           onPress={() => this.onPressRefresh()}
         >
-          <Text>Refresh</Text>
+          <Text style={styles.button}>Refresh</Text>
         </Button>
       </Content>
     );
