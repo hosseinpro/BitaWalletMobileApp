@@ -36,7 +36,10 @@ class App extends Component {
         <PasswordModal
           ref={passwordModal => (global.passwordModal = passwordModal)}
         />
-        <Header style={{ backgroundColor: Colors.secondary }}>
+        <Header
+          androidStatusBarColor={Colors.secondaryDark}
+          style={{ backgroundColor: Colors.secondary }}
+        >
           <Image
             source={require("./img/card.png")}
             style={{ width: 40, height: 40, marginTop: 5 }}

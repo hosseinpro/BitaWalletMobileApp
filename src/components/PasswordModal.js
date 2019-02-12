@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Modal } from "react-native";
-import { Content, Button, Text } from "native-base";
+import { Content, Button, Text, Header } from "native-base";
 import PinView from "react-native-pin-view";
 
 export default class PasswordModal extends Component {
@@ -23,14 +23,27 @@ export default class PasswordModal extends Component {
           Alert.alert("Modal has been closed.");
         }}
       >
+        <Header
+          androidStatusBarColor={Colors.primaryDark}
+          style={{ display: "none" }}
+        />
         <Content
           contentContainerStyle={{
-            backgroundColor: Colors.primary,
             flex: 1,
+            backgroundColor: Colors.primary,
+            // marginTop: 20,
             alignContent: "center",
             justifyContent: "center"
           }}
         >
+          {/* <Content
+            contentContainerStyle={{
+              flex: 1,
+              marginTop: 20,
+              alignContent: "center",
+              justifyContent: "center"
+            }}
+          > */}
           <Text
             style={{
               fontSize: 25,
@@ -64,6 +77,7 @@ export default class PasswordModal extends Component {
               Cancel
             </Text>
           </Button>
+          {/* </Content> */}
         </Content>
       </Modal>
     );

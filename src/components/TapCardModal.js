@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Modal, Image } from "react-native";
-import { Content, Text, Button } from "native-base";
+import { Content, Text, Button, Header } from "native-base";
 import { connect } from "react-redux";
 import redux from "../redux/redux";
 
@@ -44,12 +44,20 @@ class TabCardModal extends Component {
           Alert.alert("Modal has been closed.");
         }}
       >
+        <Header
+          androidStatusBarColor={Colors.primaryDark}
+          style={{ display: "none" }}
+        />
         <Content
-          contentContainerStyle={{ flex: 1, backgroundColor: Colors.primary }}
+          contentContainerStyle={{
+            flex: 1,
+            backgroundColor: Colors.primary
+          }}
         >
           <Content
             contentContainerStyle={{
               flex: 1,
+              marginTop: 20,
               alignItems: "center"
             }}
           >
