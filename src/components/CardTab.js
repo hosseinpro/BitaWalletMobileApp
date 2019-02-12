@@ -5,7 +5,6 @@ import { connect } from "react-redux";
 import redux from "../redux/redux";
 import NfcReader from "../lib/NfcReader";
 import AlertBox from "./AlertBox";
-import styles from "../styles";
 
 class CardTab extends Component {
   componentDidMount() {
@@ -72,34 +71,34 @@ class CardTab extends Component {
 
   render() {
     return (
-      <Content contentContainerStyle={styles.container}>
+      <Content contentContainerStyle={{ flex: 1 }}>
         <Content
           contentContainerStyle={{
             flex: 1,
-            alignItems: "center",
-            marginLeft: 20,
-            marginRight: 20
+            alignItems: "center"
           }}
         >
-          <Text style={{ fontSize: 16 }}>
+          <Text style={{ fontSize: 16, color: Colors.text }}>
             {this.props.cardInfo.serialNumber}
           </Text>
-          <Text style={{ fontSize: 20, fontWeight: "bold" }}>
+          <Text
+            style={{ fontSize: 20, fontWeight: "bold", color: Colors.text }}
+          >
             {this.props.cardInfo.label}
           </Text>
           <Image
             source={require("../img/card.png")}
             style={{ width: 350, height: 230 }}
           />
-          <Text style={{ fontSize: 20 }}>{2.5} BTC</Text>
+          <Text style={{ fontSize: 20, color: Colors.text }}>{2.5} BTC</Text>
         </Content>
         <Button
           rounded
           block
-          style={styles.button}
+          style={{ backgroundColor: Colors.secondary, margin: 20 }}
           onPress={() => this.onPressDisconnect()}
         >
-          <Text style={styles.button}>Disconnect</Text>
+          <Text style={{ color: Colors.text }}>Disconnect</Text>
         </Button>
       </Content>
     );

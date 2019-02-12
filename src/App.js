@@ -10,7 +10,7 @@ import {
 } from "react-navigation";
 import { connect } from "react-redux";
 import redux from "./redux/redux";
-import styles from "./styles";
+import Colors from "./Colors";
 import CardTab from "./components/CardTab";
 import SendTab from "./components/SendTab";
 import ReceiveTab from "./components/ReceiveTab";
@@ -36,14 +36,16 @@ class App extends Component {
         <PasswordModal
           ref={passwordModal => (global.passwordModal = passwordModal)}
         />
-        <Header style={styles.header}>
+        <Header style={{ backgroundColor: Colors.secondary }}>
           <Image
             source={require("./img/card.png")}
             style={{ width: 40, height: 40, marginTop: 5 }}
           />
           <Body style={{ marginLeft: 15 }}>
-            <Title style={styles.header}>{this.props.cardInfo.label}</Title>
-            <Subtitle style={styles.header}>
+            <Title style={{ color: Colors.text }}>
+              {this.props.cardInfo.label}
+            </Title>
+            <Subtitle style={{ color: Colors.text }}>
               {this.props.cardInfo.serialNumber}
             </Subtitle>
           </Body>
@@ -72,13 +74,14 @@ const MoreStack = createStackNavigator(
       screen: BackupCardStack,
       navigationOptions: { title: "Backup Card" }
     }
-  },
-  {
-    defaultNavigationOptions: {
-      headerStyle: styles.stack,
-      headerTitleStyle: styles.stack
-    }
   }
+  // {
+  //   defaultNavigationOptions: {
+  //     headerStyle: { backgroundColor: Colors.primary },
+  //     headerTitleStyle: { color: Colors.secondary },
+  //     headerTintColor: Colors.secondary
+  //   }
+  // }
 );
 
 const Tabs = createBottomTabNavigator(
@@ -130,8 +133,8 @@ const Tabs = createBottomTabNavigator(
   },
   {
     tabBarOptions: {
-      activeTintColor: "#FFCE2B", //dandelion: yellow
-      style: styles.tab
+      activeTintColor: Colors.secondary,
+      style: { backgroundColor: Colors.primary }
     }
   }
 );

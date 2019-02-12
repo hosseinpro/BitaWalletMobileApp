@@ -123,7 +123,7 @@ class SendTab extends Component {
 
   render() {
     return (
-      <Content contentContainerStyle={styles.container}>
+      <Content contentContainerStyle={{ flex: 1 }}>
         <Content
           contentContainerStyle={{
             flex: 1,
@@ -192,10 +192,10 @@ class SendTab extends Component {
         <Button
           rounded
           block
-          style={styles.button}
+          style={{ backgroundColor: Colors.secondary, margin: 20 }}
           onPress={() => this.onPressSend()}
         >
-          <Text style={styles.button}>Send</Text>
+          <Text style={{ color: Colors.text }}>Send</Text>
         </Button>
       </Content>
     );

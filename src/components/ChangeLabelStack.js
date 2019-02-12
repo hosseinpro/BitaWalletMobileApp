@@ -45,7 +45,7 @@ class ChangeLabelStack extends Component {
 
   render() {
     return (
-      <Content contentContainerStyle={styles.container}>
+      <Content contentContainerStyle={{ flex: 1 }}>
         <Content
           contentContainerStyle={{
             flex: 1,
@@ -72,10 +72,10 @@ class ChangeLabelStack extends Component {
         <Button
           rounded
           block
-          style={styles.button}
+          style={{ backgroundColor: Colors.secondary, margin: 20 }}
           onPress={() => this.onPressChange()}
         >
-          <Text style={styles.button}>Change</Text>
+          <Text style={{ color: Colors.text }}>Change</Text>
         </Button>
       </Content>
     );

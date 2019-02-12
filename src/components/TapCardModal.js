@@ -3,7 +3,6 @@ import { Modal, Image } from "react-native";
 import { Content, Text, Button } from "native-base";
 import { connect } from "react-redux";
 import redux from "../redux/redux";
-import styles from "../styles";
 
 class TabCardModal extends Component {
   state = {
@@ -45,7 +44,9 @@ class TabCardModal extends Component {
           Alert.alert("Modal has been closed.");
         }}
       >
-        <Content contentContainerStyle={styles.container}>
+        <Content
+          contentContainerStyle={{ flex: 1, backgroundColor: Colors.primary }}
+        >
           <Content
             contentContainerStyle={{
               flex: 1,
@@ -56,20 +57,20 @@ class TabCardModal extends Component {
               source={require("../img/card.png")}
               style={{ width: 350, height: 230 }}
             />
-            <Text style={{ fontSize: 30 }}>
+            <Text style={{ fontSize: 30, color: Colors.primaryText }}>
               {this.state.message !== null
                 ? this.state.message
                 : "tap your card"}
             </Text>
-            <Text style={{ fontSize: 20 }}>
+            <Text style={{ fontSize: 20, color: Colors.primaryText }}>
               {this.state.cardInfo !== null ? this.state.cardInfo.label : ""}
             </Text>
-            <Text style={{ fontSize: 16 }}>
+            <Text style={{ fontSize: 16, color: Colors.primaryText }}>
               {this.state.cardInfo !== null
                 ? this.state.cardInfo.serialNumber
                 : ""}
             </Text>
-            <Text style={{ fontSize: 20, color: "red" }}>
+            <Text style={{ fontSize: 20, color: Colors.secondary }}>
               {this.state.error ? "tap correct card" : ""}
             </Text>
           </Content>
@@ -77,21 +78,21 @@ class TabCardModal extends Component {
             <Button
               rounded
               block
-              style={styles.button}
+              style={{ backgroundColor: Colors.secondary, margin: 20 }}
               onPress={() => this.setState({ visible: false })}
               // onPress={() => global.wipeModal.show()}
             >
-              <Text style={styles.button}>Wipe</Text>
+              <Text style={{ color: Colors.text }}>Wipe</Text>
             </Button>
           )}
           {!this.state.wipe && (
             <Button
               rounded
               block
-              style={styles.button}
+              style={{ backgroundColor: Colors.secondary, margin: 20 }}
               onPress={() => this.setState({ visible: false })}
             >
-              <Text style={styles.button}>Cancel</Text>
+              <Text style={{ color: Colors.text }}>Cancel</Text>
             </Button>
           )}
         </Content>

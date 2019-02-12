@@ -21,7 +21,7 @@ class ReceiveTab extends Component {
 
   render() {
     return (
-      <Content contentContainerStyle={styles.container}>
+      <Content contentContainerStyle={{ flex: 1 }}>
         <Content contentContainerStyle={{ marginLeft: 20, marginRight: 20 }}>
           <Picker
             mode="dialog"
@@ -45,20 +45,22 @@ class ReceiveTab extends Component {
               value={this.props.addressInfo[0].address}
               size={200}
               bgColor="black"
-              fgColor="#B2AFAC"
+              fgColor="white"
             />
           </Content>
-          <Text style={{ fontSize: 20, fontWeight: "bold" }}>
+          <Text
+            style={{ fontSize: 20, fontWeight: "bold", color: Colors.text }}
+          >
             {this.props.addressInfo[0].address}
           </Text>
         </Content>
         <Button
           rounded
           block
-          style={styles.button}
+          style={{ backgroundColor: Colors.secondary, margin: 20 }}
           onPress={() => this.onPressCopy()}
         >
-          <Text style={styles.button}>Copy</Text>
+          <Text style={{ color: Colors.text }}>Copy</Text>
         </Button>
       </Content>
     );
