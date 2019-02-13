@@ -1,3 +1,5 @@
+// Version: 1.1
+
 "use strict";
 
 module.exports = class BitaWalletCard {
@@ -24,8 +26,21 @@ module.exports = class BitaWalletCard {
         .then(res => {
           const responseAPDU = this.parseResponseAPDU(res);
           if (responseAPDU.sw === "9000") {
+            if (this.data === undefined) {
+              this.data = "";
+            }
+            responseAPDU.data = this.data + responseAPDU.data;
+            this.data = "";
             const result = responseFunction(responseAPDU);
             resolve(result);
+          } else if (responseAPDU.sw.substring(0, 2) === "61") {
+            const apduGetResponse = "00 BF 00 00 00";
+            this.data += responseAPDU.data;
+            this.transmit(apduGetResponse, responseFunction)
+              .then(res => resolve(res))
+              .catch(error => {
+                reject(error);
+              });
           } else {
             //reject({ sw: responseAPDU.sw });
             reject(responseAPDU.sw);
@@ -35,14 +50,6 @@ module.exports = class BitaWalletCard {
           reject(error);
         });
     });
-  }
-
-  static hex2Ascii(hex) {
-    hex = hex.toString();
-    let str = "";
-    for (var i = 0; i < hex.length && hex.substr(i, 2) !== "00"; i += 2)
-      str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
-    return str;
   }
 
   static ascii2hex(str) {
@@ -178,13 +185,38 @@ module.exports = class BitaWalletCard {
 
     return { fund, inputSection, signerKeyPaths };
   }
+
   ////End of Utils
 
   ////Begin of card functions
+
   selectApplet() {
-    const apduSelectApplect = "00 A4 04 00 06 FFBC00000001";
-    return this.transmit(apduSelectApplect, responseAPDU => {
+    const apduSelectApplet = "00 A4 04 00 06 FFBC00000001";
+    return this.transmit(apduSelectApplet, responseAPDU => {
       return { result: true };
+    });
+  }
+
+  requestWipe() {
+    const apduRequestWipe = "00 E1 00 00 00";
+    return this.transmit(apduRequestWipe, responseAPDU => {
+      return { result: true };
+    });
+  }
+
+  wipe(yesCode, newPIN, newLabel) {
+    const apduWipe = "00 E2 00 00 04" + BitaWalletCard.ascii2hex(yesCode);
+    return new Promise((resolve, reject) => {
+      this.transmit(apduWipe, responseAPDU => {
+        this.verifyPIN("1234")
+          .then(() => this.changePIN(newPIN))
+          .then(() => this.verifyPIN(newPIN))
+          .then(() => this.setLabel(newLabel))
+          .then(() => this.generateMasterSeed().then(resolve({ result: true })))
+          .catch(error => {
+            reject(error);
+          });
+      });
     });
   }
 
@@ -266,52 +298,12 @@ module.exports = class BitaWalletCard {
     });
   }
 
-  setPUK(cardPUK) {
-    //ISO/IEC 7816-4 2005 Section 7.5.7
-    //p1=31: it's PUK and just new puk is included
-    //P2=00: global PUK
-    const apduSetPUK = "00 24 31 00 08" + BitaWalletCard.ascii2hex(cardPUK);
-    return this.transmit(apduSetPUK, responseAPDU => {
-      return { result: true };
-    });
-  }
-
-  unblockPIN(cardPUK) {
-    //ISO/IEC 7816-4 2005 Section 7.5.10
-    //p1=01: new pin is not included
-    //P2=00: global PIN
-    const apduUnblockPIN = "00 2C 01 00 08" + BitaWalletCard.ascii2hex(cardPUK);
-    return this.transmit(apduUnblockPIN, responseAPDU => {
-      return { result: true };
-    });
-  }
-
   generateMasterSeed() {
     //ISO/IEC 7816-8 2004 Section 5.1
     //P1=84: key generation with no output
     //P2=01: reference to master seed
     const apduGenerateMS = "00 C0 BC 03";
     return this.transmit(apduGenerateMS, responseAPDU => {
-      return { result: true };
-    });
-  }
-
-  requestRemoveMasterSeed() {
-    //ISO/IEC 7816-8 2004 Section 5.1
-    //P1=C4: key remove with no output (non-standard)
-    //P2=01: reference to master seed
-    const apduRequestRemoveMS = "00 E1 BC 03";
-    return this.transmit(apduRequestRemoveMS, responseAPDU => {
-      return { result: true };
-    });
-  }
-
-  removeMasterSeed(yesCode) {
-    //ISO/IEC 7816-8 2004 Section 5.1
-    //P1=C4: key remove with no output (non-standard)
-    //P2=01: reference to master seed
-    const apduRemoveMS = "00 E2 BC 03 04" + BitaWalletCard.ascii2hex(yesCode);
-    return this.transmit(apduRemoveMS, responseAPDU => {
       return { result: true };
     });
   }
@@ -481,10 +473,17 @@ module.exports = class BitaWalletCard {
       inputSection +
       signerKeyPaths;
 
-    let payloadLength =
-      "00" + BitaWalletCard.padHex((payload.length / 2).toString(16), 4);
-    const apduGenerateSubWalletTx =
-      "00 C2 BC 06 " + payloadLength + payload + "0000";
+    if (payload.length / 2 <= 255) {
+      payloadLength = BitaWalletCard.padHex(
+        (payload.length / 2).toString(16),
+        2
+      );
+    } else {
+      //extended length
+      payloadLength =
+        "00" + BitaWalletCard.padHex((payload.length / 2).toString(16), 4);
+    }
+    const apduGenerateSubWalletTx = "00 C2 BC 06 " + payloadLength + payload; // + "0000";
     return this.transmit(apduGenerateSubWalletTx, responseAPDU => {
       const signedTx = responseAPDU.data;
       return { signedTx };
@@ -585,9 +584,18 @@ module.exports = class BitaWalletCard {
       inputSection +
       signerKeyPaths;
 
-    let payloadLength =
-      "00" + BitaWalletCard.padHex((payload.length / 2).toString(16), 4);
-    const apduSignTx = "00 32 00 01 " + payloadLength + payload + "0000";
+    let payloadLength;
+    if (payload.length / 2 <= 255) {
+      payloadLength = BitaWalletCard.padHex(
+        (payload.length / 2).toString(16),
+        2
+      );
+    } else {
+      //extended length
+      payloadLength =
+        "00" + BitaWalletCard.padHex((payload.length / 2).toString(16), 4);
+    }
+    const apduSignTx = "00 32 00 01 " + payloadLength + payload; // + "0000";
     return this.transmit(apduSignTx, responseAPDU => {
       const signedTx = responseAPDU.data;
       return { signedTx };

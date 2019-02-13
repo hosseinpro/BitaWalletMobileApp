@@ -47,7 +47,6 @@ export default class NfcReader {
       .then(() => eventFunction())
       .catch(err => {
         console.warn(err);
-        this.setState({ enabled: false });
       });
   };
 
@@ -60,26 +59,26 @@ export default class NfcReader {
       let cardInfo = {};
       this.bitaWalletCard
         .selectApplet()
-        .then(
-          this.bitaWalletCard
-            .getSerialNumber()
-            .then(res => (cardInfo.serialNumber = res.serialNumber))
-            .then(
-              this.bitaWalletCard
-                .getVersion()
-                .then(res => {
-                  cardInfo.type = res.type;
-                  cardInfo.version = res.version;
-                })
-                .then(
-                  this.bitaWalletCard
-                    .getLabel()
-                    .then(res => (cardInfo.label = res.label))
-                    .then(() => (this.cardInfo = cardInfo))
-                    .then(() => resolve(cardInfo))
-                )
-            )
-        )
+        // .then(
+        //   this.bitaWalletCard
+        //     .getSerialNumber()
+        //     .then(res => (cardInfo.serialNumber = res.serialNumber))
+        //     .then(
+        //       this.bitaWalletCard
+        //         .getVersion()
+        //         .then(res => {
+        //           cardInfo.type = res.type;
+        //           cardInfo.version = res.version;
+        //         })
+        //         .then(
+        //           this.bitaWalletCard
+        //             .getLabel()
+        //             .then(res => (cardInfo.label = res.label))
+        //             .then(() => (this.cardInfo = cardInfo))
+        //             .then(() => resolve(cardInfo))
+        //         )
+        //     )
+        // )
         .catch(error => {
           reject(error);
         });
