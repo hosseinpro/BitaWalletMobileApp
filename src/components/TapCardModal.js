@@ -20,18 +20,57 @@ class TabCardModal extends Component {
   }
 
   cardDetected() {
-    if (
-      this.state.cardInfo !== null &&
-      this.state.cardInfo.serialNumber !==
-        this.props.nfcReader.cardInfo.serialNumber
-    ) {
-      this.setState({ error: true });
-      this.props.nfcReader.cardDetection(this.cardDetected.bind(this));
-      return;
-    }
+    this.getCardInfo()
+      .then(cardInfo => {
+        if (
+          this.state.cardInfo !== null &&
+          this.state.cardInfo.serialNumber !==
+            // this.props.nfcReader.cardInfo.serialNumber
+            cardInfo.serialNumber
+        ) {
+          this.setState({ error: true });
+          this.props.nfcReader.cardDetection(this.cardDetected.bind(this));
+          return;
+        }
 
-    this.state.onComplete(this.props.nfcReader.cardInfo);
-    this.setState({ visible: false });
+        // this.state.onComplete(this.props.nfcReader.cardInfo);
+        this.state.onComplete(cardInfo);
+        this.setState({ visible: false });
+      })
+      .catch(error => {
+        this.props.nfcReader.cardDetection(this.cardDetected.bind(this));
+      });
+  }
+
+  getCardInfo() {
+    return new Promise((resolve, reject) => {
+      let cardInfo = {};
+      this.props.nfcReader.bitaWalletCard
+        .selectApplet()
+        .then(() =>
+          this.props.nfcReader.bitaWalletCard
+            .getSerialNumber()
+            .then(res => (cardInfo.serialNumber = res.serialNumber))
+            .then(() =>
+              this.props.nfcReader.bitaWalletCard
+                .getVersion()
+                .then(res => {
+                  cardInfo.type = res.type;
+                  cardInfo.version = res.version;
+                })
+                .then(() =>
+                  this.props.nfcReader.bitaWalletCard
+                    .getLabel()
+                    .then(res => (cardInfo.label = res.label))
+                    .then(() => (this.cardInfo = cardInfo))
+                    .then(() => resolve(cardInfo))
+                )
+            )
+        )
+        .catch(error => {
+          reject(error);
+        });
+    });
   }
 
   render() {

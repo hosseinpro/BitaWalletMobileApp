@@ -52,6 +52,14 @@ module.exports = class BitaWalletCard {
     });
   }
 
+  static hex2Ascii(hex) {
+    hex = hex.toString();
+    let str = "";
+    for (var i = 0; i < hex.length && hex.substr(i, 2) !== "00"; i += 2)
+      str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
+    return str;
+  }
+
   static ascii2hex(str) {
     var arr1 = [];
     for (var n = 0, l = str.length; n < l; n++) {

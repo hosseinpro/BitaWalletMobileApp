@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Image } from "react-native";
+import { Image, NativeModules } from "react-native";
 import { Content, Text, Button } from "native-base";
 import { connect } from "react-redux";
 import redux from "../redux/redux";
@@ -9,13 +9,10 @@ import AlertBox from "./AlertBox";
 class CardTab extends Component {
   componentDidMount() {
     const nfcReader = new NfcReader();
-    nfcReader.isSupported().then(supported => {
-      if (supported) {
-        this.props.setNfcReader(nfcReader);
-        this.startCardDetect();
-      }
-    });
-    // setTimeout(this.startCardDetect.bind(this), 100);
+    this.props.setNfcReader(nfcReader);
+    setTimeout(() => {
+      this.startCardDetect();
+    }, 500);
   }
 
   startCardDetect() {
@@ -24,6 +21,7 @@ class CardTab extends Component {
   }
 
   cardDetected(cardInfo) {
+    this.setState({ cardInfo });
     global.passwordModal.show(
       "Enter Card Passcode",
       this.pinEntered.bind(this)
@@ -34,7 +32,8 @@ class CardTab extends Component {
     this.props.nfcReader.bitaWalletCard
       .verifyPIN(pin)
       .then(() => {
-        this.props.setCardInfo(this.props.nfcReader.cardInfo);
+        // this.props.setCardInfo(this.props.nfcReader.cardInfo);
+        this.props.setCardInfo(this.state.cardInfo);
         this.props.setCardPin(pin);
         this.fillAddressInfo();
       })
@@ -45,7 +44,6 @@ class CardTab extends Component {
           this.cardDetected.bind(this)
         );
       });
-    // .finally(() => this.props.nfcReader.disconnectCard());
   }
 
   fillAddressInfo() {
