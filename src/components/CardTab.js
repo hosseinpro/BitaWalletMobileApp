@@ -24,7 +24,8 @@ class CardTab extends Component {
     this.setState({ cardInfo });
     global.passwordModal.show(
       "Enter Card Passcode",
-      this.pinEntered.bind(this)
+      this.pinEntered.bind(this),
+      this.startCardDetect.bind(this)
     );
   }
 
@@ -37,12 +38,16 @@ class CardTab extends Component {
         this.props.setCardPin(pin);
         this.fillAddressInfo();
       })
-      .catch(leftTries => {
-        AlertBox.info(
-          "Incorrect Password",
-          "You have " + leftTries + " tries left.",
-          this.cardDetected.bind(this)
-        );
+      .catch(res => {
+        if (res.leftTries !== undefined) {
+          AlertBox.info(
+            "Incorrect Password",
+            res.leftTries + " tries left.",
+            this.startCardDetect.bind(this)
+          );
+        } else {
+          this.startCardDetect();
+        }
       });
   }
 

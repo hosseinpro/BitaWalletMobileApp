@@ -287,9 +287,9 @@ module.exports = class BitaWalletCard {
       }).catch(sw => {
         if (sw.substring(0, 3) === "63C") {
           const leftTries = parseInt(sw.substring(3), 16);
-          reject(leftTries);
+          reject({ leftTries });
         } else {
-          reject(sw);
+          reject({ error: sw });
         }
       });
     });

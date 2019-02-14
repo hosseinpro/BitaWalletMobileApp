@@ -6,11 +6,12 @@ import PinView from "react-native-pin-view";
 export default class PasswordModal extends Component {
   state = {
     visible: false,
-    onComplete: null
+    onComplete: null,
+    onCancel: null
   };
 
-  show(message, onComplete) {
-    this.setState({ visible: true, message, onComplete });
+  show(message, onComplete, onCancel) {
+    this.setState({ visible: true, message, onComplete, onCancel });
   }
 
   render() {
@@ -31,19 +32,10 @@ export default class PasswordModal extends Component {
           contentContainerStyle={{
             flex: 1,
             backgroundColor: Colors.primary,
-            // marginTop: 20,
             alignContent: "center",
             justifyContent: "center"
           }}
         >
-          {/* <Content
-            contentContainerStyle={{
-              flex: 1,
-              marginTop: 20,
-              alignContent: "center",
-              justifyContent: "center"
-            }}
-          > */}
           <Text
             style={{
               fontSize: 25,
@@ -71,13 +63,15 @@ export default class PasswordModal extends Component {
               alignSelf: "flex-end",
               marginRight: 60
             }}
-            onPress={() => this.setState({ visible: false })}
+            onPress={() => {
+              this.state.onCancel();
+              this.setState({ visible: false });
+            }}
           >
             <Text style={{ fontSize: 16, color: Colors.secondary }}>
               Cancel
             </Text>
           </Button>
-          {/* </Content> */}
         </Content>
       </Modal>
     );
