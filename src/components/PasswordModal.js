@@ -10,7 +10,7 @@ export default class PasswordModal extends Component {
     onCancel: null
   };
 
-  show(message, onComplete, onCancel) {
+  show(message, onComplete, onCancel = null) {
     this.setState({ visible: true, message, onComplete, onCancel });
   }
 
@@ -49,8 +49,8 @@ export default class PasswordModal extends Component {
           <PinView
             onComplete={(password, clear) => {
               clear();
-              this.state.onComplete(password);
               this.setState({ visible: false });
+              this.state.onComplete(password);
             }}
             pinLength={4}
             delayBeforeOnComplete={0}
@@ -64,8 +64,8 @@ export default class PasswordModal extends Component {
               marginRight: 60
             }}
             onPress={() => {
-              this.state.onCancel();
               this.setState({ visible: false });
+              if (this.state.onCancel !== null) this.state.onCancel();
             }}
           >
             <Text style={{ fontSize: 16, color: Colors.secondary }}>

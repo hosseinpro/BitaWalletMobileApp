@@ -1,4 +1,4 @@
-// Version: 1.1
+// Version: 1.2
 
 "use strict";
 
@@ -224,6 +224,8 @@ module.exports = class BitaWalletCard {
           .catch(error => {
             reject(error);
           });
+      }).catch(error => {
+        reject(error);
       });
     });
   }

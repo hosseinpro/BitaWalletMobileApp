@@ -9,13 +9,25 @@ class TabCardModal extends Component {
     visible: false,
     message: null,
     cardInfo: null,
-    wipe: false,
+    showWipe: false,
     onComplete: null,
+    onWipe: null,
     error: false
   };
 
-  show(message, cardInfo, wipe, onComplete) {
-    this.setState({ visible: true, message, cardInfo, wipe, onComplete });
+  show(message, cardInfo, onComplete, onWipe = null) {
+    let showWipe = false;
+    if (onWipe !== null) {
+      showWipe = true;
+    }
+    this.setState({
+      visible: true,
+      showWipe,
+      message,
+      cardInfo,
+      onComplete,
+      onWipe
+    });
     this.props.nfcReader.cardDetection(this.cardDetected.bind(this));
   }
 
@@ -34,8 +46,8 @@ class TabCardModal extends Component {
         }
 
         // this.state.onComplete(this.props.nfcReader.cardInfo);
-        this.state.onComplete(cardInfo);
         this.setState({ visible: false });
+        this.state.onComplete(cardInfo);
       })
       .catch(error => {
         this.props.nfcReader.cardDetection(this.cardDetected.bind(this));
@@ -121,18 +133,20 @@ class TabCardModal extends Component {
               {this.state.error ? "tap correct card" : ""}
             </Text>
           </Content>
-          {this.state.wipe && (
+          {this.state.showWipe && (
             <Button
               rounded
               block
               style={{ backgroundColor: Colors.secondary, margin: 20 }}
-              onPress={() => this.setState({ visible: false })}
-              // onPress={() => global.wipeModal.show()}
+              onPress={() => {
+                this.setState({ visible: false });
+                this.state.onWipe();
+              }}
             >
               <Text style={{ color: Colors.text }}>Wipe</Text>
             </Button>
           )}
-          {!this.state.wipe && (
+          {!this.state.showWipe && (
             <Button
               rounded
               block

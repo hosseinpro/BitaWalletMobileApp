@@ -17,7 +17,19 @@ class CardTab extends Component {
 
   startCardDetect() {
     this.props.unsetCardInfo();
-    global.tapCardModal.show(null, null, true, this.cardDetected.bind(this));
+    global.tapCardModal.show(
+      null,
+      null,
+      this.cardDetected.bind(this),
+      this.onWipe.bind(this)
+    );
+  }
+
+  onWipe() {
+    global.wipeModal.show(
+      this.startCardDetect.bind(this),
+      this.startCardDetect.bind(this)
+    );
   }
 
   cardDetected(cardInfo) {
