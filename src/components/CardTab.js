@@ -1,18 +1,20 @@
 import React, { Component } from "react";
-import { Image, NativeModules } from "react-native";
+import { Image } from "react-native";
 import { Content, Text, Button } from "native-base";
 import { connect } from "react-redux";
 import redux from "../redux/redux";
 import NfcReader from "../lib/NfcReader";
+import BitaWalletCard from "../lib/BitaWalletCard";
 import AlertBox from "./AlertBox";
 
 class CardTab extends Component {
   componentDidMount() {
-    const nfcReader = new NfcReader();
-    this.props.setNfcReader(nfcReader);
-    setTimeout(() => {
-      this.startCardDetect();
-    }, 500);
+    global.nfcReader = new NfcReader();
+    global.bitaWalletCard = new BitaWalletCard(
+      global.nfcReader.transmit.bind(this)
+    );
+
+    this.startCardDetect();
   }
 
   startCardDetect() {
@@ -42,7 +44,7 @@ class CardTab extends Component {
   }
 
   pinEntered(pin) {
-    this.props.nfcReader.bitaWalletCard
+    global.bitaWalletCard
       .verifyPIN(pin)
       .then(() => {
         // this.props.setCardInfo(this.props.nfcReader.cardInfo);
@@ -64,20 +66,18 @@ class CardTab extends Component {
   }
 
   fillAddressInfo() {
-    this.props.nfcReader.bitaWalletCard
-      .getAddressList("6D2C0000000000", 1)
-      .then(res => {
-        let addressInfo = res.addressInfo;
-        addressInfo[0].txs = [];
-        let tx = {};
-        tx.txHash =
-          "a896270a198aa2146cdec81d18bc1fd358d4355f8d21be8e5335fae22c09244e";
-        tx.utxo = "0";
-        tx.value = "100000000";
-        addressInfo[0].txs[0] = tx;
-        this.props.setAddressInfo(addressInfo);
-        this.props.setChangeKey("6D2C0100010000");
-      });
+    global.bitaWalletCard.getAddressList("6D2C0000000000", 1).then(res => {
+      let addressInfo = res.addressInfo;
+      addressInfo[0].txs = [];
+      let tx = {};
+      tx.txHash =
+        "a896270a198aa2146cdec81d18bc1fd358d4355f8d21be8e5335fae22c09244e";
+      tx.utxo = "0";
+      tx.value = "100000000";
+      addressInfo[0].txs[0] = tx;
+      this.props.setAddressInfo(addressInfo);
+      this.props.setChangeKey("6D2C0100010000");
+    });
   }
 
   onPressDisconnect() {
@@ -122,14 +122,12 @@ class CardTab extends Component {
 
 const mapStateToProps = state => {
   return {
-    nfcReader: state.nfcReader,
     cardInfo: state.cardInfo
   };
 };
 
 const mapDispatchToProps = dispatch => {
   return {
-    setNfcReader: nfcReader => dispatch(redux.setNfcReader(nfcReader)),
     setCardInfo: cardInfo => dispatch(redux.setCardInfo(cardInfo)),
     unsetCardInfo: () => dispatch(redux.unsetCardInfo()),
     setCardPin: pin => dispatch(redux.setCardPin(pin)),

@@ -1,6 +1,5 @@
 import { createStore } from "redux";
 
-const SET_NFC_READER = "SET_NFC_READER";
 const SET_CARD_INFO = "SET_CARD_INFO";
 const UNSET_CARD_INFO = "UNSET_CARD_INFO";
 const SET_CARD_PIN = "SET_CARD_PIN";
@@ -8,7 +7,6 @@ const SET_ADDRESS_INFO = "SET_ADDRESS_INFO";
 const SET_CHANGE_KEY = "SET_CHANGE_KEY";
 
 const initialState = {
-  nfcReader: null,
   cardInfo: {
     serialNumber: "0000000000000000",
     type: "X",
@@ -23,10 +21,6 @@ const initialState = {
   ],
   changeKey: null
 };
-
-function setNfcReader(nfcReader) {
-  return { type: SET_NFC_READER, nfcReader };
-}
 
 function setCardInfo(cardInfo) {
   return { type: SET_CARD_INFO, cardInfo };
@@ -50,11 +44,6 @@ function setChangeKey(changeKey) {
 
 function rootReducer(state = initialState, action) {
   switch (action.type) {
-    case SET_NFC_READER:
-      return {
-        ...state,
-        nfcReader: action.nfcReader
-      };
     case SET_CARD_INFO:
       return {
         ...state,
@@ -89,7 +78,6 @@ const store = createStore(rootReducer);
 
 export default {
   store,
-  setNfcReader,
   setCardInfo,
   unsetCardInfo,
   setCardPin,

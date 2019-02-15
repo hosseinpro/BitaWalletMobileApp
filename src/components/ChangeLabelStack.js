@@ -22,19 +22,17 @@ class ChangeLabelStack extends Component {
   }
 
   changeLabel(cardInfo) {
-    this.props.nfcReader.bitaWalletCard
+    global.bitaWalletCard
       .verifyPIN(this.props.pin)
       .then(() => {
-        this.props.nfcReader.bitaWalletCard
-          .setLabel(this.state.newLabel)
-          .then(() => {
-            const cardInfo = {
-              ...this.props.cardInfo,
-              label: this.state.newLabel
-            };
-            this.props.setCardInfo(cardInfo);
-            AlertBox.info("Label", "Label is changed.");
-          });
+        global.bitaWalletCard.setLabel(this.state.newLabel).then(() => {
+          const cardInfo = {
+            ...this.props.cardInfo,
+            label: this.state.newLabel
+          };
+          this.props.setCardInfo(cardInfo);
+          AlertBox.info("Label", "Label is changed.");
+        });
       })
       .catch(error => {
         AlertBox.info("Error", "Something is wrong.");
@@ -83,7 +81,6 @@ class ChangeLabelStack extends Component {
 
 const mapStateToProps = state => {
   return {
-    nfcReader: state.nfcReader,
     cardInfo: state.cardInfo,
     pin: state.pin
   };

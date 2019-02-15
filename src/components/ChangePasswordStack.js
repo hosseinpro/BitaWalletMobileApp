@@ -25,15 +25,13 @@ class ChangePasswordStack extends Component {
   }
 
   changePassword() {
-    this.props.nfcReader.bitaWalletCard
+    global.bitaWalletCard
       .verifyPIN(this.props.pin)
       .then(() => {
-        this.props.nfcReader.bitaWalletCard
-          .changePIN(this.state.newPin)
-          .then(() => {
-            this.props.setCardPin(this.state.newPin);
-            AlertBox.info("Password", "Password is changed.");
-          });
+        global.bitaWalletCard.changePIN(this.state.newPin).then(() => {
+          this.props.setCardPin(this.state.newPin);
+          AlertBox.info("Password", "Password is changed.");
+        });
       })
       .catch(error => {
         AlertBox.info("Error", "Something is wrong.");
@@ -88,7 +86,6 @@ class ChangePasswordStack extends Component {
 
 const mapStateToProps = state => {
   return {
-    nfcReader: state.nfcReader,
     cardInfo: state.cardInfo,
     pin: state.pin
   };

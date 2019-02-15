@@ -10,11 +10,9 @@ import {
   Form,
   Label
 } from "native-base";
-import { connect } from "react-redux";
-import redux from "../redux/redux";
 import AlertBox from "./AlertBox";
 
-class WipeModal extends Component {
+export default class WipeModal extends Component {
   state = {
     visible: false,
     newPin: "",
@@ -43,7 +41,7 @@ class WipeModal extends Component {
 
   cardDetected(cardInfo) {
     this.setState({ cardInfo });
-    this.props.nfcReader.bitaWalletCard
+    global.bitaWalletCard
       .requestWipe()
       .then(() => {
         global.passwordModal.show(
@@ -57,7 +55,7 @@ class WipeModal extends Component {
   }
 
   yescodeEntered(yescode) {
-    this.props.nfcReader.bitaWalletCard
+    global.bitaWalletCard
       .wipe(yescode, this.state.newPin, this.state.newLabel)
       .then(() => {
         AlertBox.info("Wipe", "Card is wiped.", () => {
@@ -164,16 +162,3 @@ class WipeModal extends Component {
     );
   }
 }
-
-const mapStateToProps = state => {
-  return {
-    nfcReader: state.nfcReader
-  };
-};
-
-export default connect(
-  mapStateToProps,
-  null,
-  null,
-  { forwardRef: true }
-)(WipeModal);

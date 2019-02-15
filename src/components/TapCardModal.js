@@ -1,10 +1,8 @@
 import React, { Component } from "react";
 import { Modal, Image } from "react-native";
 import { Content, Text, Button, Header } from "native-base";
-import { connect } from "react-redux";
-import redux from "../redux/redux";
 
-class TabCardModal extends Component {
+export default class TabCardModal extends Component {
   state = {
     visible: false,
     message: null,
@@ -28,7 +26,7 @@ class TabCardModal extends Component {
       onComplete,
       onWipe
     });
-    this.props.nfcReader.cardDetection(this.cardDetected.bind(this));
+    global.nfcReader.cardDetection(this.cardDetected.bind(this));
   }
 
   cardDetected() {
@@ -36,42 +34,39 @@ class TabCardModal extends Component {
       .then(cardInfo => {
         if (
           this.state.cardInfo !== null &&
-          this.state.cardInfo.serialNumber !==
-            // this.props.nfcReader.cardInfo.serialNumber
-            cardInfo.serialNumber
+          this.state.cardInfo.serialNumber !== cardInfo.serialNumber
         ) {
           this.setState({ error: true });
-          this.props.nfcReader.cardDetection(this.cardDetected.bind(this));
+          global.nfcReader.cardDetection(this.cardDetected.bind(this));
           return;
         }
 
-        // this.state.onComplete(this.props.nfcReader.cardInfo);
         this.setState({ visible: false });
         this.state.onComplete(cardInfo);
       })
       .catch(error => {
-        this.props.nfcReader.cardDetection(this.cardDetected.bind(this));
+        global.nfcReader.cardDetection(this.cardDetected.bind(this));
       });
   }
 
   getCardInfo() {
     return new Promise((resolve, reject) => {
       let cardInfo = {};
-      this.props.nfcReader.bitaWalletCard
+      global.bitaWalletCard
         .selectApplet()
         .then(() =>
-          this.props.nfcReader.bitaWalletCard
+          global.bitaWalletCard
             .getSerialNumber()
             .then(res => (cardInfo.serialNumber = res.serialNumber))
             .then(() =>
-              this.props.nfcReader.bitaWalletCard
+              global.bitaWalletCard
                 .getVersion()
                 .then(res => {
                   cardInfo.type = res.type;
                   cardInfo.version = res.version;
                 })
                 .then(() =>
-                  this.props.nfcReader.bitaWalletCard
+                  global.bitaWalletCard
                     .getLabel()
                     .then(res => (cardInfo.label = res.label))
                     .then(() => (this.cardInfo = cardInfo))
@@ -161,16 +156,3 @@ class TabCardModal extends Component {
     );
   }
 }
-
-const mapStateToProps = state => {
-  return {
-    nfcReader: state.nfcReader
-  };
-};
-
-export default connect(
-  mapStateToProps,
-  null,
-  null,
-  { forwardRef: true }
-)(TabCardModal);
