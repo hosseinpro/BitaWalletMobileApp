@@ -16,7 +16,6 @@ class ChangeLabelStack extends Component {
       global.tapCardModal.show(
         null,
         this.props.cardInfo,
-        false,
         this.changeLabel.bind(this)
       );
     }

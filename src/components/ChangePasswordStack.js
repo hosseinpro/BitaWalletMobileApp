@@ -19,7 +19,6 @@ class ChangePasswordStack extends Component {
       global.tapCardModal.show(
         null,
         this.props.cardInfo,
-        false,
         this.changePassword.bind(this)
       );
     }
