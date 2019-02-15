@@ -41,26 +41,6 @@ class SendTab extends Component {
   }
 
   onPressSend() {
-    // tglobal.bitaWalletCard
-    //   .transmit(
-    //     // "0031000129000000000000157c00000000000001f4005f6b5994fbb9fe397235b6517bb6a2c23050f68faf23925e",
-    //     "0031000129000000000000157C00000000000001F46FA98AA1ED2089EED4D22A9DE6C4D2994FE323A14A7B3A1862",
-    //     res => {
-    //       global.bitaWalletCard.transmit(
-    //         // "0032000100005d313233340000000005f5e1006D2C0100010000014e24092ce2fa35538ebe218d5f35d458d31fbc181dc8de6c14a28a190a2796a8000000001976a9145f6b5994fbb9fe397235b6517bb6a2c23050f68f88acFFFFFFFF6D2C00000000000000",
-    //         "0032000100005D313233340000000005F5E1006D2C0100010000014E24092CE2FA35538EBE218D5F35D458D31FBC181DC8DE6C14A28A190A2796A8000000001976A9145F6B5994FBB9FE397235B6517BB6A2C23050F68F88ACFFFFFFFF6D2C00000000000000",
-    //         res => {
-    //           console.log("Hi");
-    //         }
-    //       );
-    //     }
-    //   )
-    //   .catch(error => {
-    //     AlertBox.info("Error", "Something is wrong.");
-    //   });
-
-    // return;
-
     if (this.state.amount === "") {
       AlertBox.info("Send", "Please enter an amount");
     } else if (this.state.to === "") {
@@ -69,7 +49,6 @@ class SendTab extends Component {
       global.tapCardModal.show(
         null,
         this.props.cardInfo,
-        false,
         this.requestSend.bind(this)
       );
     }
@@ -100,25 +79,29 @@ class SendTab extends Component {
   }
 
   confirmSend(yescode) {
-    this.reset();
-    AlertBox.info(
-      "Send",
-      this.state.amount + " BTC" + " is sent to \n" + this.state.to
-    );
-    // global.bitaWalletCard
-    //   .signTx(
-    //     yescode,
-    //     this.state.inputSection.fund,
-    //     this.props.changeKey,
-    //     this.state.inputSection.inputSection,
-    //     this.state.inputSection.signerKeyPaths
-    //   )
-    //   .then(res => {
-    //     console.log("signedTx : " + res.signedTx);
-    //   })
-    //   .catch(error => {
-    //     AlertBox.info("Error", "Something is wrong.");
-    //   });
+    global.bitaWalletCard
+      .signTx(
+        yescode,
+        this.state.inputSection.fund,
+        this.props.changeKey,
+        this.state.inputSection.inputSection,
+        this.state.inputSection.signerKeyPaths
+      )
+      .then(res => {
+        console.log("signedTx : " + res.signedTx);
+
+        // pushTX
+
+        AlertBox.info(
+          "Send",
+          this.state.amount + " BTC" + " is sent to \n" + this.state.to
+        );
+
+        this.reset();
+      })
+      .catch(error => {
+        AlertBox.info("Error", "Something is wrong.");
+      });
   }
 
   render() {

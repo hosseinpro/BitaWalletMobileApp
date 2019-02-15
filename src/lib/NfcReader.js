@@ -1,7 +1,6 @@
 "use strict";
 
 import { NativeModules } from "react-native";
-import BitaWalletCard from "./BitaWalletCard";
 
 export default class NfcReader {
   transmit(commandAPDU) {
