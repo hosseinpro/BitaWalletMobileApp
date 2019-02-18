@@ -9,11 +9,13 @@ export default class TabCardModal extends Component {
     cardInfo: null,
     showWipe: false,
     onComplete: null,
+    onCancel: null,
     onWipe: null,
     error: false
   };
 
-  show(message, cardInfo, onComplete, onWipe = null) {
+  // onCancel or onWipe should be not null logically
+  show(message, cardInfo, onComplete, onCancel = null, onWipe = null) {
     let showWipe = false;
     if (onWipe !== null) {
       showWipe = true;
@@ -23,6 +25,7 @@ export default class TabCardModal extends Component {
       message,
       cardInfo,
       onComplete,
+      onCancel,
       onWipe
     });
 
@@ -170,6 +173,9 @@ export default class TabCardModal extends Component {
               onPress={() => {
                 global.nfcReader.disableCardDetection();
                 this.setState({ visible: false });
+                if (this.state.onCancel !== null) {
+                  this.state.onCancel();
+                }
               }}
             >
               <Text style={{ color: Colors.text }}>Cancel</Text>

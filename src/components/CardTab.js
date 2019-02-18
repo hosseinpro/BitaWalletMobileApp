@@ -23,6 +23,7 @@ class CardTab extends Component {
       null,
       null,
       this.cardDetected.bind(this),
+      null,
       this.onWipe.bind(this)
     );
   }

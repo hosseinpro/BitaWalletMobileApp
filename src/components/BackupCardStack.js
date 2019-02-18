@@ -3,21 +3,15 @@ import {
   Content,
   Text,
   Button,
-  Form,
-  Card,
-  CardItem,
   Left,
   Body,
   Right,
-  Item,
-  Label,
   ListItem,
-  CheckBox,
-  Switch
+  CheckBox
 } from "native-base";
-import IconFontAwesome from "react-native-vector-icons/FontAwesome";
 import { connect } from "react-redux";
 import redux from "../redux/redux";
+import { NavigationEvents } from "react-navigation";
 import AlertBox from "./AlertBox";
 import BitaWalletCard from "../lib/BitaWalletCard";
 
@@ -55,7 +49,8 @@ class BackupCardStack extends Component {
     global.tapCardModal.show(
       "tap your backup card",
       null,
-      this.backupCardDetected.bind(this)
+      this.backupCardDetected.bind(this),
+      this.reset.bind(this)
     );
   }
 
@@ -80,7 +75,8 @@ class BackupCardStack extends Component {
     global.tapCardModal.show(
       "tap your main card",
       this.props.cardInfo,
-      this.mainCardDetected.bind(this)
+      this.mainCardDetected.bind(this),
+      this.reset.bind(this)
     );
   }
 
@@ -108,7 +104,8 @@ class BackupCardStack extends Component {
     this.setState({ step4Complete: true });
     global.passwordModal.show(
       "Enter Card Yescode",
-      this.mainCardYescodeEntered.bind(this)
+      this.mainCardYescodeEntered.bind(this),
+      this.reset.bind(this)
     );
   }
 
@@ -123,7 +120,8 @@ class BackupCardStack extends Component {
         global.tapCardModal.show(
           "tap your backup card again",
           this.state.backupCardInfo,
-          this.backupCardDetected2.bind(this)
+          this.backupCardDetected2.bind(this),
+          this.reset.bind(this)
         );
       })
       .catch(error => {
@@ -136,7 +134,8 @@ class BackupCardStack extends Component {
     global.wipeModal.show(
       this.state.backupCardInfo,
       false,
-      this.backupCardWiped.bind(this)
+      this.backupCardWiped.bind(this),
+      this.reset.bind(this)
     );
   }
 
@@ -168,6 +167,7 @@ class BackupCardStack extends Component {
   render() {
     return (
       <Content contentContainerStyle={{ flex: 1 }}>
+        <NavigationEvents onWillBlur={payload => this.reset()} />
         <Content
           contentContainerStyle={{
             flex: 1
