@@ -19,12 +19,20 @@ export default class WipeModal extends Component {
     newPinConfirm: "",
     newLabel: "",
 
+    cardInfo: null,
     onComplete: null,
-    onCancel: null
+    onCancel: null,
+    genMasterSeed: true
   };
 
-  show(onComplete, onCancel) {
-    this.setState({ visible: true, onComplete, onCancel });
+  show(cardInfo, genMasterSeed, onComplete, onCancel = null) {
+    this.setState({
+      visible: true,
+      cardInfo,
+      genMasterSeed,
+      onComplete,
+      onCancel
+    });
   }
 
   onPressWipe() {
@@ -35,7 +43,11 @@ export default class WipeModal extends Component {
     } else if (this.state.newLabel === "") {
       AlertBox.info("Wipe", "Please enter a label");
     } else {
-      global.tapCardModal.show(null, null, this.cardDetected.bind(this));
+      global.tapCardModal.show(
+        null,
+        this.state.cardInfo,
+        this.cardDetected.bind(this)
+      );
     }
   }
 
@@ -56,11 +68,16 @@ export default class WipeModal extends Component {
 
   yescodeEntered(yescode) {
     global.bitaWalletCard
-      .wipe(yescode, this.state.newPin, this.state.newLabel)
+      .wipe(
+        yescode,
+        this.state.newPin,
+        this.state.newLabel,
+        this.state.genMasterSeed
+      )
       .then(() => {
         AlertBox.info("Wipe", "Card is wiped.", () => {
           this.setState({ visible: false });
-          this.state.onComplete();
+          this.state.onComplete(this.state.newPin);
         });
       })
       .catch(error => {
@@ -152,7 +169,7 @@ export default class WipeModal extends Component {
             style={{ backgroundColor: Colors.secondary, margin: 20 }}
             onPress={() => {
               this.setState({ visible: false });
-              this.state.onCancel();
+              if (this.state.onCancel !== null) this.state.onCancel();
             }}
           >
             <Text style={{ color: Colors.text }}>Cancel</Text>

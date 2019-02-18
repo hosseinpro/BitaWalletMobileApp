@@ -1,6 +1,8 @@
-// Version: 1.2
+// Version: 1.4
 
-"use strict";
+const sha = require("jssha");
+
+("use strict");
 
 module.exports = class BitaWalletCard {
   constructor(cardreaderTransmit) {
@@ -194,6 +196,14 @@ module.exports = class BitaWalletCard {
     return { fund, inputSection, signerKeyPaths };
   }
 
+  static generateKCV(data) {
+    const sha256 = new sha("SHA-256", "HEX");
+    sha256.update(data);
+    const hash = sha256.getHash("HEX");
+    const kcv = hash.substring(0, 4).toUpperCase();
+    return kcv;
+  }
+
   ////End of Utils
 
   ////Begin of card functions
@@ -212,7 +222,7 @@ module.exports = class BitaWalletCard {
     });
   }
 
-  wipe(yesCode, newPIN, newLabel) {
+  wipe(yesCode, newPIN, newLabel, genMasterSeed = true) {
     const apduWipe = "00 E2 00 00 04" + BitaWalletCard.ascii2hex(yesCode);
     return new Promise((resolve, reject) => {
       this.transmit(apduWipe, responseAPDU => {
@@ -220,7 +230,10 @@ module.exports = class BitaWalletCard {
           .then(() => this.changePIN(newPIN))
           .then(() => this.verifyPIN(newPIN))
           .then(() => this.setLabel(newLabel))
-          .then(() => this.generateMasterSeed().then(resolve({ result: true })))
+          .then(() => {
+            if (genMasterSeed) this.generateMasterSeed();
+          })
+          .then(resolve({ result: true }))
           .catch(error => {
             reject(error);
           });

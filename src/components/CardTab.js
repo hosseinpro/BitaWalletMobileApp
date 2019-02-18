@@ -29,6 +29,8 @@ class CardTab extends Component {
 
   onWipe() {
     global.wipeModal.show(
+      null,
+      true,
       this.startCardDetect.bind(this),
       this.startCardDetect.bind(this)
     );

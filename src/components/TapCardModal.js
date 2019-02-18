@@ -19,14 +19,34 @@ export default class TabCardModal extends Component {
       showWipe = true;
     }
     this.setState({
-      visible: true,
       showWipe,
       message,
       cardInfo,
       onComplete,
       onWipe
     });
-    global.nfcReader.cardDetection(this.cardDetected.bind(this));
+
+    if (cardInfo !== null) {
+      global.bitaWalletCard
+        .getSerialNumber()
+        .then(res => {
+          if (cardInfo.serialNumber === res.serialNumber) {
+            this.state.onComplete(cardInfo);
+          } else {
+            this.show2();
+          }
+        })
+        .catch(error => {
+          this.show2();
+        });
+    } else {
+      this.show2();
+    }
+  }
+
+  show2() {
+    this.setState({ visible: true });
+    global.nfcReader.enableCardDetection(this.cardDetected.bind(this));
   }
 
   cardDetected() {
@@ -37,7 +57,7 @@ export default class TabCardModal extends Component {
           this.state.cardInfo.serialNumber !== cardInfo.serialNumber
         ) {
           this.setState({ error: true });
-          global.nfcReader.cardDetection(this.cardDetected.bind(this));
+          global.nfcReader.enableCardDetection(this.cardDetected.bind(this));
           return;
         }
 
@@ -45,7 +65,7 @@ export default class TabCardModal extends Component {
         this.state.onComplete(cardInfo);
       })
       .catch(error => {
-        global.nfcReader.cardDetection(this.cardDetected.bind(this));
+        global.nfcReader.enableCardDetection(this.cardDetected.bind(this));
       });
   }
 
@@ -134,6 +154,7 @@ export default class TabCardModal extends Component {
               block
               style={{ backgroundColor: Colors.secondary, margin: 20 }}
               onPress={() => {
+                global.nfcReader.disableCardDetection();
                 this.setState({ visible: false });
                 this.state.onWipe();
               }}
@@ -146,7 +167,10 @@ export default class TabCardModal extends Component {
               rounded
               block
               style={{ backgroundColor: Colors.secondary, margin: 20 }}
-              onPress={() => this.setState({ visible: false })}
+              onPress={() => {
+                global.nfcReader.disableCardDetection();
+                this.setState({ visible: false });
+              }}
             >
               <Text style={{ color: Colors.text }}>Cancel</Text>
             </Button>

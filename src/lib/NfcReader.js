@@ -17,7 +17,11 @@ export default class NfcReader {
     });
   }
 
-  cardDetection = eventFunction => {
+  enableCardDetection = eventFunction => {
     NativeModules.Nfc.enableReader(eventFunction);
   };
+
+  disableCardDetection() {
+    NativeModules.Nfc.disableReader();
+  }
 }
