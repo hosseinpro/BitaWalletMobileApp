@@ -15,6 +15,7 @@ import IconMaterialIcons from "react-native-vector-icons/MaterialIcons";
 import AlertBox from "./AlertBox";
 import { connect } from "react-redux";
 import redux from "../redux/redux";
+import { NavigationEvents } from "react-navigation";
 import BitaWalletCard from "../lib/BitaWalletCard";
 
 class SendTab extends Component {
@@ -108,6 +109,7 @@ class SendTab extends Component {
   render() {
     return (
       <Content contentContainerStyle={{ flex: 1 }}>
+        <NavigationEvents onWillBlur={payload => this.reset()} />
         <Content
           contentContainerStyle={{
             flex: 1,
