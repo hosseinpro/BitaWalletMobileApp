@@ -32,6 +32,8 @@ class BackupCardStack extends Component {
   };
 
   reset() {
+    global.bitaWalletCard.cancel();
+
     this.setState({
       stepBegin: false,
       step1Complete: false,

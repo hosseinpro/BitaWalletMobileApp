@@ -71,7 +71,8 @@ class SendTab extends Component {
             this.setState({ inputSection });
             global.passwordModal.show(
               "Enter SEND code",
-              this.confirmSend.bind(this)
+              this.confirmSend.bind(this),
+              () => global.bitaWalletCard.cancel()
             );
           });
       })

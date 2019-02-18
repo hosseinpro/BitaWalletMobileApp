@@ -1,4 +1,4 @@
-// Version: 1.4
+// Version: 1.5
 
 const sha = require("jssha");
 
@@ -624,6 +624,10 @@ module.exports = class BitaWalletCard {
       const signedTx = responseAPDU.data;
       return { signedTx };
     });
+  }
+
+  cancel() {
+    this.getSerialNumber().catch(error => {});
   }
 
   ////End of card functions

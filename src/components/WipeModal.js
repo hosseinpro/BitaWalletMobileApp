@@ -58,7 +58,8 @@ export default class WipeModal extends Component {
       .then(() => {
         global.passwordModal.show(
           "Enter WIPE code",
-          this.yescodeEntered.bind(this)
+          this.yescodeEntered.bind(this),
+          () => global.bitaWalletCard.cancel()
         );
       })
       .catch(error => {
