@@ -201,7 +201,7 @@ module.exports = class BitaWalletCard {
     sha256.update(data);
     const hash = sha256.getHash("HEX");
     const b58 = BitaWalletCard.b58Encode(hash);
-    const kcv = b58.substring(0, 4);
+    const kcv = b58.substring(b58.length - 4, b58.length);
     return kcv;
   }
 
