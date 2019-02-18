@@ -103,7 +103,7 @@ class BackupCardStack extends Component {
   onPressMatch2() {
     this.setState({ step4Complete: true });
     global.passwordModal.show(
-      "Enter Card Yescode",
+      "Enter BACKUP code",
       this.mainCardYescodeEntered.bind(this),
       this.reset.bind(this)
     );

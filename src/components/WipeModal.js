@@ -57,7 +57,7 @@ export default class WipeModal extends Component {
       .requestWipe()
       .then(() => {
         global.passwordModal.show(
-          "Enter Yescode",
+          "Enter WIPE code",
           this.yescodeEntered.bind(this)
         );
       })

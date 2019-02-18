@@ -70,7 +70,7 @@ class SendTab extends Component {
             );
             this.setState({ inputSection });
             global.passwordModal.show(
-              "Enter Yescode",
+              "Enter SEND code",
               this.confirmSend.bind(this)
             );
           });
