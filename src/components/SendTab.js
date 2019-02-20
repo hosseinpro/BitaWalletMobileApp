@@ -17,12 +17,13 @@ import { connect } from "react-redux";
 import redux from "../redux/redux";
 import { NavigationEvents } from "react-navigation";
 import BitaWalletCard from "../lib/BitaWalletCard";
+import Blockchain from "../lib/Blockchain";
 
 class SendTab extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      selectedCoin: "Bitcoin",
+      selectedCoin: "BTC",
       selectedFee: "Regular"
     };
   }
@@ -93,6 +94,11 @@ class SendTab extends Component {
         console.log("signedTx : " + res.signedTx);
 
         // pushTX
+        let network = "";
+        if (this.state.selectedCoin === "BTC") network = Blockchain.btcMain;
+        else network = Blockchain.btcTest;
+
+        Blockchain.pushTx(res.signedTx, network);
 
         AlertBox.info(
           "Send",
@@ -129,7 +135,8 @@ class SendTab extends Component {
                   })
                 }
               >
-                <Picker.Item label="Bitcoin" value="Bitcoin" />
+                <Picker.Item label="Bitcoin" value="BTC" />
+                <Picker.Item label="Bitcoin (Test)" value="TST" />
               </Picker>
             </Item>
             <Item>

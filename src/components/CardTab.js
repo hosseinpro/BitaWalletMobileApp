@@ -6,6 +6,7 @@ import redux from "../redux/redux";
 import NfcReader from "../lib/NfcReader";
 import BitaWalletCard from "../lib/BitaWalletCard";
 import AlertBox from "./AlertBox";
+import Blockchain from "../lib/Blockchain";
 
 class CardTab extends Component {
   componentDidMount() {
@@ -50,10 +51,22 @@ class CardTab extends Component {
     global.bitaWalletCard
       .verifyPIN(pin)
       .then(() => {
-        // this.props.setCardInfo(this.props.nfcReader.cardInfo);
         this.props.setCardInfo(this.state.cardInfo);
         this.props.setCardPin(pin);
-        this.fillAddressInfo();
+
+        let addressInfo = {};
+        this.fillAddressInfo("btc")
+          .then(btcAddressInfo => {
+            addressInfo.btc = btcAddressInfo;
+            this.fillAddressInfo("tst").then(tstAddressInfo => {
+              addressInfo.tst = tstAddressInfo;
+            });
+          })
+          .catch(error => console.log(error))
+          .finally(() => {
+            this.props.setAddressInfo(addressInfo);
+            console.log(addressInfo);
+          });
       })
       .catch(res => {
         if (res.leftTries !== undefined) {
@@ -68,18 +81,38 @@ class CardTab extends Component {
       });
   }
 
-  fillAddressInfo() {
-    global.bitaWalletCard.getAddressList("6D2C0000000000", 1).then(res => {
-      let addressInfo = res.addressInfo;
-      addressInfo[0].txs = [];
-      let tx = {};
-      tx.txHash =
-        "a896270a198aa2146cdec81d18bc1fd358d4355f8d21be8e5335fae22c09244e";
-      tx.utxo = "0";
-      tx.value = "100000000";
-      addressInfo[0].txs[0] = tx;
-      this.props.setAddressInfo(addressInfo);
-      this.props.setChangeKey("6D2C0100010000");
+  fillAddressInfo(coin) {
+    return new Promise((resolve, reject) => {
+      let baseKeyPath = "";
+      if (coin === "btc")
+        baseKeyPath = "6D2C" + BitaWalletCard.btcMain + "00000000";
+      else baseKeyPath = "6D2C" + BitaWalletCard.btcTest + "00000000";
+
+      global.bitaWalletCard
+        .getAddressList(baseKeyPath, 2)
+        .then(res => {
+          let network = "";
+          if (coin === "btc") network = Blockchain.btcMain;
+          else network = Blockchain.btcTest;
+
+          Blockchain.getAddressHistory(res.addressInfo, network)
+            .then(addressInfo => {
+              let x = {};
+              x.addressList = addressInfo;
+              if (coin === "btc")
+                x.changeKeyPath = "6D2C" + BitaWalletCard.btcMain + "00010000";
+              else
+                x.changeKeyPath = "6D2C" + BitaWalletCard.btcTest + "00010000";
+
+              resolve(x);
+
+              // this.props.setAddressInfo(addressInfo);
+
+              // this.props.setChangeKey("6D2C0100010000");
+            })
+            .catch(error => reject(error));
+        })
+        .catch(error => reject(error));
     });
   }
 

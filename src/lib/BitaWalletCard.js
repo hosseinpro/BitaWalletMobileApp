@@ -1,4 +1,4 @@
-// Version: 1.5
+// Version: 1.6
 
 const sha = require("jssha");
 
@@ -8,6 +8,9 @@ module.exports = class BitaWalletCard {
   constructor(cardreaderTransmit) {
     this.cardreaderTransmit = cardreaderTransmit;
   }
+
+  static btcMain = "00";
+  static btcTest = "01";
 
   ////Begin of Utils
 

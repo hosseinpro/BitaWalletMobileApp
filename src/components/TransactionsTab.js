@@ -15,6 +15,7 @@ import {
   Body
 } from "native-base";
 import IconFontAwesome from "react-native-vector-icons/FontAwesome";
+import Blockchain from "../lib/Blockchain";
 
 export default class TransactionsTab extends Component {
   constructor(props) {
@@ -32,6 +33,14 @@ export default class TransactionsTab extends Component {
 
   onPressRefresh() {
     this.setState({ startDate: new Date(), endDate: new Date() });
+
+    let addressList = [
+      "1J38WorKngZLJvA7qMin9g5jqUfTQUBZNE",
+      "1DEP8i3QJCsomS4BSMY2RpU1upv62aGvhD"
+    ];
+    Blockchain.getAddressHistoryUnspent(addressList)
+      .then(res => console.log(res))
+      .catch(err => console.log(err));
   }
 
   render() {
