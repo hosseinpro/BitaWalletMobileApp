@@ -18,12 +18,13 @@ import redux from "../redux/redux";
 import { NavigationEvents } from "react-navigation";
 import BitaWalletCard from "../lib/BitaWalletCard";
 import Blockchain from "../lib/Blockchain";
+import Coins from "../Coins";
 
 class SendTab extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      selectedCoin: "BTC",
+      selectedCoin: Coins.BTC,
       selectedFee: "Regular"
     };
   }
@@ -95,7 +96,7 @@ class SendTab extends Component {
 
         // pushTX
         let network = "";
-        if (this.state.selectedCoin === "BTC") network = Blockchain.btcMain;
+        if (this.state.selectedCoin === Coins.BTC) network = Blockchain.btcMain;
         else network = Blockchain.btcTest;
 
         Blockchain.pushTx(res.signedTx, network);
@@ -135,8 +136,8 @@ class SendTab extends Component {
                   })
                 }
               >
-                <Picker.Item label="Bitcoin" value="BTC" />
-                <Picker.Item label="Bitcoin (Test)" value="TST" />
+                <Picker.Item label="Bitcoin" value={Coins.BTC} />
+                <Picker.Item label="Bitcoin (Testnet)" value={Coins.TST} />
               </Picker>
             </Item>
             <Item>
@@ -199,8 +200,7 @@ const mapStateToProps = state => {
   return {
     pin: state.pin,
     cardInfo: state.cardInfo,
-    addressInfo: state.addressInfo,
-    changeKey: state.changeKey
+    coinInfo: state.coinInfo
   };
 };
 

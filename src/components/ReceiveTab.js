@@ -5,17 +5,19 @@ import QRCode from "react-native-qrcode";
 import { connect } from "react-redux";
 import redux from "../redux/redux";
 import AlertBox from "./AlertBox";
+import Coins from "../Coins";
 
 class ReceiveTab extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      selectedCoin: "Bitcoin"
+      selectedCoin: Coins.BTC,
+      receiveAddress: ""
     };
   }
 
   onPressCopy() {
-    Clipboard.setString(this.props.addressInfo[0].address);
+    Clipboard.setString(this.state.receiveAddress);
     AlertBox.info("Receive", "The address is copied");
   }
 
@@ -26,13 +28,23 @@ class ReceiveTab extends Component {
           <Picker
             mode="dialog"
             selectedValue={this.state.selectedCoin}
-            onValueChange={value =>
+            onValueChange={value => {
               this.setState({
                 selectedCoin: value
-              })
-            }
+              });
+              if (value === Coins.BTC) {
+                this.setState({
+                  receiveAddress: this.props.coinInfo.btc.receiveAddress
+                });
+              } else if (value === Coins.TST) {
+                this.setState({
+                  receiveAddress: this.props.coinInfo.tst.receiveAddress
+                });
+              }
+            }}
           >
-            <Picker.Item label="Bitcoin" value="Bitcoin" />
+            <Picker.Item label="Bitcoin" value={Coins.BTC} />
+            <Picker.Item label="Bitcoin (Testnet)" value={Coins.TST} />
           </Picker>
           <Content
             contentContainerStyle={{
@@ -42,7 +54,7 @@ class ReceiveTab extends Component {
             }}
           >
             <QRCode
-              value={this.props.addressInfo[0].address}
+              value={this.state.receiveAddress}
               size={200}
               bgColor="black"
               fgColor="white"
@@ -51,7 +63,7 @@ class ReceiveTab extends Component {
           <Text
             style={{ fontSize: 20, fontWeight: "bold", color: Colors.text }}
           >
-            {this.props.addressInfo[0].address}
+            {this.state.receiveAddress}
           </Text>
         </Content>
         <Button
@@ -69,7 +81,7 @@ class ReceiveTab extends Component {
 
 const mapStateToProps = state => {
   return {
-    addressInfo: state.addressInfo
+    coinInfo: state.coinInfo
   };
 };
 

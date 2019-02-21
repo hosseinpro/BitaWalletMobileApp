@@ -73,4 +73,8 @@ export default class Blockchain {
         });
     });
   }
+
+  static satoshi2btc(satoshi) {
+    return satoshi / 100000000;
+  }
 }

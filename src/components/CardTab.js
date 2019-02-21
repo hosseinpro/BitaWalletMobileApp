@@ -1,12 +1,23 @@
 import React, { Component } from "react";
 import { Image } from "react-native";
-import { Content, Text, Button } from "native-base";
+import {
+  Content,
+  Text,
+  Button,
+  List,
+  ListItem,
+  Left,
+  Body,
+  Thumbnail,
+  Right
+} from "native-base";
 import { connect } from "react-redux";
 import redux from "../redux/redux";
 import NfcReader from "../lib/NfcReader";
 import BitaWalletCard from "../lib/BitaWalletCard";
 import AlertBox from "./AlertBox";
 import Blockchain from "../lib/Blockchain";
+import Coins from "../Coins";
 
 class CardTab extends Component {
   componentDidMount() {
@@ -54,19 +65,18 @@ class CardTab extends Component {
         this.props.setCardInfo(this.state.cardInfo);
         this.props.setCardPin(pin);
 
-        let addressInfo = {};
-        this.fillAddressInfo("btc")
-          .then(btcAddressInfo => {
-            addressInfo.btc = btcAddressInfo;
-            this.fillAddressInfo("tst").then(tstAddressInfo => {
-              addressInfo.tst = tstAddressInfo;
+        let coinInfo = {};
+        this.fillCoinInfo(Coins.BTC)
+          .then(coinInfoElement => {
+            coinInfo.btc = coinInfoElement;
+            this.fillCoinInfo(Coins.TST).then(coinInfoElement => {
+              coinInfo.tst = coinInfoElement;
+
+              this.props.setCoinInfo(coinInfo);
+              console.log(coinInfo);
             });
           })
-          .catch(error => console.log(error))
-          .finally(() => {
-            this.props.setAddressInfo(addressInfo);
-            console.log(addressInfo);
-          });
+          .catch(error => console.log(error));
       })
       .catch(res => {
         if (res.leftTries !== undefined) {
@@ -81,10 +91,10 @@ class CardTab extends Component {
       });
   }
 
-  fillAddressInfo(coin) {
+  fillCoinInfo(coin) {
     return new Promise((resolve, reject) => {
       let baseKeyPath = "";
-      if (coin === "btc")
+      if (coin === Coins.BTC)
         baseKeyPath = "6D2C" + BitaWalletCard.btcMain + "00000000";
       else baseKeyPath = "6D2C" + BitaWalletCard.btcTest + "00000000";
 
@@ -92,23 +102,39 @@ class CardTab extends Component {
         .getAddressList(baseKeyPath, 2)
         .then(res => {
           let network = "";
-          if (coin === "btc") network = Blockchain.btcMain;
+          if (coin === Coins.BTC) network = Blockchain.btcMain;
           else network = Blockchain.btcTest;
 
           Blockchain.getAddressHistory(res.addressInfo, network)
             .then(addressInfo => {
-              let x = {};
-              x.addressList = addressInfo;
-              if (coin === "btc")
-                x.changeKeyPath = "6D2C" + BitaWalletCard.btcMain + "00010000";
+              let coinInfoElement = {};
+              coinInfoElement.addressInfo = addressInfo;
+
+              let balance = 0;
+              for (let i = 0; i < addressInfo.length; i++) {
+                for (let j = 0; j < addressInfo[i].txs.length; j++) {
+                  balance += addressInfo[i].txs[j].value;
+                }
+              }
+              coinInfoElement.balance = balance;
+
+              if (coin === Coins.BTC)
+                coinInfoElement.changeKeyPath =
+                  "6D2C" + BitaWalletCard.btcMain + "00010000";
               else
-                x.changeKeyPath = "6D2C" + BitaWalletCard.btcTest + "00010000";
+                coinInfoElement.changeKeyPath =
+                  "6D2C" + BitaWalletCard.btcTest + "00010000";
 
-              resolve(x);
+              // temporary
+              if (coinInfoElement.addressInfo.length !== 0) {
+                coinInfoElement.receiveAddress =
+                  coinInfoElement.addressInfo[0].address;
+              } else {
+                coinInfoElement.receiveAddress =
+                  "0000000000000000000000000000000000";
+              }
 
-              // this.props.setAddressInfo(addressInfo);
-
-              // this.props.setChangeKey("6D2C0100010000");
+              resolve(coinInfoElement);
             })
             .catch(error => reject(error));
         })
@@ -126,22 +152,56 @@ class CardTab extends Component {
         <Content
           contentContainerStyle={{
             flex: 1,
-            alignItems: "center"
+            marginRight: 20
           }}
         >
-          <Text style={{ fontSize: 16, color: Colors.text }}>
-            {this.props.cardInfo.serialNumber}
-          </Text>
-          <Text
-            style={{ fontSize: 20, fontWeight: "bold", color: Colors.text }}
-          >
-            {this.props.cardInfo.label}
-          </Text>
-          <Image
-            source={require("../img/card.png")}
-            style={{ width: 350, height: 230 }}
-          />
-          <Text style={{ fontSize: 20, color: Colors.text }}>{2.5} BTC</Text>
+          <List>
+            <ListItem>
+              <Content
+                contentContainerStyle={{
+                  justifyContent: "center",
+                  alignItems: "center"
+                }}
+              >
+                <Image
+                  source={require("../img/card.png")}
+                  style={{ height: 200 }}
+                />
+              </Content>
+            </ListItem>
+            <ListItem avatar>
+              <Left>
+                <Thumbnail small source={require("../img/btc.png")} />
+              </Left>
+              <Body>
+                <Text style={{ color: Colors.text }}>Bitcoin</Text>
+                <Text note numberOfLines={1}>
+                  BTC
+                </Text>
+              </Body>
+              <Right>
+                <Text style={{ color: Colors.text }}>
+                  {Blockchain.satoshi2btc(this.props.coinInfo.btc.balance)}
+                </Text>
+              </Right>
+            </ListItem>
+            <ListItem avatar>
+              <Left>
+                <Thumbnail small source={require("../img/btctest.png")} />
+              </Left>
+              <Body>
+                <Text style={{ color: Colors.text }}>Bitcoin (Testnet)</Text>
+                <Text note numberOfLines={1}>
+                  BTC
+                </Text>
+              </Body>
+              <Right>
+                <Text style={{ color: Colors.text }}>
+                  {Blockchain.satoshi2btc(this.props.coinInfo.tst.balance)}
+                </Text>
+              </Right>
+            </ListItem>
+          </List>
         </Content>
         <Button
           rounded
@@ -158,7 +218,8 @@ class CardTab extends Component {
 
 const mapStateToProps = state => {
   return {
-    cardInfo: state.cardInfo
+    cardInfo: state.cardInfo,
+    coinInfo: state.coinInfo
   };
 };
 
@@ -167,8 +228,7 @@ const mapDispatchToProps = dispatch => {
     setCardInfo: cardInfo => dispatch(redux.setCardInfo(cardInfo)),
     unsetCardInfo: () => dispatch(redux.unsetCardInfo()),
     setCardPin: pin => dispatch(redux.setCardPin(pin)),
-    setAddressInfo: addressInfo => dispatch(redux.setAddressInfo(addressInfo)),
-    setChangeKey: changeKey => dispatch(redux.setChangeKey(changeKey))
+    setCoinInfo: coinInfo => dispatch(redux.setCoinInfo(coinInfo))
   };
 };
 

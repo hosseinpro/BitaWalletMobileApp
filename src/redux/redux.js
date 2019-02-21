@@ -3,8 +3,7 @@ import { createStore } from "redux";
 const SET_CARD_INFO = "SET_CARD_INFO";
 const UNSET_CARD_INFO = "UNSET_CARD_INFO";
 const SET_CARD_PIN = "SET_CARD_PIN";
-const SET_ADDRESS_INFO = "SET_ADDRESS_INFO";
-const SET_CHANGE_KEY = "SET_CHANGE_KEY";
+const SET_COIN_INFO = "SET_ADDRESS_INFO";
 
 const initialState = {
   cardInfo: {
@@ -14,12 +13,46 @@ const initialState = {
     label: "Unknown"
   },
   pin: null,
-  addressInfo: [
-    {
-      address: "000000000000000"
+  coinInfo: {
+    btc: {
+      addressInfo: [
+        {
+          address: "0000000000000000000000000000000000",
+          keyPath: "00000000000000",
+          txs: [
+            {
+              txHash:
+                "0000000000000000000000000000000000000000000000000000000000000000",
+              utxo: 0,
+              value: 0
+            }
+          ]
+        }
+      ],
+      balance: 0,
+      changeKeyPath: "00000000000000",
+      receiveAddress: "0000000000000000000000000000000000"
+    },
+    tst: {
+      addressInfo: [
+        {
+          address: "0000000000000000000000000000000000",
+          keyPath: "00000000000000",
+          txs: [
+            {
+              txHash:
+                "0000000000000000000000000000000000000000000000000000000000000000",
+              utxo: 0,
+              value: 0
+            }
+          ]
+        }
+      ],
+      balance: 0,
+      changeKeyPath: "00000000000000",
+      receiveAddress: "0000000000000000000000000000000000"
     }
-  ],
-  changeKey: null
+  }
 };
 
 function setCardInfo(cardInfo) {
@@ -34,12 +67,8 @@ function setCardPin(pin) {
   return { type: SET_CARD_PIN, pin };
 }
 
-function setAddressInfo(addressInfo) {
-  return { type: SET_ADDRESS_INFO, addressInfo };
-}
-
-function setChangeKey(changeKey) {
-  return { type: SET_CHANGE_KEY, changeKey };
+function setCoinInfo(coinInfo) {
+  return { type: SET_COIN_INFO, coinInfo };
 }
 
 function rootReducer(state = initialState, action) {
@@ -60,15 +89,10 @@ function rootReducer(state = initialState, action) {
         ...state,
         pin: action.pin
       };
-    case SET_ADDRESS_INFO:
+    case SET_COIN_INFO:
       return {
         ...state,
-        addressInfo: action.addressInfo
-      };
-    case SET_CHANGE_KEY:
-      return {
-        ...state,
-        changeKey: action.changeKey
+        coinInfo: action.coinInfo
       };
   }
   return state;
@@ -81,6 +105,5 @@ export default {
   setCardInfo,
   unsetCardInfo,
   setCardPin,
-  setAddressInfo,
-  setChangeKey
+  setCoinInfo
 };
