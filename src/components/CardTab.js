@@ -143,12 +143,13 @@ class CardTab extends Component {
           }
           coinInfoElement2.balance = balance;
 
+          // temporary
           if (coin === Coins.BTC)
             coinInfoElement2.changeKeyPath =
-              "6D2C" + BitaWalletCard.btcMain + "00010000";
+              "6D2C" + BitaWalletCard.btcMain + "00000000";
           else
             coinInfoElement2.changeKeyPath =
-              "6D2C" + BitaWalletCard.btcTest + "00010000";
+              "6D2C" + BitaWalletCard.btcTest + "00000000";
 
           // temporary
           if (coinInfoElement2.addressInfo.length !== 0) {

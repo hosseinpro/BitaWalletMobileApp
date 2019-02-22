@@ -35,7 +35,7 @@ class SendTab extends Component {
 
   reset() {
     this.setState({
-      selectedCoin: "Bitcoin",
+      selectedCoin: Coins.BTC,
       amount: "",
       to: "",
       selectedFee: "Regular",
@@ -66,10 +66,15 @@ class SendTab extends Component {
         global.bitaWalletCard
           .requestSignTx(spend, fee, this.state.to)
           .then(() => {
+            let addressInfo = "";
+            if (this.state.selectedCoin === Coins.BTC)
+              addressInfo = this.props.coinInfo.btc.addressInfo;
+            else addressInfo = this.props.coinInfo.tst.addressInfo;
+
             const inputSection = BitaWalletCard.buildInputSection(
               spend,
               fee,
-              this.props.addressInfo
+              addressInfo
             );
             this.setState({ inputSection });
             global.passwordModal.show(
@@ -83,21 +88,26 @@ class SendTab extends Component {
   }
 
   confirmSend(yescode) {
+    let network = "";
+    let changeKeyPath = "";
+    if (this.state.selectedCoin === Coins.BTC) {
+      network = Blockchain.btcMain;
+      changeKeyPath = this.props.coinInfo.btc.changeKeyPath;
+    } else {
+      network = Blockchain.btcTest;
+      changeKeyPath = this.props.coinInfo.tst.changeKeyPath;
+    }
+
     global.bitaWalletCard
       .signTx(
         yescode,
         this.state.inputSection.fund,
-        this.props.changeKey,
+        changeKeyPath,
         this.state.inputSection.inputSection,
         this.state.inputSection.signerKeyPaths
       )
       .then(res => {
         console.log("signedTx : " + res.signedTx);
-
-        // pushTX
-        let network = "";
-        if (this.state.selectedCoin === Coins.BTC) network = Blockchain.btcMain;
-        else network = Blockchain.btcTest;
 
         Blockchain.pushTx(res.signedTx, network);
 

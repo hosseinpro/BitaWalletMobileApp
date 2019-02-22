@@ -66,7 +66,11 @@ export default class Blockchain {
     return new Promise((resolve, reject) => {
       axios
         .post(
-          Blockchain.baseAddress + network + "/txs/push",
+          Blockchain.baseAddress +
+            network +
+            "/txs/push" +
+            "?token=" +
+            Blockchain.token,
           JSON.stringify({ tx })
         )
         .then(res => {
