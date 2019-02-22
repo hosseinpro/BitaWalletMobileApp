@@ -4,6 +4,7 @@ import axios from "axios";
 
 export default class Blockchain {
   static baseAddress = "https://api.blockcypher.com/v1";
+  static token = "bb7bc2d851574c2c87fa02b51ba3f9f4";
   static btcMain = "/btc/main";
   static btcTest = "/btc/test3";
 
@@ -20,7 +21,9 @@ export default class Blockchain {
             network +
             "/addrs/" +
             addresses +
-            "?unspentOnly=true"
+            "?unspentOnly=true" +
+            "&token=" +
+            Blockchain.token
         )
         .then(res => {
           let addressInfo2 = [];
@@ -53,6 +56,7 @@ export default class Blockchain {
           resolve(addressInfo2);
         })
         .catch(error => {
+          console.log(error);
           reject(error);
         });
     });

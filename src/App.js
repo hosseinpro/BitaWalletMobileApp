@@ -22,6 +22,7 @@ import BackupCardStack from "./components/BackupCardStack";
 import TapCardModal from "./components/TapCardModal";
 import WipeModal from "./components/WipeModal";
 import PasswordModal from "./components/PasswordModal";
+import WaitModal from "./components/WaitModal";
 
 class App extends Component {
   componentDidMount() {}
@@ -29,6 +30,7 @@ class App extends Component {
   render() {
     return (
       <Container>
+        <WaitModal ref={waitModal => (global.waitModal = waitModal)} />
         <TapCardModal
           ref={tapCardModal => (global.tapCardModal = tapCardModal)}
         />

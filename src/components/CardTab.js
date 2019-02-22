@@ -30,7 +30,10 @@ class CardTab extends Component {
   }
 
   startCardDetect() {
+    global.waitModal.show();
+
     this.props.unsetCardInfo();
+
     global.tapCardModal.show(
       null,
       null,
@@ -65,16 +68,22 @@ class CardTab extends Component {
         this.props.setCardInfo(this.state.cardInfo);
         this.props.setCardPin(pin);
 
-        let coinInfo = {};
-        this.fillCoinInfo(Coins.BTC)
-          .then(coinInfoElement => {
-            coinInfo.btc = coinInfoElement;
-            this.fillCoinInfo(Coins.TST).then(coinInfoElement => {
-              coinInfo.tst = coinInfoElement;
-
-              this.props.setCoinInfo(coinInfo);
-              console.log(coinInfo);
-            });
+        this.fillCoinInfoCard()
+          .then(coinInfo => {
+            this.fillCoinInfoBlockchain(Coins.BTC, coinInfo.btc)
+              .then(coinInfoBtc =>
+                setTimeout(() => {
+                  this.fillCoinInfoBlockchain(Coins.TST, coinInfo.tst)
+                    .then(coinInfoTst => {
+                      const coinInfo = { btc: coinInfoBtc, tst: coinInfoTst };
+                      this.props.setCoinInfo(coinInfo);
+                      global.waitModal.hide();
+                      console.log(coinInfo);
+                    })
+                    .catch(error => this.startCardDetect());
+                }, 1000)
+              )
+              .catch(error => this.startCardDetect());
           })
           .catch(error => console.log(error));
       })
@@ -91,52 +100,66 @@ class CardTab extends Component {
       });
   }
 
-  fillCoinInfo(coin) {
+  fillCoinInfoCard() {
     return new Promise((resolve, reject) => {
-      let baseKeyPath = "";
-      if (coin === Coins.BTC)
-        baseKeyPath = "6D2C" + BitaWalletCard.btcMain + "00000000";
-      else baseKeyPath = "6D2C" + BitaWalletCard.btcTest + "00000000";
+      let coinInfo = {};
 
+      let baseKeyPath = "6D2C" + BitaWalletCard.btcMain + "00000000";
       global.bitaWalletCard
         .getAddressList(baseKeyPath, 2)
         .then(res => {
-          let network = "";
-          if (coin === Coins.BTC) network = Blockchain.btcMain;
-          else network = Blockchain.btcTest;
+          coinInfo.btc = {};
+          coinInfo.btc.addressInfo = res.addressInfo;
 
-          Blockchain.getAddressHistory(res.addressInfo, network)
-            .then(addressInfo => {
-              let coinInfoElement = {};
-              coinInfoElement.addressInfo = addressInfo;
+          baseKeyPath = "6D2C" + BitaWalletCard.btcTest + "00000000";
+          global.bitaWalletCard.getAddressList(baseKeyPath, 2).then(res => {
+            coinInfo.tst = {};
+            coinInfo.tst.addressInfo = res.addressInfo;
 
-              let balance = 0;
-              for (let i = 0; i < addressInfo.length; i++) {
-                for (let j = 0; j < addressInfo[i].txs.length; j++) {
-                  balance += addressInfo[i].txs[j].value;
-                }
-              }
-              coinInfoElement.balance = balance;
+            resolve(coinInfo);
+            console.log(coinInfo);
+          });
+        })
+        .catch(error => reject(error));
+    });
+  }
 
-              if (coin === Coins.BTC)
-                coinInfoElement.changeKeyPath =
-                  "6D2C" + BitaWalletCard.btcMain + "00010000";
-              else
-                coinInfoElement.changeKeyPath =
-                  "6D2C" + BitaWalletCard.btcTest + "00010000";
+  fillCoinInfoBlockchain(coin, coinInfoElement) {
+    return new Promise((resolve, reject) => {
+      let network = "";
+      if (coin === Coins.BTC) network = Blockchain.btcMain;
+      else network = Blockchain.btcTest;
 
-              // temporary
-              if (coinInfoElement.addressInfo.length !== 0) {
-                coinInfoElement.receiveAddress =
-                  coinInfoElement.addressInfo[0].address;
-              } else {
-                coinInfoElement.receiveAddress =
-                  "0000000000000000000000000000000000";
-              }
+      Blockchain.getAddressHistory(coinInfoElement.addressInfo, network)
+        .then(addressInfo => {
+          let coinInfoElement2 = {};
+          coinInfoElement2.addressInfo = addressInfo;
 
-              resolve(coinInfoElement);
-            })
-            .catch(error => reject(error));
+          let balance = 0;
+          for (let i = 0; i < addressInfo.length; i++) {
+            for (let j = 0; j < addressInfo[i].txs.length; j++) {
+              balance += addressInfo[i].txs[j].value;
+            }
+          }
+          coinInfoElement2.balance = balance;
+
+          if (coin === Coins.BTC)
+            coinInfoElement2.changeKeyPath =
+              "6D2C" + BitaWalletCard.btcMain + "00010000";
+          else
+            coinInfoElement2.changeKeyPath =
+              "6D2C" + BitaWalletCard.btcTest + "00010000";
+
+          // temporary
+          if (coinInfoElement2.addressInfo.length !== 0) {
+            coinInfoElement2.receiveAddress =
+              coinInfoElement2.addressInfo[0].address;
+          } else {
+            coinInfoElement2.receiveAddress =
+              "0000000000000000000000000000000000";
+          }
+
+          resolve(coinInfoElement2);
         })
         .catch(error => reject(error));
     });
