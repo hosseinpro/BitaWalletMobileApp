@@ -16,6 +16,13 @@ class ReceiveTab extends Component {
     };
   }
 
+  componentDidMount() {
+    this.setState({
+      selectedCoin: Coins.BTC,
+      receiveAddress: this.props.coinInfo.btc.receiveAddress
+    });
+  }
+
   onPressCopy() {
     Clipboard.setString(this.state.receiveAddress);
     AlertBox.info("Receive", "The address is copied");

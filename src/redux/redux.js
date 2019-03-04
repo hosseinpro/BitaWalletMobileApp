@@ -31,7 +31,9 @@ const initialState = {
       ],
       balance: 0,
       changeKeyPath: "00000000000000",
-      receiveAddress: "0000000000000000000000000000000000"
+      receiveAddress: "0000000000000000000000000000000000",
+      receiveAddressXPub: "",
+      changeAddressXPub: ""
     },
     tst: {
       addressInfo: [
@@ -50,7 +52,9 @@ const initialState = {
       ],
       balance: 0,
       changeKeyPath: "00000000000000",
-      receiveAddress: "0000000000000000000000000000000000"
+      receiveAddress: "0000000000000000000000000000000000",
+      receiveAddressXPub: "",
+      changeAddressXPub: ""
     }
   }
 };

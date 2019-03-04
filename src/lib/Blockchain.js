@@ -21,8 +21,9 @@ export default class Blockchain {
             network +
             "/addrs/" +
             addresses +
-            "?unspentOnly=true" +
-            "&token=" +
+            // "?unspentOnly=true" +
+            // "&token=" +
+            "?token=" +
             Blockchain.token
         )
         .then(res => {
@@ -80,9 +81,5 @@ export default class Blockchain {
           reject(error);
         });
     });
-  }
-
-  static satoshi2btc(satoshi) {
-    return satoshi / 100000000;
   }
 }

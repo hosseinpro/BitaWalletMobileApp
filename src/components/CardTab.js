@@ -16,8 +16,7 @@ import redux from "../redux/redux";
 import NfcReader from "../lib/NfcReader";
 import BitaWalletCard from "../lib/BitaWalletCard";
 import AlertBox from "./AlertBox";
-import Blockchain from "../lib/Blockchain";
-import Coins from "../Coins";
+import Discovery from "../lib/Discovery";
 
 class CardTab extends Component {
   componentDidMount() {
@@ -61,109 +60,37 @@ class CardTab extends Component {
     );
   }
 
-  pinEntered(pin) {
-    global.bitaWalletCard
-      .verifyPIN(pin)
-      .then(() => {
-        this.props.setCardInfo(this.state.cardInfo);
-        this.props.setCardPin(pin);
+  async pinEntered(pin) {
+    try {
+      await global.bitaWalletCard.verifyPIN(pin);
+    } catch (res) {
+      if (res.leftTries !== undefined) {
+        AlertBox.info(
+          "Incorrect Password",
+          res.leftTries + " tries left.",
+          this.startCardDetect.bind(this)
+        );
+      } else {
+        this.startCardDetect();
+      }
+      return;
+    }
 
-        this.fillCoinInfoCard()
-          .then(coinInfo => {
-            this.fillCoinInfoBlockchain(Coins.BTC, coinInfo.btc)
-              .then(coinInfoBtc =>
-                setTimeout(() => {
-                  this.fillCoinInfoBlockchain(Coins.TST, coinInfo.tst)
-                    .then(coinInfoTst => {
-                      const coinInfo = { btc: coinInfoBtc, tst: coinInfoTst };
-                      this.props.setCoinInfo(coinInfo);
-                      global.waitModal.hide();
-                      console.log(coinInfo);
-                    })
-                    .catch(error => this.startCardDetect());
-                }, 1000)
-              )
-              .catch(error => this.startCardDetect());
-          })
-          .catch(error => console.log(error));
-      })
-      .catch(res => {
-        if (res.leftTries !== undefined) {
-          AlertBox.info(
-            "Incorrect Password",
-            res.leftTries + " tries left.",
-            this.startCardDetect.bind(this)
-          );
-        } else {
-          this.startCardDetect();
-        }
-      });
-  }
+    this.props.setCardInfo(this.state.cardInfo);
+    this.props.setCardPin(pin);
 
-  fillCoinInfoCard() {
-    return new Promise((resolve, reject) => {
-      let coinInfo = {};
+    try {
+      const coinInfo = await Discovery.run(this.props.coinInfo);
 
-      let baseKeyPath = "6D2C" + BitaWalletCard.btcMain + "00000000";
-      global.bitaWalletCard
-        .getAddressList(baseKeyPath, 2)
-        .then(res => {
-          coinInfo.btc = {};
-          coinInfo.btc.addressInfo = res.addressInfo;
-
-          baseKeyPath = "6D2C" + BitaWalletCard.btcTest + "00000000";
-          global.bitaWalletCard.getAddressList(baseKeyPath, 2).then(res => {
-            coinInfo.tst = {};
-            coinInfo.tst.addressInfo = res.addressInfo;
-
-            resolve(coinInfo);
-            console.log(coinInfo);
-          });
-        })
-        .catch(error => reject(error));
-    });
-  }
-
-  fillCoinInfoBlockchain(coin, coinInfoElement) {
-    return new Promise((resolve, reject) => {
-      let network = "";
-      if (coin === Coins.BTC) network = Blockchain.btcMain;
-      else network = Blockchain.btcTest;
-
-      Blockchain.getAddressHistory(coinInfoElement.addressInfo, network)
-        .then(addressInfo => {
-          let coinInfoElement2 = {};
-          coinInfoElement2.addressInfo = addressInfo;
-
-          let balance = 0;
-          for (let i = 0; i < addressInfo.length; i++) {
-            for (let j = 0; j < addressInfo[i].txs.length; j++) {
-              balance += addressInfo[i].txs[j].value;
-            }
-          }
-          coinInfoElement2.balance = balance;
-
-          // temporary
-          if (coin === Coins.BTC)
-            coinInfoElement2.changeKeyPath =
-              "6D2C" + BitaWalletCard.btcMain + "00000000";
-          else
-            coinInfoElement2.changeKeyPath =
-              "6D2C" + BitaWalletCard.btcTest + "00000000";
-
-          // temporary
-          if (coinInfoElement2.addressInfo.length !== 0) {
-            coinInfoElement2.receiveAddress =
-              coinInfoElement2.addressInfo[0].address;
-          } else {
-            coinInfoElement2.receiveAddress =
-              "0000000000000000000000000000000000";
-          }
-
-          resolve(coinInfoElement2);
-        })
-        .catch(error => reject(error));
-    });
+      this.props.setCoinInfo(coinInfo);
+      global.waitModal.hide();
+    } catch (error) {
+      AlertBox.info(
+        "Address Error",
+        "Card is not wiped.",
+        this.startCardDetect.bind(this)
+      );
+    }
   }
 
   onPressDisconnect() {
@@ -205,7 +132,7 @@ class CardTab extends Component {
               </Body>
               <Right>
                 <Text style={{ color: Colors.text }}>
-                  {Blockchain.satoshi2btc(this.props.coinInfo.btc.balance)}
+                  {Discovery.satoshi2btc(this.props.coinInfo.btc.balance)}
                 </Text>
               </Right>
             </ListItem>
@@ -221,7 +148,7 @@ class CardTab extends Component {
               </Body>
               <Right>
                 <Text style={{ color: Colors.text }}>
-                  {Blockchain.satoshi2btc(this.props.coinInfo.tst.balance)}
+                  {Discovery.satoshi2btc(this.props.coinInfo.tst.balance)}
                 </Text>
               </Right>
             </ListItem>
