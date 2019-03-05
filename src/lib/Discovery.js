@@ -116,7 +116,7 @@ export default class Discovery {
     while (!stopDiscover) {
       let addressInfo20 = [];
 
-      for (let i = k; i < k + 2 /*20*/; i++) {
+      for (let i = k; i < k + 20; i++) {
         const address = BitaWalletCard.getChildAddress(coin, xpub, i);
         const keyPath =
           "6D2C" +
@@ -127,7 +127,7 @@ export default class Discovery {
         addressInfo20.push({ address, keyPath });
       }
 
-      await Discovery.timeout(1200); // temp
+      // await Discovery.timeout(1200); // temp
 
       let refinedAddressInfo = await Blockchain.getAddressHistory(
         addressInfo20,
@@ -140,15 +140,15 @@ export default class Discovery {
           addressInfo.push(refinedAddressInfo[i]);
       }
 
-      k += 2 /*20*/;
+      k += 20;
     }
 
     return addressInfo;
   }
 
-  static timeout(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
+  // static timeout(ms) {
+  //   return new Promise(resolve => setTimeout(resolve, ms));
+  // }
 
   static calculateBalance(addressInfo) {
     let balance = 0;

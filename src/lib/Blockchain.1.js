@@ -2,26 +2,29 @@
 
 import axios from "axios";
 
-export default class Blockchain {
-  static baseAddress = "http://api.xebawallet.com:3333";
-  static btcMain = "mainnet";
-  static btcTest = "testnet";
+export default class Blockchain1 {
+  static baseAddress = "https://api.blockcypher.com/v1";
+  static token = "bb7bc2d851574c2c87fa02b51ba3f9f4";
+  static btcMain = "/btc/main";
+  static btcTest = "/btc/test3";
 
   static getAddressHistory(addressInfo, network) {
     let addresses = "";
     for (let i = 0; i < addressInfo.length; i++) {
       addresses += addressInfo[i].address;
-      if (i < addressInfo.length - 1) addresses += ",";
+      if (i < addressInfo.length - 1) addresses += ";";
     }
     return new Promise((resolve, reject) => {
       axios
         .get(
           Blockchain.baseAddress +
-            "/utxo" +
-            "?network=" +
             network +
-            "&address=" +
-            addresses
+            "/addrs/" +
+            addresses +
+            // "?unspentOnly=true" +
+            // "&token=" +
+            "?token=" +
+            Blockchain.token
         )
         .then(res => {
           let addressInfo2 = [];
@@ -33,17 +36,19 @@ export default class Blockchain {
                 addressObject.address === addressInfoElement.address
             )[0];
 
-            if (addressObject === undefined) continue;
+            if (addressObject.n_tx === 0) continue;
 
             addressInfoElement.txs = [];
 
-            for (let j = 0; j < addressObject.txs.length; j++) {
-              let tx = {};
-              tx.txHash = addressObject.txs[j].txHash;
-              tx.utxo = addressObject.txs[j].utxo;
-              tx.value = addressObject.txs[j].value;
+            if (addressObject.txrefs !== undefined) {
+              for (let j = 0; j < addressObject.txrefs.length; j++) {
+                let tx = {};
+                tx.txHash = addressObject.txrefs[j].tx_hash;
+                tx.utxo = addressObject.txrefs[j].tx_output_n;
+                tx.value = addressObject.txrefs[j].value;
 
-              addressInfoElement.txs[j] = tx;
+                addressInfoElement.txs[j] = tx;
+              }
             }
 
             addressInfo2.push(addressInfoElement);
