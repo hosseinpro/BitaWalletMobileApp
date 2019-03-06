@@ -61,16 +61,16 @@ export default class Blockchain {
   static pushTx(tx, network) {
     return new Promise((resolve, reject) => {
       axios
-        .post(
+        .get(
           Blockchain.baseAddress +
+            "/pushtx" +
+            "?network=" +
             network +
-            "/txs/push" +
-            "?token=" +
-            Blockchain.token,
-          JSON.stringify({ tx })
+            "&rawtx=" +
+            tx
         )
         .then(res => {
-          resolve(res);
+          resolve(res.data.txHash);
         })
         .catch(error => {
           reject(error);

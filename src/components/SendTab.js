@@ -123,14 +123,19 @@ class SendTab extends Component {
       .then(res => {
         console.log("signedTx : " + res.signedTx);
 
-        Blockchain.pushTx(res.signedTx, network);
+        Blockchain.pushTx(res.signedTx, network)
+          .then(() => {
+            AlertBox.info(
+              "Send",
+              this.state.amount + " BTC" + " is sent to \n" + this.state.to
+            );
 
-        AlertBox.info(
-          "Send",
-          this.state.amount + " BTC" + " is sent to \n" + this.state.to
-        );
-
-        this.reset();
+            this.reset();
+          })
+          .catch(error => {
+            this.cancel();
+            AlertBox.info("Error", "Something is wrong.");
+          });
       })
       .catch(error => {
         this.cancel();
