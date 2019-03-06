@@ -132,7 +132,7 @@ class CardTab extends Component {
               </Body>
               <Right>
                 <Text style={{ color: Colors.text }}>
-                  {Discovery.satoshi2btc(this.props.coinInfo.btc.balance)}
+                  {BitaWalletCard.satoshi2btc(this.props.coinInfo.btc.balance)}
                 </Text>
               </Right>
             </ListItem>
@@ -148,7 +148,7 @@ class CardTab extends Component {
               </Body>
               <Right>
                 <Text style={{ color: Colors.text }}>
-                  {Discovery.satoshi2btc(this.props.coinInfo.tst.balance)}
+                  {BitaWalletCard.satoshi2btc(this.props.coinInfo.tst.balance)}
                 </Text>
               </Right>
             </ListItem>

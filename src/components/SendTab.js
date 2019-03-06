@@ -20,7 +20,6 @@ import { NavigationEvents } from "react-navigation";
 import BitaWalletCard from "../lib/BitaWalletCard";
 import Blockchain from "../lib/Blockchain";
 import Coins from "../Coins";
-import Discovery from "../lib/Discovery";
 
 class SendTab extends Component {
   constructor(props) {
@@ -72,7 +71,7 @@ class SendTab extends Component {
     global.bitaWalletCard
       .verifyPIN(this.props.pin)
       .then(() => {
-        const spend = Discovery.btc2satoshi(parseFloat(this.state.amount));
+        const spend = BitaWalletCard.btc2satoshi(parseFloat(this.state.amount));
         const fee = 500;
         global.bitaWalletCard
           .requestSignTx(spend, fee, this.state.to)
@@ -185,13 +184,6 @@ class SendTab extends Component {
                 placeholder="To"
                 value={this.state.to}
                 onChangeText={to => this.setState({ to })}
-              />
-              <IconFontAwesome
-                name="paste"
-                style={{ width: 30 }}
-                onPress={() =>
-                  Clipboard.getString().then(str => this.setState({ to: str }))
-                }
               />
               <IconMaterialCommunityIcons
                 name="qrcode-scan"
