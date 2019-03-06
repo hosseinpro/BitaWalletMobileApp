@@ -4,7 +4,7 @@ import { Content, Text, Icon, List, ListItem, Left, Right } from "native-base";
 export default class MoreTab extends Component {
   render() {
     return (
-      <Content contentContainerStyle={{ flex: 1 }}>
+      <Content contentContainerStyle={{ flex: 1, marginRight: 20 }}>
         <List>
           <ListItem
             onPress={() =>

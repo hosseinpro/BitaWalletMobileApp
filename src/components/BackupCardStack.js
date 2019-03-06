@@ -172,7 +172,8 @@ class BackupCardStack extends Component {
         <NavigationEvents onWillBlur={payload => this.reset()} />
         <Content
           contentContainerStyle={{
-            flex: 1
+            flex: 1,
+            marginRight: 20
           }}
         >
           <ListItem icon>

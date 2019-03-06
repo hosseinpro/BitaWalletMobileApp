@@ -16,24 +16,22 @@ import {
 } from "native-base";
 import IconFontAwesome from "react-native-vector-icons/FontAwesome";
 import Blockchain from "../lib/Blockchain";
+import { connect } from "react-redux";
+import redux from "../redux/redux";
+import BitaWalletCard from "../lib/BitaWalletCard";
+import Coins from "../Coins";
 
-export default class TransactionsTab extends Component {
+class TransactionsTab extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      selectedCoin: "Bitcoin",
-      selectedFee: "Regular"
+      selectedCoin: Coins.BTC,
+      selectedFee: "Regular",
+      coinInfoElement: this.props.coinInfo.btc
     };
   }
 
-  state = {
-    startDate: new Date(),
-    endDate: new Date()
-  };
-
   onPressRefresh() {
-    this.setState({ startDate: new Date(), endDate: new Date() });
-
     let addressList = [
       "1J38WorKngZLJvA7qMin9g5jqUfTQUBZNE",
       "1DEP8i3QJCsomS4BSMY2RpU1upv62aGvhD"
@@ -50,73 +48,40 @@ export default class TransactionsTab extends Component {
           contentContainerStyle={{
             flex: 1,
             alignItems: "center",
-            marginLeft: 20,
             marginRight: 20
           }}
         >
-          <Text
-            style={{ fontWeight: "bold", marginTop: 20, color: Colors.text }}
-          >
-            Balance: {2.5} BTC
-          </Text>
           <Form style={{ width: "100%" }}>
             <Item>
               <Picker
                 mode="dialog"
                 selectedValue={this.state.selectedCoin}
-                onValueChange={value =>
+                onValueChange={value => {
+                  let coinInfoElement;
+                  if (value === Coins.BTC) {
+                    coinInfoElement = this.props.coinInfo.btc;
+                  } else if (value === Coins.TST) {
+                    coinInfoElement = this.props.coinInfo.tst;
+                  }
                   this.setState({
-                    selectedCoin: value
-                  })
-                }
+                    selectedCoin: value,
+                    coinInfoElement
+                  });
+                }}
               >
-                <Picker.Item label="Bitcoin" value="Bitcoin" />
+                <Picker.Item label="Bitcoin" value={Coins.BTC} />
+                <Picker.Item label="Bitcoin (Testnet)" value={Coins.TST} />
               </Picker>
             </Item>
             <Item>
-              <Label>Start date :</Label>
-              <DatePicker
-                defaultDate={this.state.startDate}
-                maximumDate={new Date()}
-                locale={"en"}
-                timeZoneOffsetInMinutes={undefined}
-                modalTransparent={false}
-                animationType={"fade"}
-                androidMode={"default"}
-                onDateChange={newDate =>
-                  this.setState({ startDate: newDate, endDate: new Date() })
-                }
-                disabled={false}
-              />
-            </Item>
-            <Item>
-              <Label>End date :</Label>
-              <DatePicker
-                defaultDate={this.state.endDate}
-                minimumDate={this.state.startDate}
-                maximumDate={new Date()}
-                locale={"en"}
-                timeZoneOffsetInMinutes={undefined}
-                modalTransparent={false}
-                animationType={"fade"}
-                androidMode={"default"}
-                onDateChange={newDate => this.setState({ endDate: newDate })}
-                disabled={false}
-              />
-            </Item>
-            <Item>
-              <Input placeholder="Search" />
-              <IconFontAwesome name="search" />
+              <Label style={{ marginTop: 15, marginBottom: 15 }}>
+                Balance :{" "}
+                {BitaWalletCard.satoshi2btc(this.state.coinInfoElement.balance)}{" "}
+                BTC
+              </Label>
             </Item>
             <List>
-              <ListItem thumbnail>
-                {/* <Left>
-                  <Thumbnail
-                    square
-                    source={require("../img/plus.png")}
-                    style={{ width: 30, height: 30 }}
-                  />
-                </Left> */}
+              <ListItem>
                 <Body>
                   <Text
                     style={{
@@ -131,15 +96,7 @@ export default class TransactionsTab extends Component {
                   <Text note numberOfLines={1}>
                     From : mvyQZq6UvkMB97K9bUeHp4VVS1N7SeDzRX
                   </Text>
-                  <Text note numberOfLines={1}>
-                    Memo : Send to Hossein
-                  </Text>
                 </Body>
-                <Right>
-                  <Button transparent>
-                    <Text>View</Text>
-                  </Button>
-                </Right>
               </ListItem>
             </List>
           </Form>
@@ -156,3 +113,14 @@ export default class TransactionsTab extends Component {
     );
   }
 }
+
+const mapStateToProps = state => {
+  return {
+    coinInfo: state.coinInfo
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  null
+)(TransactionsTab);

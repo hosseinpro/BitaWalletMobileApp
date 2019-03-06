@@ -3,45 +3,46 @@
 import axios from "axios";
 
 export default class Blockchain {
-  static baseAddress = "http://api.xebawallet.com:3333";
+  static baseAddressBtcMain = "https://insight.bitpay.com/api";
+  static baseAddressBtcTest = "https://test-insight.bitpay.com/api";
+
   static btcMain = "mainnet";
   static btcTest = "testnet";
 
-  static getAddressHistory(addressInfo, network) {
+  static getUnspentTxs(addressInfo, network) {
+    let baseAddress = "";
+    if (network === Blockchain.btcMain)
+      baseAddress = Blockchain.baseAddressBtcMain;
+    else baseAddress = Blockchain.baseAddressBtcTest;
+
     let addresses = "";
     for (let i = 0; i < addressInfo.length; i++) {
       addresses += addressInfo[i].address;
       if (i < addressInfo.length - 1) addresses += ",";
     }
+
     return new Promise((resolve, reject) => {
       axios
-        .get(
-          Blockchain.baseAddress +
-            "/utxo" +
-            "?network=" +
-            network +
-            "&address=" +
-            addresses
-        )
+        .get(baseAddress + "/addrs/" + addresses + "/utxo")
         .then(res => {
           let addressInfo2 = [];
           for (let i = 0; i < addressInfo.length; i++) {
             let addressInfoElement = addressInfo[i];
 
-            let addressObject = res.data.filter(
-              addressObject =>
-                addressObject.address === addressInfoElement.address
-            )[0];
+            let transactions = res.data.filter(
+              transaction => transaction.address === addressInfoElement.address
+            );
 
-            if (addressObject === undefined) continue;
+            // if (transactions === undefined) continue;
+            if (transactions.length === 0) continue;
 
             addressInfoElement.txs = [];
 
-            for (let j = 0; j < addressObject.txs.length; j++) {
+            for (let j = 0; j < transactions.length; j++) {
               let tx = {};
-              tx.txHash = addressObject.txs[j].txHash;
-              tx.utxo = addressObject.txs[j].utxo;
-              tx.value = addressObject.txs[j].value;
+              tx.txHash = transactions[j].txid;
+              tx.utxo = transactions[j].vout;
+              tx.value = transactions[j].satoshis;
 
               addressInfoElement.txs[j] = tx;
             }
@@ -58,19 +59,80 @@ export default class Blockchain {
     });
   }
 
-  static pushTx(tx, network) {
+  static getTxs(addressInfo, network) {
+    let baseAddress = "";
+    if (network === Blockchain.btcMain)
+      baseAddress = Blockchain.baseAddressBtcMain;
+    else baseAddress = Blockchain.baseAddressBtcTest;
+
+    let addresses = "";
+    for (let i = 0; i < addressInfo.length; i++) {
+      addresses += addressInfo[i].address;
+      if (i < addressInfo.length - 1) addresses += ",";
+    }
+
     return new Promise((resolve, reject) => {
       axios
-        .get(
-          Blockchain.baseAddress +
-            "/pushtx" +
-            "?network=" +
-            network +
-            "&rawtx=" +
-            tx
-        )
+        .get(baseAddress + "/addrs/" + addresses + "/txs")
         .then(res => {
-          resolve(res.data.txHash);
+          let txs = [];
+
+          for (let i = 0; i < res.data.items.length; i++) {
+            let tx = {};
+            tx.txHash = res.data.items[i].txid;
+            // tx.utxo = res.data.items[i].vout;
+            // tx.value = res.data.items[i].satoshis;
+
+            txs[i] = tx;
+          }
+
+          resolve(txs);
+
+          // let addressInfo2 = [];
+          // for (let i = 0; i < addressInfo.length; i++) {
+          //   let addressInfoElement = addressInfo[i];
+
+          //   let transactions = res.data.filter(
+          //     transaction => transaction.address === addressInfoElement.address
+          //   );
+
+          //   // if (transactions === undefined) continue;
+          //   if (transactions.length === 0) continue;
+
+          //   addressInfoElement.txs = [];
+
+          //   for (let j = 0; j < transactions.length; j++) {
+          //     let tx = {};
+          //     tx.txHash = transactions[j].txid;
+          //     tx.utxo = transactions[j].vout;
+          //     tx.value = transactions[j].satoshis;
+
+          //     addressInfoElement.txs[j] = tx;
+          //   }
+
+          //   addressInfo2.push(addressInfoElement);
+          // }
+
+          // resolve(addressInfo2);
+        })
+        .catch(error => {
+          console.log(error);
+          reject(error);
+        });
+    });
+  }
+
+  static pushTx(tx, network) {
+    let baseAddress = "";
+    if (network === Blockchain.btcMain)
+      baseAddress = Blockchain.baseAddressBtcMain;
+    else baseAddress = Blockchain.baseAddressBtcTest;
+
+    return new Promise((resolve, reject) => {
+      axios
+        .post(baseAddress + "/tx/send", { rawtx: tx })
+        .then(res => {
+          resolve(res.data.txid);
         })
         .catch(error => {
           reject(error);

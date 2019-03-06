@@ -46,7 +46,6 @@ class ChangePasswordStack extends Component {
           contentContainerStyle={{
             flex: 1,
             alignItems: "center",
-            marginLeft: 20,
             marginRight: 20
           }}
         >

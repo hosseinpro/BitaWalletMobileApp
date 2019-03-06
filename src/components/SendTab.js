@@ -120,8 +120,6 @@ class SendTab extends Component {
         this.state.inputSection.signerKeyPaths
       )
       .then(res => {
-        console.log("signedTx : " + res.signedTx);
-
         Blockchain.pushTx(res.signedTx, network)
           .then(() => {
             AlertBox.info(
@@ -150,7 +148,6 @@ class SendTab extends Component {
           contentContainerStyle={{
             flex: 1,
             alignItems: "center",
-            marginLeft: 20,
             marginRight: 20
           }}
         >

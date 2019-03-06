@@ -125,7 +125,7 @@ export default class Discovery {
 
       // await Discovery.timeout(1200); // temp
 
-      let refinedAddressInfo = await Blockchain.getAddressHistory(
+      let refinedAddressInfo = await Blockchain.getUnspentTxs(
         addressInfo20,
         network
       );
