@@ -57,6 +57,8 @@
 		2F780C17823C481D9F1DCE89 /* SimpleLineIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2A9DC5ED7F1F43FA922CD36F /* SimpleLineIcons.ttf */; };
 		8A42856E60D945F3826FA226 /* Zocial.ttf in Resources */ = {isa = PBXBuildFile; fileRef = FA863FA7312C44B983BE70D3 /* Zocial.ttf */; };
 		A2BF052BE62E4B94A909E0DD /* libRNGestureHandler.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 60BC8FDA3F8640CEB81FB2FD /* libRNGestureHandler.a */; };
+		EBDB7BD1FCC74D5BB89E3101 /* libRNCamera.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A9A5C711830A48248E26E12A /* libRNCamera.a */; };
+		8712E29ABBB145B7A49498AA /* libReactNativePermissions.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E3C78BE153542C08F5AFFEA /* libReactNativePermissions.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -384,6 +386,10 @@
 		FA863FA7312C44B983BE70D3 /* Zocial.ttf */ = {isa = PBXFileReference; name = "Zocial.ttf"; path = "../node_modules/native-base/Fonts/Zocial.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 		610F580FB8914E389398D5B2 /* RNGestureHandler.xcodeproj */ = {isa = PBXFileReference; name = "RNGestureHandler.xcodeproj"; path = "../node_modules/react-native-gesture-handler/ios/RNGestureHandler.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
 		60BC8FDA3F8640CEB81FB2FD /* libRNGestureHandler.a */ = {isa = PBXFileReference; name = "libRNGestureHandler.a"; path = "libRNGestureHandler.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
+		D2005628F61A43FCA9241595 /* RNCamera.xcodeproj */ = {isa = PBXFileReference; name = "RNCamera.xcodeproj"; path = "../node_modules/react-native-camera/ios/RNCamera.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
+		A9A5C711830A48248E26E12A /* libRNCamera.a */ = {isa = PBXFileReference; name = "libRNCamera.a"; path = "libRNCamera.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
+		BC2B2C9C6B614763B6D8B5CD /* ReactNativePermissions.xcodeproj */ = {isa = PBXFileReference; name = "ReactNativePermissions.xcodeproj"; path = "../node_modules/react-native-permissions/ios/ReactNativePermissions.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
+		6E3C78BE153542C08F5AFFEA /* libReactNativePermissions.a */ = {isa = PBXFileReference; name = "libReactNativePermissions.a"; path = "libReactNativePermissions.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -413,6 +419,8 @@
 				139FDEF61B0652A700C62182 /* libRCTWebSocket.a in Frameworks */,
 				AA351127EC8842A6B68ED256 /* libNfcManager.a in Frameworks */,
 				A2BF052BE62E4B94A909E0DD /* libRNGestureHandler.a in Frameworks */,
+				EBDB7BD1FCC74D5BB89E3101 /* libRNCamera.a in Frameworks */,
+				8712E29ABBB145B7A49498AA /* libReactNativePermissions.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -601,6 +609,8 @@
 				139FDEE61B06529A00C62182 /* RCTWebSocket.xcodeproj */,
 				7BC2035828454851815D93BD /* NfcManager.xcodeproj */,
 				610F580FB8914E389398D5B2 /* RNGestureHandler.xcodeproj */,
+				D2005628F61A43FCA9241595 /* RNCamera.xcodeproj */,
+				BC2B2C9C6B614763B6D8B5CD /* ReactNativePermissions.xcodeproj */,
 			);
 			name = Libraries;
 			sourceTree = "<group>";
@@ -1275,11 +1285,15 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/../node_modules/react-native-nfc-manager/ios",
 					"$(SRCROOT)/../node_modules/react-native-gesture-handler/ios/**",
+					"$(SRCROOT)/../node_modules/react-native-camera/ios/**",
+					"$(SRCROOT)/../node_modules/react-native-permissions/ios/**",
 				);
 			};
 			name = Debug;
@@ -1303,11 +1317,15 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/../node_modules/react-native-nfc-manager/ios",
 					"$(SRCROOT)/../node_modules/react-native-gesture-handler/ios/**",
+					"$(SRCROOT)/../node_modules/react-native-camera/ios/**",
+					"$(SRCROOT)/../node_modules/react-native-permissions/ios/**",
 				);
 			};
 			name = Release;
@@ -1332,6 +1350,8 @@
 					"$(inherited)",
 					"$(SRCROOT)/../node_modules/react-native-nfc-manager/ios",
 					"$(SRCROOT)/../node_modules/react-native-gesture-handler/ios/**",
+					"$(SRCROOT)/../node_modules/react-native-camera/ios/**",
+					"$(SRCROOT)/../node_modules/react-native-permissions/ios/**",
 				);
 			};
 			name = Debug;
@@ -1355,6 +1375,8 @@
 					"$(inherited)",
 					"$(SRCROOT)/../node_modules/react-native-nfc-manager/ios",
 					"$(SRCROOT)/../node_modules/react-native-gesture-handler/ios/**",
+					"$(SRCROOT)/../node_modules/react-native-camera/ios/**",
+					"$(SRCROOT)/../node_modules/react-native-permissions/ios/**",
 				);
 			};
 			name = Release;
@@ -1386,11 +1408,15 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/../node_modules/react-native-nfc-manager/ios",
 					"$(SRCROOT)/../node_modules/react-native-gesture-handler/ios/**",
+					"$(SRCROOT)/../node_modules/react-native-camera/ios/**",
+					"$(SRCROOT)/../node_modules/react-native-permissions/ios/**",
 				);
 			};
 			name = Debug;
@@ -1422,11 +1448,15 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/../node_modules/react-native-nfc-manager/ios",
 					"$(SRCROOT)/../node_modules/react-native-gesture-handler/ios/**",
+					"$(SRCROOT)/../node_modules/react-native-camera/ios/**",
+					"$(SRCROOT)/../node_modules/react-native-permissions/ios/**",
 				);
 			};
 			name = Release;
@@ -1457,11 +1487,15 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/../node_modules/react-native-nfc-manager/ios",
 					"$(SRCROOT)/../node_modules/react-native-gesture-handler/ios/**",
+					"$(SRCROOT)/../node_modules/react-native-camera/ios/**",
+					"$(SRCROOT)/../node_modules/react-native-permissions/ios/**",
 				);
 			};
 			name = Debug;
@@ -1492,11 +1526,15 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/../node_modules/react-native-nfc-manager/ios",
 					"$(SRCROOT)/../node_modules/react-native-gesture-handler/ios/**",
+					"$(SRCROOT)/../node_modules/react-native-camera/ios/**",
+					"$(SRCROOT)/../node_modules/react-native-permissions/ios/**",
 				);
 			};
 			name = Release;

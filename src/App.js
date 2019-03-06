@@ -23,6 +23,7 @@ import TapCardModal from "./components/TapCardModal";
 import WipeModal from "./components/WipeModal";
 import PasswordModal from "./components/PasswordModal";
 import WaitModal from "./components/WaitModal";
+import QRCodeScannerModal from "./components/QRCodeScannerModal";
 
 class App extends Component {
   componentDidMount() {}
@@ -37,6 +38,11 @@ class App extends Component {
         <WipeModal ref={wipeModal => (global.wipeModal = wipeModal)} />
         <PasswordModal
           ref={passwordModal => (global.passwordModal = passwordModal)}
+        />
+        <QRCodeScannerModal
+          ref={qrCodeScannerModal =>
+            (global.qrCodeScannerModal = qrCodeScannerModal)
+          }
         />
         <Header
           androidStatusBarColor={Colors.secondaryDark}

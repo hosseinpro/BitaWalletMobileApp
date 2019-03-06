@@ -12,6 +12,7 @@ import {
 } from "native-base";
 import IconFontAwesome from "react-native-vector-icons/FontAwesome";
 import IconMaterialIcons from "react-native-vector-icons/MaterialIcons";
+import IconMaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import AlertBox from "./AlertBox";
 import { connect } from "react-redux";
 import redux from "../redux/redux";
@@ -19,6 +20,7 @@ import { NavigationEvents } from "react-navigation";
 import BitaWalletCard from "../lib/BitaWalletCard";
 import Blockchain from "../lib/Blockchain";
 import Coins from "../Coins";
+import Discovery from "../lib/Discovery";
 
 class SendTab extends Component {
   constructor(props) {
@@ -34,6 +36,8 @@ class SendTab extends Component {
   }
 
   reset() {
+    this.cancel();
+
     this.setState({
       selectedCoin: Coins.BTC,
       amount: "",
@@ -41,6 +45,11 @@ class SendTab extends Component {
       selectedFee: "Regular",
       inputSection: null
     });
+  }
+
+  cancel() {
+    global.bitaWalletCard.cancel();
+    global.waitModal.hide();
   }
 
   onPressSend() {
@@ -58,10 +67,12 @@ class SendTab extends Component {
   }
 
   requestSend() {
+    global.waitModal.show();
+
     global.bitaWalletCard
       .verifyPIN(this.props.pin)
       .then(() => {
-        const spend = parseInt(this.state.amount);
+        const spend = Discovery.btc2satoshi(parseFloat(this.state.amount));
         const fee = 500;
         global.bitaWalletCard
           .requestSignTx(spend, fee, this.state.to)
@@ -80,11 +91,14 @@ class SendTab extends Component {
             global.passwordModal.show(
               "Enter SEND code",
               this.confirmSend.bind(this),
-              () => global.bitaWalletCard.cancel()
+              () => this.cancel()
             );
           });
       })
-      .catch(error => AlertBox.info("Error", "Something is wrong."));
+      .catch(error => {
+        this.cancel();
+        AlertBox.info("Error", "Something is wrong.");
+      });
   }
 
   confirmSend(yescode) {
@@ -119,6 +133,7 @@ class SendTab extends Component {
         this.reset();
       })
       .catch(error => {
+        this.cancel();
         AlertBox.info("Error", "Something is wrong.");
       });
   }
@@ -172,6 +187,16 @@ class SendTab extends Component {
                 onPress={() =>
                   Clipboard.getString().then(str => this.setState({ to: str }))
                 }
+              />
+              <IconMaterialCommunityIcons
+                name="qrcode-scan"
+                style={{ width: 30 }}
+                onPress={() => {
+                  global.qrCodeScannerModal.show(address =>
+                    this.setState({ to: address })
+                  );
+                  // Clipboard.getString().then(str => this.setState({ to: str }))
+                }}
               />
             </Item>
             <Item>

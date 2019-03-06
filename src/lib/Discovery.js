@@ -9,6 +9,10 @@ export default class Discovery {
     return satoshi / 100000000;
   }
 
+  static btc2satoshi(btc) {
+    return btc * 100000000;
+  }
+
   static async run(coinInfoInit) {
     // Get initial copy of coinInfo
     let coinInfo = JSON.parse(JSON.stringify(coinInfoInit));
