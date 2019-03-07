@@ -20,6 +20,7 @@ import { connect } from "react-redux";
 import redux from "../redux/redux";
 import BitaWalletCard from "../lib/BitaWalletCard";
 import Coins from "../Coins";
+import Discovery from "../lib/Discovery";
 
 class TransactionsTab extends Component {
   constructor(props) {
@@ -31,14 +32,18 @@ class TransactionsTab extends Component {
     };
   }
 
-  onPressRefresh() {
-    let addressList = [
-      "1J38WorKngZLJvA7qMin9g5jqUfTQUBZNE",
-      "1DEP8i3QJCsomS4BSMY2RpU1upv62aGvhD"
-    ];
-    Blockchain.getAddressHistoryUnspent(addressList)
-      .then(res => console.log(res))
-      .catch(err => console.log(err));
+  async onPressRefresh() {
+    let coinInfoElement = "";
+    if (this.state.selectedCoin === Coins.BTC)
+      coinInfoElement = this.props.coinInfo.btc;
+    else coinInfoElement = this.props.coinInfo.tst;
+
+    let txs = await Discovery.getTransactionHistory(
+      coinInfoElement,
+      this.state.selectedCoin
+    );
+
+    console.log(txs);
   }
 
   render() {

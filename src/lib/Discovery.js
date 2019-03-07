@@ -183,4 +183,32 @@ export default class Discovery {
     );
     return firstUnusedAddress;
   }
+
+  static async getTransactionHistory(coinInfoElement, coin) {
+    let addressArray = [];
+    for (let i = 0; i < 20; i++) {
+      const address = BitaWalletCard.getChildAddress(
+        coin,
+        coinInfoElement.receiveAddressXPub,
+        i
+      );
+      addressArray.push(address);
+    }
+    for (let i = 0; i < 20; i++) {
+      const address = BitaWalletCard.getChildAddress(
+        coin,
+        coinInfoElement.changeAddressXPub,
+        i
+      );
+      addressArray.push(address);
+    }
+
+    let network = "";
+    if (coin === Coins.BTC) network = Blockchain.btcMain;
+    else network = Blockchain.btcTest;
+
+    const txs = await Blockchain.getTxs(addressArray, network);
+
+    return txs;
+  }
 }
