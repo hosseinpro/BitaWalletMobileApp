@@ -95,11 +95,16 @@ export default class Blockchain {
 
             tx.out = [];
             for (let j = 0; j < res.data.items[i].vout.length; j++) {
-              const address =
-                res.data.items[i].vout[j].scriptPubKey.addresses[0];
-              const my =
-                addressArray.filter(myAddress => myAddress === address).length >
-                0;
+              const address = "";
+              const my = false;
+              if (
+                res.data.items[i].vout[j].scriptPubKey.addresses !== undefined
+              ) {
+                address = res.data.items[i].vout[j].scriptPubKey.addresses[0];
+                my =
+                  addressArray.filter(myAddress => myAddress === address)
+                    .length > 0;
+              }
               const value = BitaWalletCard.btc2satoshi(
                 parseFloat(res.data.items[i].vout[j].value)
               );

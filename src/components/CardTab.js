@@ -92,7 +92,7 @@ class CardTab extends Component {
     } catch (error) {
       AlertBox.info(
         "Address Error",
-        "Card is not wiped.",
+        error.ToString(),
         this.startCardDetect.bind(this)
       );
     }
