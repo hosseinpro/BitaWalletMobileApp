@@ -14,8 +14,8 @@ import {
   Right,
   Body
 } from "native-base";
+import { ScrollView } from "react-native";
 import IconFontAwesome from "react-native-vector-icons/FontAwesome";
-import Blockchain from "../lib/Blockchain";
 import { connect } from "react-redux";
 import redux from "../redux/redux";
 import BitaWalletCard from "../lib/BitaWalletCard";
@@ -28,22 +28,26 @@ class TransactionsTab extends Component {
     this.state = {
       selectedCoin: Coins.BTC,
       selectedFee: "Regular",
-      coinInfoElement: this.props.coinInfo.btc
+      coinInfoElement: this.props.coinInfo.btc,
+      loading: false,
+      txs: []
     };
   }
 
-  async onPressRefresh() {
+  onPressRefresh() {
     let coinInfoElement = "";
     if (this.state.selectedCoin === Coins.BTC)
       coinInfoElement = this.props.coinInfo.btc;
     else coinInfoElement = this.props.coinInfo.tst;
 
-    let txs = await Discovery.getTransactionHistory(
+    this.setState({ loading: true });
+
+    Discovery.getTransactionHistory(
       coinInfoElement,
       this.state.selectedCoin
-    );
-
-    console.log(txs);
+    ).then(txs => {
+      this.setState({ loading: false, txs });
+    });
   }
 
   render() {
@@ -52,59 +56,98 @@ class TransactionsTab extends Component {
         <Content
           contentContainerStyle={{
             flex: 1,
-            alignItems: "center",
             marginRight: 20
           }}
         >
-          <Form style={{ width: "100%" }}>
-            <Item>
-              <Picker
-                mode="dialog"
-                selectedValue={this.state.selectedCoin}
-                onValueChange={value => {
-                  let coinInfoElement;
-                  if (value === Coins.BTC) {
-                    coinInfoElement = this.props.coinInfo.btc;
-                  } else if (value === Coins.TST) {
-                    coinInfoElement = this.props.coinInfo.tst;
-                  }
-                  this.setState({
-                    selectedCoin: value,
-                    coinInfoElement
-                  });
+          <Content contentContainerStyle={{ flex: 1 }}>
+            <Form style={{ width: "100%" }}>
+              <Item>
+                <Picker
+                  mode="dialog"
+                  selectedValue={this.state.selectedCoin}
+                  onValueChange={value => {
+                    let coinInfoElement;
+                    if (value === Coins.BTC) {
+                      coinInfoElement = this.props.coinInfo.btc;
+                    } else if (value === Coins.TST) {
+                      coinInfoElement = this.props.coinInfo.tst;
+                    }
+                    this.setState({
+                      selectedCoin: value,
+                      coinInfoElement,
+                      txs: []
+                    });
+                  }}
+                >
+                  <Picker.Item label="Bitcoin" value={Coins.BTC} />
+                  <Picker.Item label="Bitcoin (Testnet)" value={Coins.TST} />
+                </Picker>
+              </Item>
+              <Item>
+                <Label style={{ marginTop: 15, marginBottom: 15 }}>
+                  Balance :{" "}
+                  {BitaWalletCard.satoshi2btc(
+                    this.state.coinInfoElement.balance
+                  )}{" "}
+                  BTC
+                </Label>
+              </Item>
+            </Form>
+            {this.state.loading && (
+              <Content
+                contentContainerStyle={{
+                  flex: 1,
+                  justifyContent: "center",
+                  alignItems: "center"
                 }}
               >
-                <Picker.Item label="Bitcoin" value={Coins.BTC} />
-                <Picker.Item label="Bitcoin (Testnet)" value={Coins.TST} />
-              </Picker>
-            </Item>
-            <Item>
-              <Label style={{ marginTop: 15, marginBottom: 15 }}>
-                Balance :{" "}
-                {BitaWalletCard.satoshi2btc(this.state.coinInfoElement.balance)}{" "}
-                BTC
-              </Label>
-            </Item>
-            <List>
-              <ListItem>
-                <Body>
-                  <Text
-                    style={{
-                      backgroundColor: "green",
-                      color: "white",
-                      borderRadius: 10
-                    }}
-                  >
-                    {" +0.005 BTC "}
-                  </Text>
-                  <Text note>{new Date().toDateString()}</Text>
-                  <Text note numberOfLines={1}>
-                    From : mvyQZq6UvkMB97K9bUeHp4VVS1N7SeDzRX
-                  </Text>
-                </Body>
-              </ListItem>
-            </List>
-          </Form>
+                <Text>Loading...</Text>
+              </Content>
+            )}
+            <ScrollView>
+              <List>
+                {this.state.txs.map(tx => (
+                  <ListItem key={tx.txHash}>
+                    <Body>
+                      <Text
+                        style={{
+                          backgroundColor: tx.send
+                            ? "#db3e00" /*red*/
+                            : "#008b02" /*green*/,
+                          color: "white",
+                          borderRadius: 10
+                        }}
+                      >
+                        {tx.send
+                          ? " - " +
+                            BitaWalletCard.satoshi2btc(tx.value) +
+                            " BTC "
+                          : " + " +
+                            BitaWalletCard.satoshi2btc(tx.value) +
+                            " BTC "}
+                      </Text>
+                      <Text note>
+                        {tx.time.toLocaleString("en-US", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                          hour12: true,
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          second: "2-digit"
+                        })}
+                      </Text>
+                      <Text note numberOfLines={1}>
+                        {tx.send
+                          ? "To : " + tx.to
+                          : "From : " + tx.from.toString()}
+                      </Text>
+                    </Body>
+                  </ListItem>
+                ))}
+              </List>
+            </ScrollView>
+          </Content>
         </Content>
         <Button
           rounded

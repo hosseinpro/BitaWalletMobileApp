@@ -123,7 +123,7 @@ class SendTab extends Component {
         Blockchain.pushTx(res.signedTx, network)
           .then(() => {
             AlertBox.info(
-              "Send",
+              "Sent!",
               this.state.amount + " BTC" + " is sent to \n" + this.state.to
             );
 
