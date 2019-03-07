@@ -53,12 +53,16 @@ class TransactionsTab extends Component {
 
     this.setState({ loading: true });
 
-    Discovery.getTransactionHistory(
-      coinInfoElement,
-      this.state.selectedCoin
-    ).then(txs => {
-      this.setState({ loading: false, txs });
-    });
+    setTimeout(
+      () =>
+        Discovery.getTransactionHistory(
+          coinInfoElement,
+          this.state.selectedCoin
+        ).then(txs => {
+          this.setState({ loading: false, txs });
+        }),
+      500
+    );
   }
 
   render() {

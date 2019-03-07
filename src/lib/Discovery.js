@@ -140,8 +140,6 @@ export default class Discovery {
       k += chunkSize;
     }
 
-    console.log(addressInfo);
-
     return addressInfo;
   }
 
