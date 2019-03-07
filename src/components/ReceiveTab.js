@@ -14,9 +14,14 @@ class ReceiveTab extends Component {
       selectedCoin: Coins.BTC,
       receiveAddress: ""
     };
+    global.ReceiveTab = this;
   }
 
   componentDidMount() {
+    this.reset();
+  }
+
+  reset() {
     this.setState({
       selectedCoin: Coins.BTC,
       receiveAddress: this.props.coinInfo.btc.receiveAddress

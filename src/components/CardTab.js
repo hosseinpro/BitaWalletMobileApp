@@ -19,6 +19,11 @@ import AlertBox from "./AlertBox";
 import Discovery from "../lib/Discovery";
 
 class CardTab extends Component {
+  constructor(props) {
+    super(props);
+    global.CardTab = this;
+  }
+
   componentDidMount() {
     global.nfcReader = new NfcReader();
     global.bitaWalletCard = new BitaWalletCard(
@@ -94,6 +99,12 @@ class CardTab extends Component {
   }
 
   onPressDisconnect() {
+    if (global.SendTab !== undefined) global.SendTab.reset();
+    if (global.ReceiveTab !== undefined) global.ReceiveTab.reset();
+    if (global.TransactionsTab !== undefined) global.TransactionsTab.reset();
+    if (global.MoreTab !== undefined) global.MoreTab.reset();
+    this.props.navigation.navigate("Card");
+
     this.startCardDetect();
   }
 

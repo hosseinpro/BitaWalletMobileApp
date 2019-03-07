@@ -109,10 +109,11 @@ export default class Discovery {
     let k = 0;
     let stopDiscover = false;
 
+    const chunkSize = 10;
     while (!stopDiscover) {
-      let addressInfo20 = [];
+      let addressInfoChunk = [];
 
-      for (let i = k; i < k + 20; i++) {
+      for (let i = k; i < k + chunkSize; i++) {
         const address = BitaWalletCard.getChildAddress(coin, xpub, i);
         const keyPath =
           "6D2C" +
@@ -120,13 +121,13 @@ export default class Discovery {
           "00" +
           changeByte +
           BitaWalletCard.padHex(i.toString(16), 4);
-        addressInfo20.push({ address, keyPath });
+        addressInfoChunk.push({ address, keyPath });
       }
 
       // await Discovery.timeout(1200); // temp
 
       let refinedAddressInfo = await Blockchain.getUnspentTxs(
-        addressInfo20,
+        addressInfoChunk,
         network
       );
 
@@ -136,8 +137,10 @@ export default class Discovery {
           addressInfo.push(refinedAddressInfo[i]);
       }
 
-      k += 20;
+      k += chunkSize;
     }
+
+    console.log(addressInfo);
 
     return addressInfo;
   }

@@ -32,6 +32,17 @@ class TransactionsTab extends Component {
       loading: false,
       txs: []
     };
+    global.TransactionsTab = this;
+  }
+
+  reset() {
+    this.setState({
+      selectedCoin: Coins.BTC,
+      selectedFee: "Regular",
+      coinInfoElement: this.props.coinInfo.btc,
+      loading: false,
+      txs: []
+    });
   }
 
   onPressRefresh() {

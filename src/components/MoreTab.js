@@ -2,6 +2,15 @@ import React, { Component } from "react";
 import { Content, Text, Icon, List, ListItem, Left, Right } from "native-base";
 
 export default class MoreTab extends Component {
+  constructor(props) {
+    super(props);
+    global.MoreTab = this;
+  }
+
+  reset() {
+    this.props.navigation.navigate("MoreTab");
+  }
+
   render() {
     return (
       <Content contentContainerStyle={{ flex: 1, marginRight: 20 }}>

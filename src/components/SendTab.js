@@ -28,10 +28,7 @@ class SendTab extends Component {
       selectedCoin: Coins.BTC,
       selectedFee: "Regular"
     };
-  }
-
-  componentDidMount() {
-    this.reset();
+    global.SendTab = this;
   }
 
   reset() {
@@ -143,7 +140,7 @@ class SendTab extends Component {
   render() {
     return (
       <Content contentContainerStyle={{ flex: 1 }}>
-        <NavigationEvents onWillBlur={payload => this.reset()} />
+        {/* <NavigationEvents onWillBlur={payload => this.reset()} /> */}
         <Content
           contentContainerStyle={{
             flex: 1,
