@@ -50,7 +50,7 @@ public class NfcModule extends ReactContextBaseJavaModule implements NfcAdapter.
         if (!myCard.isConnected()) {
             try {
                 myCard.connect();
-                myCard.setTimeout(5000); // max timeout for an APDU
+                myCard.setTimeout(10000); // max timeout for an APDU
             } catch (Exception e) {
                 return;
             }

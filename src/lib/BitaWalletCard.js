@@ -161,10 +161,15 @@ module.exports = class BitaWalletCard {
     let txInputCount = 0;
     let inputSection = "";
     let signerKeyPaths = "";
+    // for (
+    //   let i = 0;
+    //   i < addressInfo.length && availableFund < requiredFund;
+    //   i++
+    // ) {
     for (
-      let i = 0;
-      i < addressInfo.length && availableFund < requiredFund;
-      i++
+      let i = addressInfo.length - 1;
+      i >= 0 && availableFund < requiredFund;
+      i--
     ) {
       if (addressInfo[i].txs != null) {
         for (

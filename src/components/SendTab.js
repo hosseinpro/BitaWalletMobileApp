@@ -39,7 +39,9 @@ class SendTab extends Component {
       amount: "",
       to: "",
       selectedFee: "Regular",
-      inputSection: null
+      inputSection: null,
+      spend: 0,
+      fee: 0
     });
   }
 
@@ -54,6 +56,31 @@ class SendTab extends Component {
     } else if (this.state.to === "") {
       AlertBox.info("Send", "Please enter a receiver address");
     } else {
+      let addressInfo = "";
+      if (this.state.selectedCoin === Coins.BTC)
+        addressInfo = this.props.coinInfo.btc.addressInfo;
+      else addressInfo = this.props.coinInfo.tst.addressInfo;
+
+      const spend = BitaWalletCard.btc2satoshi(parseFloat(this.state.amount));
+      const fee = 8000; //6250;
+
+      try {
+        const inputSection = BitaWalletCard.buildInputSection(
+          spend,
+          fee,
+          addressInfo
+        );
+
+        if (inputSection === null) {
+          AlertBox.info("Error", "Not enough fund");
+          return;
+        }
+        this.setState({ inputSection, spend, fee });
+      } catch (error) {
+        AlertBox.info("Error", error.toString());
+        return;
+      }
+
       global.tapCardModal.show(
         null,
         this.props.cardInfo,
@@ -68,22 +95,9 @@ class SendTab extends Component {
     global.bitaWalletCard
       .verifyPIN(this.props.pin)
       .then(() => {
-        const spend = BitaWalletCard.btc2satoshi(parseFloat(this.state.amount));
-        const fee = 500;
         global.bitaWalletCard
-          .requestSignTx(spend, fee, this.state.to)
+          .requestSignTx(this.state.spend, this.state.fee, this.state.to)
           .then(() => {
-            let addressInfo = "";
-            if (this.state.selectedCoin === Coins.BTC)
-              addressInfo = this.props.coinInfo.btc.addressInfo;
-            else addressInfo = this.props.coinInfo.tst.addressInfo;
-
-            const inputSection = BitaWalletCard.buildInputSection(
-              spend,
-              fee,
-              addressInfo
-            );
-            this.setState({ inputSection });
             global.passwordModal.show(
               "Enter SEND code",
               this.confirmSend.bind(this),
@@ -93,7 +107,7 @@ class SendTab extends Component {
       })
       .catch(error => {
         this.cancel();
-        AlertBox.info("Error", "Something is wrong.");
+        AlertBox.info("Error", error.toString());
       });
   }
 
@@ -128,12 +142,12 @@ class SendTab extends Component {
           })
           .catch(error => {
             this.cancel();
-            AlertBox.info("Error", "Something is wrong.");
+            AlertBox.info("Error", error.toString());
           });
       })
       .catch(error => {
         this.cancel();
-        AlertBox.info("Error", "Something is wrong.");
+        AlertBox.info("Error", error.toString());
       });
   }
 
