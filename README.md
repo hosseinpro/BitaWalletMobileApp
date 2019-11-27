@@ -14,5 +14,7 @@ output: android/app/build/outputs/apk/release/app-release.apk
 Test:
 \$ react-native run-android --variant=release
 
-Debug:
+Logging Debug:
+code: Console.log("")
+react-native run-android
 react-native log-android

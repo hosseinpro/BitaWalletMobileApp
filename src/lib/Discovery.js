@@ -7,7 +7,8 @@ import Coins from "../Coins";
 export default class Discovery {
   static async run(coinInfoInit) {
     // Get initial copy of coinInfo
-    let coinInfo = JSON.parse(JSON.stringify(coinInfoInit));
+    let str = JSON.stringify(coinInfoInit);
+    let coinInfo = JSON.parse(str);
 
     // Get xPubs for receiving and change addresses for BTC and TST
     try {

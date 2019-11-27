@@ -4,13 +4,15 @@ import axios from "axios";
 import BitaWalletCard from "../lib/BitaWalletCard";
 
 export default class Blockchain {
-  static baseAddressBtcMain = "https://insight.bitpay.com/api";
-  static baseAddressBtcTest = "https://test-insight.bitpay.com/api";
+  // static baseAddressBtcMain = "https://insight.bitpay.com/api";
+  // static baseAddressBtcTest = "https://test-insight.bitpay.com/api";
+  static baseAddressBtcMain = "https://blockexplorer.com/api";
+  static baseAddressBtcTest = "https://testnet.blockexplorer.com/api";
 
   static btcMain = "mainnet";
   static btcTest = "testnet";
 
-  static getUnspentTxs(addressInfo, network) {
+  static async getUnspentTxs(addressInfo, network) {
     let baseAddress = "";
     if (network === Blockchain.btcMain)
       baseAddress = Blockchain.baseAddressBtcMain;
@@ -22,42 +24,47 @@ export default class Blockchain {
       if (i < addressInfo.length - 1) addresses += ",";
     }
 
-    return new Promise((resolve, reject) => {
-      axios
-        .get(baseAddress + "/addrs/" + addresses + "/utxo")
-        .then(res => {
-          let addressInfo2 = [];
-          for (let i = 0; i < addressInfo.length; i++) {
-            let addressInfoElement = addressInfo[i];
+    // return new Promise((resolve, reject) => {
+    let query = baseAddress + "/addrs/" + addresses + "/utxo";
+    console.log("Start: " + new Date().toLocaleTimeString());
+    let res = await axios.get(query);
+    console.log("End  : " + new Date().toLocaleTimeString());
+    // let res = await fetch(query);
+    // .then(res => {
+    let addressInfo2 = [];
+    for (let i = 0; i < addressInfo.length; i++) {
+      let addressInfoElement = addressInfo[i];
 
-            let transactions = res.data.filter(
-              transaction => transaction.address === addressInfoElement.address
-            );
+      let transactions = res.data.filter(
+        transaction => transaction.address === addressInfoElement.address
+      );
 
-            // if (transactions === undefined) continue;
-            if (transactions.length === 0) continue;
+      // if (transactions === undefined) continue;
+      if (transactions.length === 0) continue;
 
-            addressInfoElement.txs = [];
+      addressInfoElement.txs = [];
 
-            for (let j = 0; j < transactions.length; j++) {
-              let tx = {};
-              tx.txHash = transactions[j].txid;
-              tx.utxo = transactions[j].vout;
-              tx.value = transactions[j].satoshis;
+      for (let j = 0; j < transactions.length; j++) {
+        let tx = {};
+        tx.txHash = transactions[j].txid;
+        tx.utxo = transactions[j].vout;
+        tx.value = transactions[j].satoshis;
 
-              addressInfoElement.txs[j] = tx;
-            }
+        addressInfoElement.txs[j] = tx;
+      }
 
-            addressInfo2.push(addressInfoElement);
-          }
+      addressInfo2.push(addressInfoElement);
+    }
 
-          resolve(addressInfo2);
-        })
-        .catch(error => {
-          console.log(error);
-          reject(error);
-        });
-    });
+    return addressInfo2;
+
+    // resolve(addressInfo2);
+    // })
+    // .catch(error => {
+    //   console.log(error);
+    //   reject(error);
+    // });
+    // });
   }
 
   static getTxs(addressArray, network) {
