@@ -33,7 +33,7 @@ class CardTab extends Component {
     this.startCardDetect();
   }
 
-  startCardDetect() {
+  async startCardDetect() {
     global.waitModal.show();
 
     this.props.unsetCardInfo();
@@ -47,7 +47,7 @@ class CardTab extends Component {
     );
   }
 
-  onWipe() {
+  async onWipe() {
     global.wipeModal.show(
       null,
       true,
@@ -56,7 +56,7 @@ class CardTab extends Component {
     );
   }
 
-  cardDetected(cardInfo) {
+  async cardDetected(cardInfo) {
     this.setState({ cardInfo });
     global.passwordModal.show(
       "Enter Card Passcode",
@@ -194,7 +194,4 @@ const mapDispatchToProps = dispatch => {
   };
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(CardTab);
+export default connect(mapStateToProps, mapDispatchToProps)(CardTab);
