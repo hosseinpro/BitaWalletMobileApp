@@ -67,29 +67,24 @@ class CardTab extends Component {
 
   async pinEntered(pin) {
     try {
-      await global.bitaWalletCard.verifyPIN(pin);
-    } catch (res) {
-      if (res.leftTries !== undefined) {
+      let leftTries = await global.bitaWalletCard.verifyPIN(pin);
+      if (leftTries !== undefined) {
         AlertBox.info(
           "Incorrect Password",
-          res.leftTries + " tries left.",
+          err.leftTries + " tries left.",
           this.startCardDetect.bind(this)
         );
-      } else {
-        this.startCardDetect();
       }
-      return;
-    }
 
-    this.props.setCardInfo(this.state.cardInfo);
-    this.props.setCardPin(pin);
+      this.props.setCardInfo(this.state.cardInfo);
+      this.props.setCardPin(pin);
 
-    try {
       const coinInfo = await Discovery.run(this.props.coinInfo);
 
       this.props.setCoinInfo(coinInfo);
       global.waitModal.hide();
     } catch (error) {
+      console.log(error);
       AlertBox.info(
         "Address Error",
         error.ToString(),

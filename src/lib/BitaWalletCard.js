@@ -1,4 +1,4 @@
-// Version: 1.7
+// Version: 1.8
 
 const sha = require("jssha");
 const ecc = require("elliptic").ec;
@@ -29,37 +29,28 @@ module.exports = class BitaWalletCard {
     return { data, sw };
   }
 
-  transmit(commandAPDU, responseFunction) {
+  async transmit(commandAPDU) {
     const cardreaderTransmit = this.cardreaderTransmit;
-    return new Promise((resolve, reject) => {
-      cardreaderTransmit(commandAPDU)
-        .then(res => {
-          const responseAPDU = this.parseResponseAPDU(res);
-          if (responseAPDU.sw === "9000") {
-            if (this.data === undefined) {
-              this.data = "";
-            }
-            responseAPDU.data = this.data + responseAPDU.data;
-            this.data = "";
-            const result = responseFunction(responseAPDU);
-            resolve(result);
-          } else if (responseAPDU.sw.substring(0, 2) === "61") {
-            const apduGetResponse = "00 BF 00 00 00";
-            this.data += responseAPDU.data;
-            this.transmit(apduGetResponse, responseFunction)
-              .then(res => resolve(res))
-              .catch(error => {
-                reject(error);
-              });
-          } else {
-            //reject({ sw: responseAPDU.sw });
-            reject(responseAPDU.sw);
-          }
-        })
-        .catch(error => {
-          reject(error);
-        });
-    });
+    try {
+      let res = await cardreaderTransmit(commandAPDU);
+      const responseAPDU = this.parseResponseAPDU(res);
+      if (responseAPDU.sw === "9000") {
+        if (this.data === undefined) {
+          this.data = "";
+        }
+        responseAPDU.data = this.data + responseAPDU.data;
+        this.data = "";
+        return responseAPDU;
+      } else if (responseAPDU.sw.substring(0, 2) === "61") {
+        const apduGetResponse = "00 BF 00 00 00";
+        this.data += responseAPDU.data;
+        return this.transmit(apduGetResponse);
+      } else {
+        throw { responseAPDU };
+      }
+    } catch (error) {
+      throw { error };
+    }
   }
 
   static hex2Ascii(hex) {
@@ -230,76 +221,58 @@ module.exports = class BitaWalletCard {
 
   ////Begin of card functions
 
-  selectApplet() {
+  async selectApplet() {
     const apduSelectApplet = "00 A4 04 00 06 FFBC00000001";
-    return this.transmit(apduSelectApplet, responseAPDU => {
-      return { result: true };
-    });
+    await this.transmit(apduSelectApplet);
   }
 
-  requestWipe() {
+  async requestWipe() {
     const apduRequestWipe = "00 E1 00 00 00";
-    return this.transmit(apduRequestWipe, responseAPDU => {
-      return { result: true };
-    });
+    await this.transmit(apduRequestWipe);
   }
 
-  wipe(yesCode, newPIN, newLabel, genMasterSeed = true) {
+  async wipe(yesCode, newPIN, newLabel, genMasterSeed = true) {
     const apduWipe = "00 E2 00 00 04" + BitaWalletCard.ascii2hex(yesCode);
-    return new Promise((resolve, reject) => {
-      this.transmit(apduWipe, responseAPDU => {
-        this.verifyPIN("1234")
-          .then(() => this.changePIN(newPIN))
-          .then(() => this.verifyPIN(newPIN))
-          .then(() => this.setLabel(newLabel))
-          .then(() => {
-            if (genMasterSeed) this.generateMasterSeed();
-          })
-          .then(resolve({ result: true }))
-          .catch(error => {
-            reject(error);
-          });
-      }).catch(error => {
-        reject(error);
-      });
-    });
+    await this.transmit(apduWipe);
+    await this.verifyPIN("1234");
+    await this.changePIN(newPIN);
+    await this.verifyPIN(newPIN);
+    await this.setLabel(newLabel);
+    if (genMasterSeed) await this.generateMasterSeed();
   }
 
-  getSerialNumber() {
+  async getSerialNumber() {
     //ISO/IEC 7816-4 2005 Section 7.2.3
     //P1-P2: FID (2FE2: EFiccid)
     //Le=00: read entire file
     const apduGetSerialNumber = "00 B0 2F E2 00";
-    return this.transmit(apduGetSerialNumber, responseAPDU => {
-      return { serialNumber: responseAPDU.data };
-    });
+    let responseAPDU = await this.transmit(apduGetSerialNumber);
+    return { serialNumber: responseAPDU.data };
   }
 
-  getVersion() {
+  async getVersion() {
     //ISO/IEC 7816-4 2005 Section 7.2.3
     //P1-P2: FID
     //Le=00: read entire file
     const apduGetVersion = "00 B0 BC 01 00";
-    return this.transmit(apduGetVersion, responseAPDU => {
-      const splitData = BitaWalletCard.hex2Ascii(responseAPDU.data).split(" ");
-      const type = splitData[0];
-      const version = splitData[1];
-      return { type, version };
-    });
+    let responseAPDU = await this.transmit(apduGetVersion);
+    const splitData = BitaWalletCard.hex2Ascii(responseAPDU.data).split(" ");
+    const type = splitData[0];
+    const version = splitData[1];
+    return { type, version };
   }
 
-  getLabel() {
+  async getLabel() {
     //ISO/IEC 7816-4 2005 Section 7.2.3
     //P1-P2: FID
     //Le=00: read entire file
     const apduGetLabel = "00 B0 BC 02 00";
-    return this.transmit(apduGetLabel, responseAPDU => {
-      const label = BitaWalletCard.hex2Ascii(responseAPDU.data);
-      return { label };
-    });
+    let responseAPDU = await this.transmit(apduGetLabel);
+    const label = BitaWalletCard.hex2Ascii(responseAPDU.data);
+    return { label };
   }
 
-  setLabel(newLabel) {
+  async setLabel(newLabel) {
     //ISO/IEC 7816-4 2005 Section 7.2.4
     //P1-P2: FID
     //Le=00: write entire file
@@ -309,74 +282,64 @@ module.exports = class BitaWalletCard {
       2
     );
     const apduSetLabel = "00 D0 BC 02" + hexLabelLength + hexLabel;
-    return this.transmit(apduSetLabel, responseAPDU => {
-      return { result: true };
-    });
+    await this.transmit(apduSetLabel);
   }
 
-  verifyPIN(cardPIN) {
+  async verifyPIN(cardPIN) {
     //ISO/IEC 7816-4 2005 Section 7.5.6
     //P2=00: global PIN
     const apduVerifyPIN = "00 20 00 00 04" + BitaWalletCard.ascii2hex(cardPIN);
-    return new Promise((resolve, reject) => {
-      this.transmit(apduVerifyPIN, responseAPDU => {
-        resolve({ result: true });
-      }).catch(sw => {
-        if (sw.substring(0, 3) === "63C") {
-          const leftTries = parseInt(sw.substring(3), 16);
-          reject({ leftTries });
-        } else {
-          reject({ error: sw });
-        }
-      });
-    });
+    try {
+      await this.transmit(apduVerifyPIN);
+    } catch (res) {
+      if (res.error !== undefined) throw { sw };
+      else if (sw.substring(0, 3) === "63C") {
+        const leftTries = parseInt(sw.substring(3), 16);
+        return leftTries;
+      } else {
+        throw res;
+      }
+    }
   }
 
-  changePIN(cardNewPIN) {
+  async changePIN(cardNewPIN) {
     //ISO/IEC 7816-4 2005 Section 7.5.7
     //p1=01: just new pin is included
     //P2=00: global PIN
     const apduChangePIN =
       "00 24 01 00 04" + BitaWalletCard.ascii2hex(cardNewPIN);
-    return this.transmit(apduChangePIN, responseAPDU => {
-      return { result: true };
-    });
+    await this.transmit(apduChangePIN);
   }
 
-  generateMasterSeed() {
+  async generateMasterSeed() {
     //ISO/IEC 7816-8 2004 Section 5.1
     //P1=84: key generation with no output
     //P2=01: reference to master seed
     const apduGenerateMS = "00 C0 BC 03";
-    return this.transmit(apduGenerateMS, responseAPDU => {
-      return { result: true };
-    });
+    await this.transmit(apduGenerateMS);
   }
 
-  requestExportMasterSeed() {
+  async requestExportMasterSeed() {
     //ISO/IEC 7816-8 2004 Section 5.2 and 5.9
     //P1=86: plain value encryption
     //P2=80: plain input data (on card)
     //Lc=len of publicKey and Le=len of encrypted data
     const apduRequestExportMS = "00 B1 BC 03 00";
-    return this.transmit(apduRequestExportMS, responseAPDU => {
-      return { result: true };
-    });
+    await this.transmit(apduRequestExportMS);
   }
 
-  exportMasterSeed(yesCode) {
+  async exportMasterSeed(yesCode) {
     //ISO/IEC 7816-8 2004 Section 5.2 and 5.9
     //P1=86: plain value encryption
     //P2=80: plain input data (on card)
     //Lc=len of publicKey and Le=len of encrypted data
     const apduExportMS = "00 B2 BC 03 04" + BitaWalletCard.ascii2hex(yesCode);
-    return this.transmit(apduExportMS, responseAPDU => {
-      const encryptedMasterSeedAndTransportKeyPublic = responseAPDU.data;
-      return { encryptedMasterSeedAndTransportKeyPublic };
-    });
+    let responseAPDU = await this.transmit(apduExportMS);
+    const encryptedMasterSeedAndTransportKeyPublic = responseAPDU.data;
+    return { encryptedMasterSeedAndTransportKeyPublic };
   }
 
-  importMasterSeed(encryptedMasterSeedAndTransportKeyPublic) {
+  async importMasterSeed(encryptedMasterSeedAndTransportKeyPublic) {
     //ISO/IEC 7816-8 2004 Section 5.2 and 5.10
     //P1=80: plain input data (on card)
     //P2=86: plain value encryption
@@ -389,12 +352,10 @@ module.exports = class BitaWalletCard {
       "00 D0 BC 03 " +
       encryptedMasterSeedAndTransportKeyPublicLength +
       encryptedMasterSeedAndTransportKeyPublic;
-    return this.transmit(apduImportMS, responseAPDU => {
-      return { result: true };
-    });
+    await this.transmit(apduImportMS);
   }
 
-  importMasterSeedPlain(masterSeed) {
+  async importMasterSeedPlain(masterSeed) {
     //ISO/IEC 7816-4 2005 Section 7.2.4
     //P1-P2: FID
     //Le=00: write entire file
@@ -404,52 +365,48 @@ module.exports = class BitaWalletCard {
       2
     );
     const apduImportMSPlain = "00 DD BC 03" + masterSeedLength + masterSeed;
-    return this.transmit(apduImportMSPlain, responseAPDU => {
-      return { result: true };
-    });
+    await this.transmit(apduImportMSPlain);
   }
 
-  getAddressList(keyPath, count) {
+  async getAddressList(keyPath, count) {
     //ISO/IEC 7816-4 2005 Section 7.2.3
     //P1-P2: FID
     //Le=00: read entire file
     const countHex = BitaWalletCard.padHex(count.toString(16), 2);
     const apduGetAddressList = "00 C0 BC 07 08" + keyPath + countHex;
-    return this.transmit(apduGetAddressList, responseAPDU => {
-      let addressList = [];
-      const addressLength = parseInt(responseAPDU.data.substring(0, 2), 16) * 2;
-      for (let i = 0; i < count; i++) {
-        addressList[i] = responseAPDU.data.substring(
-          i * addressLength + 2,
-          (i + 1) * addressLength + 2
-        );
-      }
+    let responseAPDU = await this.transmit(apduGetAddressList);
+    let addressList = [];
+    const addressLength = parseInt(responseAPDU.data.substring(0, 2), 16) * 2;
+    for (let i = 0; i < count; i++) {
+      addressList[i] = responseAPDU.data.substring(
+        i * addressLength + 2,
+        (i + 1) * addressLength + 2
+      );
+    }
 
-      const keyPathFirst = keyPath;
-      const address_index = parseInt(keyPathFirst.substring(10, 14), 16);
-      const keyPath_no_index = keyPathFirst.substring(0, 10);
+    const keyPathFirst = keyPath;
+    const address_index = parseInt(keyPathFirst.substring(10, 14), 16);
+    const keyPath_no_index = keyPathFirst.substring(0, 10);
 
-      let addressInfo = [];
-      for (let i = 0; i < addressList.length; i++) {
-        const address = BitaWalletCard.b58Encode(addressList[i]);
-        const keyPath =
-          keyPath_no_index +
-          BitaWalletCard.padHex((address_index + i).toString(16), 4);
-        addressInfo[i] = { address, keyPath };
-      }
+    let addressInfo = [];
+    for (let i = 0; i < addressList.length; i++) {
+      const address = BitaWalletCard.b58Encode(addressList[i]);
+      const keyPath =
+        keyPath_no_index +
+        BitaWalletCard.padHex((address_index + i).toString(16), 4);
+      addressInfo[i] = { address, keyPath };
+    }
 
-      return { addressInfo };
-    });
+    return { addressInfo };
   }
 
-  getXPub(keyPath) {
+  async getXPub(keyPath) {
     //ISO/IEC 7816-4 2005 Section 7.2.3
     //P1-P2: FID
     //Le=00: read entire file
     const apduGetXPub = "00 C0 BC 17 05" + keyPath;
-    return this.transmit(apduGetXPub, responseAPDU => {
-      return { xpub: responseAPDU.data };
-    });
+    let responseAPDU = await this.transmit(apduGetXPub);
+    return { xpub: responseAPDU.data };
   }
 
   // static ECPointDecompress(comp) {
@@ -558,7 +515,7 @@ module.exports = class BitaWalletCard {
     return address;
   }
 
-  getSubWalletAddressList(numOfSub, firstSubWalletNumber) {
+  async getSubWalletAddressList(numOfSub, firstSubWalletNumber) {
     //ISO/IEC 7816-4 2005 Section 7.2.3
     //P1-P2: FID
     //Le=00: read entire file
@@ -569,27 +526,26 @@ module.exports = class BitaWalletCard {
     );
     const apduGetSubWalletAddressList =
       "00 C0 BC 08 03" + numOfSubHex + firstSubWalletNumberHex;
-    return this.transmit(apduGetSubWalletAddressList, responseAPDU => {
-      let addressList = [];
-      const addressLength = parseInt(responseAPDU.data.substring(0, 2), 16) * 2;
-      for (let i = 0; i < numOfSub; i++) {
-        addressList[i] = responseAPDU.data.substring(
-          i * addressLength + 2,
-          (i + 1) * addressLength + 2
-        );
-      }
+    let responseAPDU = await this.transmit(apduGetSubWalletAddressList);
+    let addressList = [];
+    const addressLength = parseInt(responseAPDU.data.substring(0, 2), 16) * 2;
+    for (let i = 0; i < numOfSub; i++) {
+      addressList[i] = responseAPDU.data.substring(
+        i * addressLength + 2,
+        (i + 1) * addressLength + 2
+      );
+    }
 
-      let addressInfo = [];
-      for (let i = 0; i < addressList.length; i++) {
-        const address = BitaWalletCard.b58Encode(addressList[i]);
-        addressInfo[i] = { address };
-      }
+    let addressInfo = [];
+    for (let i = 0; i < addressList.length; i++) {
+      const address = BitaWalletCard.b58Encode(addressList[i]);
+      addressInfo[i] = { address };
+    }
 
-      return { addressInfo };
-    });
+    return { addressInfo };
   }
 
-  requestGenerateSubWalletTx(spend, fee, numOfSub, firstSubWalletNumber) {
+  async requestGenerateSubWalletTx(spend, fee, numOfSub, firstSubWalletNumber) {
     //ISO/IEC 7816-8 2004 Section 5.2 and 5.4
     //INS=2A
     //P1=9F: 9E is digital signature
@@ -609,12 +565,10 @@ module.exports = class BitaWalletCard {
     );
     const apduRequestGenerateSubWalletTx =
       "00 C1 BC 06 " + payloadLength + payload;
-    return this.transmit(apduRequestGenerateSubWalletTx, responseAPDU => {
-      return { result: true };
-    });
+    await this.transmit(apduRequestGenerateSubWalletTx);
   }
 
-  generateSubWalletTx(
+  async generateSubWalletTx(
     yesCode,
     fund,
     changeKeyPath,
@@ -645,13 +599,12 @@ module.exports = class BitaWalletCard {
         "00" + BitaWalletCard.padHex((payload.length / 2).toString(16), 4);
     }
     const apduGenerateSubWalletTx = "00 C2 BC 06 " + payloadLength + payload; // + "0000";
-    return this.transmit(apduGenerateSubWalletTx, responseAPDU => {
-      const signedTx = responseAPDU.data;
-      return { signedTx };
-    });
+    let responseAPDU = await this.transmit(apduGenerateSubWalletTx);
+    const signedTx = responseAPDU.data;
+    return { signedTx };
   }
 
-  requestExportSubWallet(subWalletNumber) {
+  async requestExportSubWallet(subWalletNumber) {
     //ISO/IEC 7816-8 2004 Section 5.2 and 5.9
     //P1=86: plain value encryption
     //P2=80: plain input data (on card)
@@ -661,38 +614,34 @@ module.exports = class BitaWalletCard {
       4
     );
     const apduRequestExportSubWallet = "00 B1 BC 06 02" + subWalletNumberHex;
-    return this.transmit(apduRequestExportSubWallet, responseAPDU => {
-      return { result: true };
-    });
+    await this.transmit(apduRequestExportSubWallet);
   }
 
-  exportSubWallet(yesCode) {
+  async exportSubWallet(yesCode) {
     //ISO/IEC 7816-8 2004 Section 5.2 and 5.9
     //P1=86: plain value encryption
     //P2=80: plain input data (on card)
     //Lc=len of publicKey and Le=len of encrypted data
     const apduExportSubWallet =
       "00 B2 BC 06 04" + BitaWalletCard.ascii2hex(yesCode);
-    return this.transmit(apduExportSubWallet, responseAPDU => {
-      const encryptedSeedAndTransportKeyPublic = responseAPDU.data;
-      return { encryptedSeedAndTransportKeyPublic };
-    });
+    let responseAPDU = await this.transmit(apduExportSubWallet);
+    const encryptedSeedAndTransportKeyPublic = responseAPDU.data;
+    return { encryptedSeedAndTransportKeyPublic };
   }
 
-  generateTransportKey() {
+  async generateTransportKey() {
     //ISO/IEC 7816-8 2004 Section 5.1
     //P1=84: key generation with no output
     //P2=00: reference to transport Key
     //Lc=null and Le=256
     //just returns modulus, public exponent = 0x10001
     const apduGenerateTK = "00 C0 BC 04 00";
-    return this.transmit(apduGenerateTK, responseAPDU => {
-      const transportKeyPublic = responseAPDU.data;
-      return { transportKeyPublic };
-    });
+    let responseAPDU = await this.transmit(apduGenerateTK);
+    const transportKeyPublic = responseAPDU.data;
+    return { transportKeyPublic };
   }
 
-  importTransportKeyPublic(backupCardTransportKeyPublic) {
+  async importTransportKeyPublic(backupCardTransportKeyPublic) {
     //ISO/IEC 7816-4 2005 Section 7.2.4
     //P1-P2: FID
     //Le=00: write entire file
@@ -704,12 +653,10 @@ module.exports = class BitaWalletCard {
       "00 D0 BC 05 " +
       backupCardTransportKeyPublicLength +
       backupCardTransportKeyPublic;
-    return this.transmit(apduImportTKPub, responseAPDU => {
-      return { result: true };
-    });
+    await this.transmit(apduImportTKPub);
   }
 
-  requestSignTx(spend, fee, destAddress) {
+  async requestSignTx(spend, fee, destAddress) {
     //ISO/IEC 7816-8 2004 Section 5.2 and 5.4
     //INS=2A
     //P1=9E: digital signature
@@ -727,12 +674,10 @@ module.exports = class BitaWalletCard {
       2
     );
     const apduRequestSignTx = "00 31 00 01 " + payloadLength + payload;
-    return this.transmit(apduRequestSignTx, responseAPDU => {
-      return { result: true };
-    });
+    await this.transmit(apduRequestSignTx);
   }
 
-  signTx(yesCode, fund, changeKeyPath, inputSection, signerKeyPaths) {
+  async signTx(yesCode, fund, changeKeyPath, inputSection, signerKeyPaths) {
     //ISO/IEC 7816-8 2004 Section 5.2 and 5.4
     //INS=2A
     //P1=9E: digital signature
@@ -757,14 +702,15 @@ module.exports = class BitaWalletCard {
         "00" + BitaWalletCard.padHex((payload.length / 2).toString(16), 4);
     }
     const apduSignTx = "00 32 00 01 " + payloadLength + payload; // + "0000";
-    return this.transmit(apduSignTx, responseAPDU => {
-      const signedTx = responseAPDU.data;
-      return { signedTx };
-    });
+    let responseAPDU = await this.transmit(apduSignTx);
+    const signedTx = responseAPDU.data;
+    return { signedTx };
   }
 
-  cancel() {
-    this.getSerialNumber().catch(error => {});
+  async cancel() {
+    try {
+      await this.getSerialNumber();
+    } catch (error) {}
   }
 
   ////End of card functions

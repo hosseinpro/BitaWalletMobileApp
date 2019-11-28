@@ -15,7 +15,7 @@ export default class TabCardModal extends Component {
   };
 
   // onCancel or onWipe should be not null logically
-  show(message, cardInfo, onComplete, onCancel = null, onWipe = null) {
+  async show(message, cardInfo, onComplete, onCancel = null, onWipe = null) {
     let showWipe = false;
     if (onWipe !== null) {
       showWipe = true;
@@ -30,18 +30,16 @@ export default class TabCardModal extends Component {
     });
 
     if (cardInfo !== null) {
-      global.bitaWalletCard
-        .getSerialNumber()
-        .then(res => {
-          if (cardInfo.serialNumber === res.serialNumber) {
-            this.state.onComplete(cardInfo);
-          } else {
-            this.show2();
-          }
-        })
-        .catch(error => {
+      try {
+        let res = await global.bitaWalletCard.getSerialNumber();
+        if (cardInfo.serialNumber === res.serialNumber) {
+          this.state.onComplete(cardInfo);
+        } else {
           this.show2();
-        });
+        }
+      } catch (error) {
+        this.show2();
+      }
     } else {
       this.show2();
     }
@@ -52,55 +50,38 @@ export default class TabCardModal extends Component {
     global.nfcReader.enableCardDetection(this.cardDetected.bind(this));
   }
 
-  cardDetected() {
-    this.getCardInfo()
-      .then(cardInfo => {
-        if (
-          this.state.cardInfo !== null &&
-          this.state.cardInfo.serialNumber !== cardInfo.serialNumber
-        ) {
-          this.setState({ error: true });
-          global.nfcReader.enableCardDetection(this.cardDetected.bind(this));
-          return;
-        }
-
-        this.setState({ visible: false });
-        this.state.onComplete(cardInfo);
-      })
-      .catch(error => {
+  async cardDetected() {
+    try {
+      let cardInfo = await this.getCardInfo();
+      if (
+        this.state.cardInfo !== null &&
+        this.state.cardInfo.serialNumber !== cardInfo.serialNumber
+      ) {
+        this.setState({ error: true });
         global.nfcReader.enableCardDetection(this.cardDetected.bind(this));
-      });
+        return;
+      }
+
+      this.setState({ visible: false });
+      this.state.onComplete(cardInfo);
+    } catch (error) {
+      console.log(error);
+      global.nfcReader.enableCardDetection(this.cardDetected.bind(this));
+    }
   }
 
-  getCardInfo() {
-    return new Promise((resolve, reject) => {
-      let cardInfo = {};
-      global.bitaWalletCard
-        .selectApplet()
-        .then(() =>
-          global.bitaWalletCard
-            .getSerialNumber()
-            .then(res => (cardInfo.serialNumber = res.serialNumber))
-            .then(() =>
-              global.bitaWalletCard
-                .getVersion()
-                .then(res => {
-                  cardInfo.type = res.type;
-                  cardInfo.version = res.version;
-                })
-                .then(() =>
-                  global.bitaWalletCard
-                    .getLabel()
-                    .then(res => (cardInfo.label = res.label))
-                    .then(() => (this.cardInfo = cardInfo))
-                    .then(() => resolve(cardInfo))
-                )
-            )
-        )
-        .catch(error => {
-          reject(error);
-        });
-    });
+  async getCardInfo() {
+    let cardInfo = {};
+    await global.bitaWalletCard.selectApplet();
+    let res = await global.bitaWalletCard.getSerialNumber();
+    cardInfo.serialNumber = res.serialNumber;
+    res = await global.bitaWalletCard.getVersion();
+    cardInfo.type = res.type;
+    cardInfo.version = res.version;
+    res = await global.bitaWalletCard.getLabel();
+    cardInfo.label = res.label;
+    this.cardInfo = cardInfo;
+    return cardInfo;
   }
 
   render() {

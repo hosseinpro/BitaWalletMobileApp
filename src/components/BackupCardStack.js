@@ -31,8 +31,8 @@ class BackupCardStack extends Component {
     encryptedMasterSeedAndTransportKeyPublic: null
   };
 
-  reset() {
-    global.bitaWalletCard.cancel();
+  async reset() {
+    await global.bitaWalletCard.cancel();
 
     this.setState({
       stepBegin: false,
@@ -56,20 +56,18 @@ class BackupCardStack extends Component {
     );
   }
 
-  backupCardDetected(backupCardInfo) {
+  async backupCardDetected(backupCardInfo) {
     this.setState({ backupCardInfo });
-    global.bitaWalletCard
-      .generateTransportKey()
-      .then(res => {
-        this.setState({ transportKeyPublic: res.transportKeyPublic });
-        const kcv1 = BitaWalletCard.generateKCV(res.transportKeyPublic);
-        this.setState({ kcv1 });
-        this.setState({ step1Complete: true });
-      })
-      .catch(error => {
-        AlertBox.info("Error", "Something is wrong.");
-        this.reset();
-      });
+    try {
+      let res = await global.bitaWalletCard.generateTransportKey();
+      this.setState({ transportKeyPublic: res.transportKeyPublic });
+      const kcv1 = BitaWalletCard.generateKCV(res.transportKeyPublic);
+      this.setState({ kcv1 });
+      this.setState({ step1Complete: true });
+    } catch (error) {
+      AlertBox.info("Error", "Something is wrong.");
+      this.reset();
+    }
   }
 
   onPressMatch1() {
@@ -82,24 +80,20 @@ class BackupCardStack extends Component {
     );
   }
 
-  mainCardDetected() {
-    global.bitaWalletCard
-      .verifyPIN(this.props.pin)
-      .then(() => {
-        global.bitaWalletCard
-          .importTransportKeyPublic(this.state.transportKeyPublic)
-          .then(() => {
-            global.bitaWalletCard.requestExportMasterSeed().then(() => {
-              const kcv1 = this.state.kcv1;
-              this.setState({ kcv2: kcv1 });
-              this.setState({ step3Complete: true });
-            });
-          });
-      })
-      .catch(error => {
-        AlertBox.info("Error", "Something is wrong.");
-        this.reset();
-      });
+  async mainCardDetected() {
+    try {
+      await global.bitaWalletCard.verifyPIN(this.props.pin);
+      await global.bitaWalletCard.importTransportKeyPublic(
+        this.state.transportKeyPublic
+      );
+      await global.bitaWalletCard.requestExportMasterSeed();
+      const kcv1 = this.state.kcv1;
+      this.setState({ kcv2: kcv1 });
+      this.setState({ step3Complete: true });
+    } catch (error) {
+      AlertBox.info("Error", "Something is wrong.");
+      this.reset();
+    }
   }
 
   onPressMatch2() {
@@ -111,25 +105,23 @@ class BackupCardStack extends Component {
     );
   }
 
-  mainCardYescodeEntered(yescode) {
-    global.bitaWalletCard
-      .exportMasterSeed(yescode)
-      .then(res => {
-        this.setState({
-          encryptedMasterSeedAndTransportKeyPublic:
-            res.encryptedMasterSeedAndTransportKeyPublic
-        });
-        global.tapCardModal.show(
-          "tap your backup card again",
-          this.state.backupCardInfo,
-          this.backupCardDetected2.bind(this),
-          this.reset.bind(this)
-        );
-      })
-      .catch(error => {
-        AlertBox.info("Error", "Something is wrong.");
-        this.reset();
+  async mainCardYescodeEntered(yescode) {
+    try {
+      let res = await global.bitaWalletCard.exportMasterSeed(yescode);
+      this.setState({
+        encryptedMasterSeedAndTransportKeyPublic:
+          res.encryptedMasterSeedAndTransportKeyPublic
       });
+      global.tapCardModal.show(
+        "tap your backup card again",
+        this.state.backupCardInfo,
+        this.backupCardDetected2.bind(this),
+        this.reset.bind(this)
+      );
+    } catch (error) {
+      AlertBox.info("Error", "Something is wrong.");
+      this.reset();
+    }
   }
 
   backupCardDetected2() {
@@ -141,29 +133,26 @@ class BackupCardStack extends Component {
     );
   }
 
-  backupCardWiped(pin) {
-    global.bitaWalletCard
-      .verifyPIN(pin)
-      .then(() =>
-        global.bitaWalletCard
-          .importMasterSeed(this.state.encryptedMasterSeedAndTransportKeyPublic)
-          .then(() => {
-            this.setState({ step5Complete: true });
-            AlertBox.info("Backup", "Your wallet is backed up.");
-            this.reset();
-          })
-      )
-      .catch(error => {
-        if (error === "6986") {
-          //just for demo because we have only one card
-          this.setState({ step5Complete: true });
-          AlertBox.info("Backup", "Your wallet is backed up.");
-          this.reset();
-        } else {
-          AlertBox.info("Error", "Something is wrong.");
-          this.reset();
-        }
-      });
+  async backupCardWiped(pin) {
+    try {
+      await global.bitaWalletCard.verifyPIN(pin);
+      await global.bitaWalletCard.importMasterSeed(
+        this.state.encryptedMasterSeedAndTransportKeyPublic
+      );
+      this.setState({ step5Complete: true });
+      AlertBox.info("Backup", "Your wallet is backed up.");
+      this.reset();
+    } catch (error) {
+      if (error === "6986") {
+        //just for demo because we have only one card
+        this.setState({ step5Complete: true });
+        AlertBox.info("Backup", "Your wallet is backed up.");
+        this.reset();
+      } else {
+        AlertBox.info("Error", "Something is wrong.");
+        this.reset();
+      }
+    }
   }
 
   render() {
@@ -319,7 +308,4 @@ const mapDispatchToProps = dispatch => {
   return {};
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(BackupCardStack);
+export default connect(mapStateToProps, mapDispatchToProps)(BackupCardStack);
