@@ -24,19 +24,16 @@ class ChangePasswordStack extends Component {
     }
   }
 
-  changePassword() {
-    global.bitaWalletCard
-      .verifyPIN(this.props.pin)
-      .then(() => {
-        global.bitaWalletCard.changePIN(this.state.newPin).then(() => {
-          this.props.setCardPin(this.state.newPin);
-          AlertBox.info("Password", "Password is changed.");
-        });
-      })
-      .catch(error => {
-        AlertBox.info("Error", "Something is wrong.");
-      })
-      .finally(this.props.navigation.navigate("MoreTab"));
+  async changePassword() {
+    try {
+      await global.bitaWalletCard.verifyPIN(this.props.pin);
+      await global.bitaWalletCard.changePIN(this.state.newPin);
+      this.props.setCardPin(this.state.newPin);
+      AlertBox.info("Password", "Password is changed.");
+    } catch (error) {
+      AlertBox.info("Error", "Something is wrong.");
+    }
+    this.props.navigation.navigate("MoreTab");
   }
 
   render() {

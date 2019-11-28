@@ -51,39 +51,35 @@ export default class WipeModal extends Component {
     }
   }
 
-  cardDetected(cardInfo) {
+  async cardDetected(cardInfo) {
     this.setState({ cardInfo });
-    global.bitaWalletCard
-      .requestWipe()
-      .then(() => {
-        global.passwordModal.show(
-          "Enter WIPE code",
-          this.yescodeEntered.bind(this),
-          () => global.bitaWalletCard.cancel()
-        );
-      })
-      .catch(error => {
-        AlertBox.info("Error", "Something is wrong.");
-      });
+    try {
+      await global.bitaWalletCard.requestWipe();
+      global.passwordModal.show(
+        "Enter WIPE code",
+        this.yescodeEntered.bind(this),
+        () => global.bitaWalletCard.cancel()
+      );
+    } catch (error) {
+      AlertBox.info("Error", "Something is wrong.");
+    }
   }
 
-  yescodeEntered(yescode) {
-    global.bitaWalletCard
-      .wipe(
+  async yescodeEntered(yescode) {
+    try {
+      await global.bitaWalletCard.wipe(
         yescode,
         this.state.newPin,
         this.state.newLabel,
         this.state.genMasterSeed
-      )
-      .then(() => {
-        AlertBox.info("Wipe", "Card is wiped.", () => {
-          this.setState({ visible: false });
-          this.state.onComplete(this.state.newPin);
-        });
-      })
-      .catch(error => {
-        AlertBox.info("Error", "Something is wrong.");
+      );
+      AlertBox.info("Wipe", "Card is wiped.", () => {
+        this.setState({ visible: false });
+        this.state.onComplete(this.state.newPin);
       });
+    } catch (error) {
+      AlertBox.info("Error", "Something is wrong.");
+    }
   }
 
   render() {

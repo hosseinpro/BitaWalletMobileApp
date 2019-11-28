@@ -89,29 +89,28 @@ class SendTab extends Component {
     }
   }
 
-  requestSend() {
+  async requestSend() {
     global.waitModal.show();
 
-    global.bitaWalletCard
-      .verifyPIN(this.props.pin)
-      .then(() => {
-        global.bitaWalletCard
-          .requestSignTx(this.state.spend, this.state.fee, this.state.to)
-          .then(() => {
-            global.passwordModal.show(
-              "Enter SEND code",
-              this.confirmSend.bind(this),
-              () => this.cancel()
-            );
-          });
-      })
-      .catch(error => {
-        this.cancel();
-        AlertBox.info("Error", error.toString());
-      });
+    try {
+      await global.bitaWalletCard.verifyPIN(this.props.pin);
+      await global.bitaWalletCard.requestSignTx(
+        this.state.spend,
+        this.state.fee,
+        this.state.to
+      );
+      global.passwordModal.show(
+        "Enter SEND code",
+        this.confirmSend.bind(this),
+        () => this.cancel()
+      );
+    } catch (error) {
+      this.cancel();
+      AlertBox.info("Error", error.toString());
+    }
   }
 
-  confirmSend(yescode) {
+  async confirmSend(yescode) {
     let network = "";
     let changeKeyPath = "";
     if (this.state.selectedCoin === Coins.BTC) {
@@ -122,33 +121,25 @@ class SendTab extends Component {
       changeKeyPath = this.props.coinInfo.tst.changeKeyPath;
     }
 
-    global.bitaWalletCard
-      .signTx(
+    try {
+      let res = await global.bitaWalletCard.signTx(
         yescode,
         this.state.inputSection.fund,
         changeKeyPath,
         this.state.inputSection.inputSection,
         this.state.inputSection.signerKeyPaths
-      )
-      .then(res => {
-        Blockchain.pushTx(res.signedTx, network)
-          .then(() => {
-            AlertBox.info(
-              "Sent!",
-              this.state.amount + " BTC" + " is sent to \n" + this.state.to
-            );
+      );
+      await Blockchain.pushTx(res.signedTx, network);
+      AlertBox.info(
+        "Sent!",
+        this.state.amount + " BTC" + " is sent to \n" + this.state.to
+      );
 
-            this.reset();
-          })
-          .catch(error => {
-            this.cancel();
-            AlertBox.info("Error", error.toString());
-          });
-      })
-      .catch(error => {
-        this.cancel();
-        AlertBox.info("Error", error.toString());
-      });
+      this.reset();
+    } catch (error) {
+      this.cancel();
+      AlertBox.info("Error", error.toString());
+    }
   }
 
   render() {
@@ -244,7 +235,4 @@ const mapStateToProps = state => {
   };
 };
 
-export default connect(
-  mapStateToProps,
-  null
-)(SendTab);
+export default connect(mapStateToProps, null)(SendTab);

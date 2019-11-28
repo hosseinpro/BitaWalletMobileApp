@@ -292,9 +292,9 @@ module.exports = class BitaWalletCard {
     try {
       await this.transmit(apduVerifyPIN);
     } catch (res) {
-      if (res.error !== undefined) throw { sw };
-      else if (sw.substring(0, 3) === "63C") {
-        const leftTries = parseInt(sw.substring(3), 16);
+      if (res.error.responseAPDU === undefined) throw res;
+      else if (res.error.responseAPDU.sw.substring(0, 3) === "63C") {
+        const leftTries = parseInt(res.error.responseAPDU.sw.substring(3), 16);
         return leftTries;
       } else {
         throw res;

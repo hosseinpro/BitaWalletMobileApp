@@ -21,23 +21,20 @@ class ChangeLabelStack extends Component {
     }
   }
 
-  changeLabel(cardInfo) {
-    global.bitaWalletCard
-      .verifyPIN(this.props.pin)
-      .then(() => {
-        global.bitaWalletCard.setLabel(this.state.newLabel).then(() => {
-          const cardInfo = {
-            ...this.props.cardInfo,
-            label: this.state.newLabel
-          };
-          this.props.setCardInfo(cardInfo);
-          AlertBox.info("Label", "Label is changed.");
-        });
-      })
-      .catch(error => {
-        AlertBox.info("Error", "Something is wrong.");
-      })
-      .finally(this.props.navigation.navigate("MoreTab"));
+  async changeLabel(cardInfo) {
+    try {
+      await global.bitaWalletCard.verifyPIN(this.props.pin);
+      await global.bitaWalletCard.setLabel(this.state.newLabel);
+      const cardInfo = {
+        ...this.props.cardInfo,
+        label: this.state.newLabel
+      };
+      this.props.setCardInfo(cardInfo);
+      AlertBox.info("Label", "Label is changed.");
+    } catch (error) {
+      AlertBox.info("Error", "Something is wrong.");
+    }
+    this.props.navigation.navigate("MoreTab");
   }
 
   render() {
@@ -91,7 +88,4 @@ const mapDispatchToProps = dispatch => {
   };
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(ChangeLabelStack);
+export default connect(mapStateToProps, mapDispatchToProps)(ChangeLabelStack);

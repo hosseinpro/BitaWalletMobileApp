@@ -71,9 +71,10 @@ class CardTab extends Component {
       if (leftTries !== undefined) {
         AlertBox.info(
           "Incorrect Password",
-          err.leftTries + " tries left.",
+          leftTries + " tries left.",
           this.startCardDetect.bind(this)
         );
+        return;
       }
 
       this.props.setCardInfo(this.state.cardInfo);
@@ -85,11 +86,7 @@ class CardTab extends Component {
       global.waitModal.hide();
     } catch (error) {
       console.log(error);
-      AlertBox.info(
-        "Address Error",
-        error.ToString(),
-        this.startCardDetect.bind(this)
-      );
+      this.startCardDetect();
     }
   }
 
