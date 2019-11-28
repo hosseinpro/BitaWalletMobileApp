@@ -5,6 +5,13 @@
 Simulator: CTRL + M
 Device: adb shell input keyevent 82
 
+## Updated Android files
+
+android/app/src/mainAndroidManifest.xml
+android/app/src/main/java/com/bitawalletmobileapp/MainApplication.java
+android/gradle.properties
+android/app/build.gradle
+
 ## Generating the release APK
 
 $ cd android
