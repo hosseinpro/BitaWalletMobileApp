@@ -7,10 +7,11 @@ Device: adb shell input keyevent 82
 
 ## Updated Android files
 
-android/app/src/mainAndroidManifest.xml
+android/app/src/main/AndroidManifest.xml
 android/app/src/main/java/com/bitawalletmobileapp/MainApplication.java
 android/gradle.properties
 android/app/build.gradle
+.babelrc
 
 ## Generating the release APK
 
@@ -19,6 +20,7 @@ $ ./gradlew assembleRelease
 output: android/app/build/outputs/apk/release/app-release.apk
 
 Test:
+$ cd ..
 \$ react-native run-android --variant=release
 
 Logging Debug:

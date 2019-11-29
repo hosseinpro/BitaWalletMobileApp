@@ -478,7 +478,9 @@ module.exports = class BitaWalletCard {
 
     const ec = new ecc("secp256k1");
     const KParPoint = ec.keyFromPublic({ x, y }).getPublic();
+    let b = new Date().getTime();
     const Ki = ec.g.mul(iL).add(KParPoint);
+    console.log("Ki: " + (new Date().getTime() - b));
 
     let pubKey = Ki.encode("hex", true);
     return pubKey;

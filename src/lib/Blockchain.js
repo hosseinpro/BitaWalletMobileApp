@@ -25,9 +25,9 @@ export default class Blockchain {
     }
 
     let query = baseAddress + "/addrs/" + addresses + "/utxo";
-    console.log("Start: " + new Date().toLocaleTimeString());
+    // console.log("Start axios.get: " + new Date().toLocaleTimeString());
     let res = await axios.get(query);
-    console.log("End  : " + new Date().toLocaleTimeString());
+    // console.log("End   axios.get: " + new Date().toLocaleTimeString());
     let addressInfo2 = [];
     for (let i = 0; i < addressInfo.length; i++) {
       let addressInfoElement = addressInfo[i];
