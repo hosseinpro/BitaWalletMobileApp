@@ -1,8 +1,8 @@
 // Version: 1.8
 
 const sha = require("jssha");
-const ecc = require("elliptic").ec;
-const Ripemd160 = require("./Ripemd160");
+// const ecc = require("elliptic").ec;
+// const Ripemd160 = require("./Ripemd160");
 
 module.exports = class BitaWalletCard {
   constructor(cardreaderTransmit) {
@@ -452,70 +452,70 @@ module.exports = class BitaWalletCard {
   //   };
   // }
 
-  static bip32DeriveChildPublicKey(parentXPub, addressIndex) {
-    // parentXPub : KPar_xy[65] | cPar[32]
+  // static bip32DeriveChildPublicKey(parentXPub, addressIndex) {
+  //   // parentXPub : KPar_xy[65] | cPar[32]
 
-    if (addressIndex >= 0x80000000) return false;
+  //   if (addressIndex >= 0x80000000) return false;
 
-    const x = parentXPub.substring(2, 66);
-    const y = parentXPub.substring(66, 130);
+  //   const x = parentXPub.substring(2, 66);
+  //   const y = parentXPub.substring(66, 130);
 
-    const ySign = parseInt(y.substring(y.length - 2), 16);
-    let KPar = "";
-    if ((ySign & 0x01) === 0x01)
-      // y last digit is odd
-      KPar = "03" + x;
-    // y last digit is even
-    else KPar = "02" + x;
+  //   const ySign = parseInt(y.substring(y.length - 2), 16);
+  //   let KPar = "";
+  //   if ((ySign & 0x01) === 0x01)
+  //     // y last digit is odd
+  //     KPar = "03" + x;
+  //   // y last digit is even
+  //   else KPar = "02" + x;
 
-    const addressIndexHex = BitaWalletCard.padHex(addressIndex.toString(16), 8);
-    const cPar = parentXPub.substring(130);
-    const sha512 = new sha("SHA-512", "HEX");
-    sha512.setHMACKey(cPar, "HEX");
-    sha512.update(KPar + addressIndexHex);
-    const hmac = sha512.getHMAC("HEX");
-    const iL = hmac.substring(0, 64);
+  //   const addressIndexHex = BitaWalletCard.padHex(addressIndex.toString(16), 8);
+  //   const cPar = parentXPub.substring(130);
+  //   const sha512 = new sha("SHA-512", "HEX");
+  //   sha512.setHMACKey(cPar, "HEX");
+  //   sha512.update(KPar + addressIndexHex);
+  //   const hmac = sha512.getHMAC("HEX");
+  //   const iL = hmac.substring(0, 64);
 
-    const ec = new ecc("secp256k1");
-    const KParPoint = ec.keyFromPublic({ x, y }).getPublic();
-    let b = new Date().getTime();
-    const Ki = ec.g.mul(iL).add(KParPoint);
-    console.log("Ki: " + (new Date().getTime() - b));
+  //   const ec = new ecc("secp256k1");
+  //   const KParPoint = ec.keyFromPublic({ x, y }).getPublic();
+  //   let b = new Date().getTime();
+  //   const Ki = ec.g.mul(iL).add(KParPoint);
+  //   console.log("Ki: " + (new Date().getTime() - b));
 
-    let pubKey = Ki.encode("hex", true);
-    return pubKey;
-  }
+  //   let pubKey = Ki.encode("hex", true);
+  //   return pubKey;
+  // }
 
-  static publicKeyToAddress(coin, pubKeyCompressed) {
-    let sha256 = new sha("SHA-256", "HEX");
-    sha256.update(pubKeyCompressed);
-    let hash = sha256.getHash("HEX");
-    hash = Ripemd160.hash(hash);
+  // static publicKeyToAddress(coin, pubKeyCompressed) {
+  //   let sha256 = new sha("SHA-256", "HEX");
+  //   sha256.update(pubKeyCompressed);
+  //   let hash = sha256.getHash("HEX");
+  //   hash = Ripemd160.hash(hash);
 
-    if (coin === BitaWalletCard.btcMain) hash = "00" + hash;
-    else hash = "6F" + hash;
-    let result = hash;
+  //   if (coin === BitaWalletCard.btcMain) hash = "00" + hash;
+  //   else hash = "6F" + hash;
+  //   let result = hash;
 
-    sha256 = new sha("SHA-256", "HEX");
-    sha256.update(hash);
-    hash = sha256.getHash("HEX");
-    sha256 = new sha("SHA-256", "HEX");
-    sha256.update(hash);
-    hash = sha256.getHash("HEX");
+  //   sha256 = new sha("SHA-256", "HEX");
+  //   sha256.update(hash);
+  //   hash = sha256.getHash("HEX");
+  //   sha256 = new sha("SHA-256", "HEX");
+  //   sha256.update(hash);
+  //   hash = sha256.getHash("HEX");
 
-    result += hash.substring(0, 8);
-    const b58 = BitaWalletCard.b58Encode(result);
-    return b58;
-  }
+  //   result += hash.substring(0, 8);
+  //   const b58 = BitaWalletCard.b58Encode(result);
+  //   return b58;
+  // }
 
-  static getChildAddress(coin, parentXPub, addressIndex) {
-    const childPub = BitaWalletCard.bip32DeriveChildPublicKey(
-      parentXPub,
-      addressIndex
-    );
-    const address = BitaWalletCard.publicKeyToAddress(coin, childPub);
-    return address;
-  }
+  // static getChildAddress(coin, parentXPub, addressIndex) {
+  //   const childPub = BitaWalletCard.bip32DeriveChildPublicKey(
+  //     parentXPub,
+  //     addressIndex
+  //   );
+  //   const address = BitaWalletCard.publicKeyToAddress(coin, childPub);
+  //   return address;
+  // }
 
   async getSubWalletAddressList(numOfSub, firstSubWalletNumber) {
     //ISO/IEC 7816-4 2005 Section 7.2.3

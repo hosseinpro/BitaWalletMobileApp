@@ -12,49 +12,49 @@ export default class Blockchain {
   static btcMain = "mainnet";
   static btcTest = "testnet";
 
-  static async getUnspentTxs(addressInfo, network) {
-    let baseAddress = "";
-    if (network === Blockchain.btcMain)
-      baseAddress = Blockchain.baseAddressBtcMain;
-    else baseAddress = Blockchain.baseAddressBtcTest;
+  // static async getUnspentTxs(addressInfo, network) {
+  //   let baseAddress = "";
+  //   if (network === Blockchain.btcMain)
+  //     baseAddress = Blockchain.baseAddressBtcMain;
+  //   else baseAddress = Blockchain.baseAddressBtcTest;
 
-    let addresses = "";
-    for (let i = 0; i < addressInfo.length; i++) {
-      addresses += addressInfo[i].address;
-      if (i < addressInfo.length - 1) addresses += ",";
-    }
+  //   let addresses = "";
+  //   for (let i = 0; i < addressInfo.length; i++) {
+  //     addresses += addressInfo[i].address;
+  //     if (i < addressInfo.length - 1) addresses += ",";
+  //   }
 
-    let query = baseAddress + "/addrs/" + addresses + "/utxo";
-    // console.log("Start axios.get: " + new Date().toLocaleTimeString());
-    let res = await axios.get(query);
-    // console.log("End   axios.get: " + new Date().toLocaleTimeString());
-    let addressInfo2 = [];
-    for (let i = 0; i < addressInfo.length; i++) {
-      let addressInfoElement = addressInfo[i];
+  //   let query = baseAddress + "/addrs/" + addresses + "/utxo";
+  //   // console.log("Start axios.get: " + new Date().toLocaleTimeString());
+  //   let res = await axios.get(query);
+  //   // console.log("End   axios.get: " + new Date().toLocaleTimeString());
+  //   let addressInfo2 = [];
+  //   for (let i = 0; i < addressInfo.length; i++) {
+  //     let addressInfoElement = addressInfo[i];
 
-      let transactions = res.data.filter(
-        transaction => transaction.address === addressInfoElement.address
-      );
+  //     let transactions = res.data.filter(
+  //       transaction => transaction.address === addressInfoElement.address
+  //     );
 
-      // if (transactions === undefined) continue;
-      if (transactions.length === 0) continue;
+  //     // if (transactions === undefined) continue;
+  //     if (transactions.length === 0) continue;
 
-      addressInfoElement.txs = [];
+  //     addressInfoElement.txs = [];
 
-      for (let j = 0; j < transactions.length; j++) {
-        let tx = {};
-        tx.txHash = transactions[j].txid;
-        tx.utxo = transactions[j].vout;
-        tx.value = transactions[j].satoshis;
+  //     for (let j = 0; j < transactions.length; j++) {
+  //       let tx = {};
+  //       tx.txHash = transactions[j].txid;
+  //       tx.utxo = transactions[j].vout;
+  //       tx.value = transactions[j].satoshis;
 
-        addressInfoElement.txs[j] = tx;
-      }
+  //       addressInfoElement.txs[j] = tx;
+  //     }
 
-      addressInfo2.push(addressInfoElement);
-    }
+  //     addressInfo2.push(addressInfoElement);
+  //   }
 
-    return addressInfo2;
-  }
+  //   return addressInfo2;
+  // }
 
   static async getTxs(addressArray, network) {
     let baseAddress = "";

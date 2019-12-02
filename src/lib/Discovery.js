@@ -19,6 +19,7 @@ export default class Discovery {
       coinInfo.btc.changeAddressXPub = res.xpub;
       res = await global.bitaWalletCard.getXPub("6D2C010000");
       coinInfo.tst.receiveAddressXPub = res.xpub;
+      console.log("getXPub: " + res.xpub);
       res = await global.bitaWalletCard.getXPub("6D2C010001");
       coinInfo.tst.changeAddressXPub = res.xpub;
     } catch (error) {
@@ -27,6 +28,7 @@ export default class Discovery {
 
     // Discover address on the Blockchain
     // BTC
+    console.log("searchInBlockchain");
     const addressInfoReceivingBtc = await Discovery.searchInBlockchain(
       BitaWalletCard.btcMain,
       false,
@@ -91,58 +93,58 @@ export default class Discovery {
     return coinInfo;
   }
 
-  static async searchInBlockchain(coin, change, xpub) {
-    let coinByte = "";
-    let network = "";
-    if (coin === Coins.BTC) {
-      coinByte = "00";
-      network = Blockchain.btcMain;
-    } else {
-      coinByte = "01";
-      network = Blockchain.btcTest;
-    }
+  // static async searchInBlockchain(coin, change, xpub) {
+  //   let coinByte = "";
+  //   let network = "";
+  //   if (coin === Coins.BTC) {
+  //     coinByte = "00";
+  //     network = Blockchain.btcMain;
+  //   } else {
+  //     coinByte = "01";
+  //     network = Blockchain.btcTest;
+  //   }
 
-    let changeByte = "";
-    if (change === false) changeByte = "00";
-    else changeByte = "01";
+  //   let changeByte = "";
+  //   if (change === false) changeByte = "00";
+  //   else changeByte = "01";
 
-    let addressInfo = [];
-    let k = 0;
-    let stopDiscover = false;
+  //   let addressInfo = [];
+  //   let k = 0;
+  //   let stopDiscover = false;
 
-    const chunkSize = 10;
-    while (!stopDiscover) {
-      let addressInfoChunk = [];
+  //   const chunkSize = 10;
+  //   while (!stopDiscover) {
+  //     let addressInfoChunk = [];
 
-      for (let i = k; i < k + chunkSize; i++) {
-        const address = BitaWalletCard.getChildAddress(coin, xpub, i);
-        const keyPath =
-          "6D2C" +
-          coinByte +
-          "00" +
-          changeByte +
-          BitaWalletCard.padHex(i.toString(16), 4);
-        addressInfoChunk.push({ address, keyPath });
-      }
+  //     for (let i = k; i < k + chunkSize; i++) {
+  //       const address = BitaWalletCard.getChildAddress(coin, xpub, i);
+  //       const keyPath =
+  //         "6D2C" +
+  //         coinByte +
+  //         "00" +
+  //         changeByte +
+  //         BitaWalletCard.padHex(i.toString(16), 4);
+  //       addressInfoChunk.push({ address, keyPath });
+  //     }
 
-      // await Discovery.timeout(1200); // temp
+  //     // await Discovery.timeout(1200); // temp
 
-      let refinedAddressInfo = await Blockchain.getUnspentTxs(
-        addressInfoChunk,
-        network
-      );
+  //     let refinedAddressInfo = await Blockchain.getUnspentTxs(
+  //       addressInfoChunk,
+  //       network
+  //     );
 
-      if (refinedAddressInfo.length === 0) stopDiscover = true;
-      else {
-        for (let i = 0; i < refinedAddressInfo.length; i++)
-          addressInfo.push(refinedAddressInfo[i]);
-      }
+  //     if (refinedAddressInfo.length === 0) stopDiscover = true;
+  //     else {
+  //       for (let i = 0; i < refinedAddressInfo.length; i++)
+  //         addressInfo.push(refinedAddressInfo[i]);
+  //     }
 
-      k += chunkSize;
-    }
+  //     k += chunkSize;
+  //   }
 
-    return addressInfo;
-  }
+  //   return addressInfo;
+  // }
 
   // static timeout(ms) {
   //   return new Promise(resolve => setTimeout(resolve, ms));
