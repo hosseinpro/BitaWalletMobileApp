@@ -21,7 +21,8 @@
     "react-native-vector-icons": "^6.1.0",
     "react-navigation": "^3.0.9",
     "react-redux": "^6.0.0",
-    "redux": "^4.0.1"
+    "redux": "^4.0.1",
+    "jssha": "^2.3.1"
   },
   "devDependencies": {
     "babel-jest": "23.6.0",

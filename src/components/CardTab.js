@@ -16,7 +16,7 @@ import redux from "../redux/redux";
 import NfcReader from "../lib/NfcReader";
 import BitaWalletCard from "../lib/BitaWalletCard";
 import AlertBox from "./AlertBox";
-import Discovery from "../lib/Discovery";
+import XebaWalletServer from "../lib/XebaWalletServer";
 
 class CardTab extends Component {
   constructor(props) {
@@ -80,7 +80,7 @@ class CardTab extends Component {
       this.props.setCardInfo(this.state.cardInfo);
       this.props.setCardPin(pin);
 
-      const coinInfo = await Discovery.run(this.props.coinInfo);
+      const coinInfo = await this.discovery(this.props.coinInfo);
 
       this.props.setCoinInfo(coinInfo);
       global.waitModal.hide();
@@ -88,6 +88,43 @@ class CardTab extends Component {
       console.log(error);
       this.startCardDetect();
     }
+  }
+
+  async discovery(coinInfoInit) {
+    // Get initial copy of coinInfo
+    let str = JSON.stringify(coinInfoInit);
+    let coinInfo = JSON.parse(str);
+
+    // Get xPubs for receiving and change addresses for BTC and TST
+    try {
+      let res;
+      res = await global.bitaWalletCard.getXPub("6D2C000000");
+      coinInfo.btc.receiveAddressXPub = res.xpub;
+      res = await global.bitaWalletCard.getXPub("6D2C000001");
+      coinInfo.btc.changeAddressXPub = res.xpub;
+      res = await global.bitaWalletCard.getXPub("6D2C010000");
+      coinInfo.tst.receiveAddressXPub = res.xpub;
+      res = await global.bitaWalletCard.getXPub("6D2C010001");
+      coinInfo.tst.changeAddressXPub = res.xpub;
+    } catch (error) {
+      throw new Error(error);
+    }
+
+    // Discover address on the Blockchain
+    // BTC
+    coinInfo.btc = await XebaWalletServer.discover(
+      Coins.BTC,
+      coinInfo.btc.receiveAddressXPub,
+      coinInfo.btc.changeAddressXPub
+    );
+
+    coinInfo.tst = await XebaWalletServer.discover(
+      Coins.TST,
+      coinInfo.tst.receiveAddressXPub,
+      coinInfo.tst.changeAddressXPub
+    );
+
+    return coinInfo;
   }
 
   onPressDisconnect() {

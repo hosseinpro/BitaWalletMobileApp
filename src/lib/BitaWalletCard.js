@@ -1,8 +1,6 @@
 // Version: 1.8
 
 const sha = require("jssha");
-// const ecc = require("elliptic").ec;
-// const Ripemd160 = require("./Ripemd160");
 
 module.exports = class BitaWalletCard {
   constructor(cardreaderTransmit) {
@@ -408,114 +406,6 @@ module.exports = class BitaWalletCard {
     let responseAPDU = await this.transmit(apduGetXPub);
     return { xpub: responseAPDU.data };
   }
-
-  // static ECPointDecompress(comp) {
-  //   const two = new bigInt(2),
-  //     prime = two
-  //       .pow(256)
-  //       .subtract(two.pow(32))
-  //       .subtract(two.pow(9))
-  //       .subtract(two.pow(8))
-  //       .subtract(two.pow(7))
-  //       .subtract(two.pow(6))
-  //       .subtract(two.pow(4))
-  //       .subtract(1),
-  //     pIdent = prime.add(1).divide(4); // 28948022302589062190674361737351893382521535853822578548883407827216774463488
-
-  //   const signY = parseInt(comp.substring(0, 2), 16) - 2; // This value must be 2 or 3. 4 indicates an uncompressed key, and anything else is invalid.
-  //   const x = comp.substring(2);
-  //   // Import x into bigInt library
-  //   const xBig = new bigInt(x, 16);
-
-  //   // // y^2 = x^3 - 3x + b
-  //   // var yBig = xBig
-  //   //   .pow(3)
-  //   //   .sub(xBig.multiply(3))
-  //   //   .add(b)
-  //   //   .modPow(pIdent, prime);
-
-  //   // y^2 = x^3 + 7
-  //   var yBig = xBig
-  //     .pow(3)
-  //     .add(7)
-  //     .mod(pIdent, prime);
-
-  //   // If the parity doesn't match it's the *other* root
-  //   if (yBig.mod(2) !== signY) {
-  //     // y = prime - y
-  //     yBig = prime.subtract(yBig);
-  //   }
-
-  //   return {
-  //     x: x,
-  //     y: yBig.toString(16)
-  //   };
-  // }
-
-  // static bip32DeriveChildPublicKey(parentXPub, addressIndex) {
-  //   // parentXPub : KPar_xy[65] | cPar[32]
-
-  //   if (addressIndex >= 0x80000000) return false;
-
-  //   const x = parentXPub.substring(2, 66);
-  //   const y = parentXPub.substring(66, 130);
-
-  //   const ySign = parseInt(y.substring(y.length - 2), 16);
-  //   let KPar = "";
-  //   if ((ySign & 0x01) === 0x01)
-  //     // y last digit is odd
-  //     KPar = "03" + x;
-  //   // y last digit is even
-  //   else KPar = "02" + x;
-
-  //   const addressIndexHex = BitaWalletCard.padHex(addressIndex.toString(16), 8);
-  //   const cPar = parentXPub.substring(130);
-  //   const sha512 = new sha("SHA-512", "HEX");
-  //   sha512.setHMACKey(cPar, "HEX");
-  //   sha512.update(KPar + addressIndexHex);
-  //   const hmac = sha512.getHMAC("HEX");
-  //   const iL = hmac.substring(0, 64);
-
-  //   const ec = new ecc("secp256k1");
-  //   const KParPoint = ec.keyFromPublic({ x, y }).getPublic();
-  //   let b = new Date().getTime();
-  //   const Ki = ec.g.mul(iL).add(KParPoint);
-  //   console.log("Ki: " + (new Date().getTime() - b));
-
-  //   let pubKey = Ki.encode("hex", true);
-  //   return pubKey;
-  // }
-
-  // static publicKeyToAddress(coin, pubKeyCompressed) {
-  //   let sha256 = new sha("SHA-256", "HEX");
-  //   sha256.update(pubKeyCompressed);
-  //   let hash = sha256.getHash("HEX");
-  //   hash = Ripemd160.hash(hash);
-
-  //   if (coin === BitaWalletCard.btcMain) hash = "00" + hash;
-  //   else hash = "6F" + hash;
-  //   let result = hash;
-
-  //   sha256 = new sha("SHA-256", "HEX");
-  //   sha256.update(hash);
-  //   hash = sha256.getHash("HEX");
-  //   sha256 = new sha("SHA-256", "HEX");
-  //   sha256.update(hash);
-  //   hash = sha256.getHash("HEX");
-
-  //   result += hash.substring(0, 8);
-  //   const b58 = BitaWalletCard.b58Encode(result);
-  //   return b58;
-  // }
-
-  // static getChildAddress(coin, parentXPub, addressIndex) {
-  //   const childPub = BitaWalletCard.bip32DeriveChildPublicKey(
-  //     parentXPub,
-  //     addressIndex
-  //   );
-  //   const address = BitaWalletCard.publicKeyToAddress(coin, childPub);
-  //   return address;
-  // }
 
   async getSubWalletAddressList(numOfSub, firstSubWalletNumber) {
     //ISO/IEC 7816-4 2005 Section 7.2.3
