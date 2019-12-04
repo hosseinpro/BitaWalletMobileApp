@@ -18,8 +18,8 @@ import { connect } from "react-redux";
 import redux from "../redux/redux";
 import { NavigationEvents } from "react-navigation";
 import BitaWalletCard from "../lib/BitaWalletCard";
-import Blockchain from "../lib/Blockchain";
 import Coins from "../Coins";
+import XebaWalletServer from "../lib/XebaWalletServer";
 
 class SendTab extends Component {
   constructor(props) {
@@ -111,13 +111,13 @@ class SendTab extends Component {
   }
 
   async confirmSend(yescode) {
-    let network = "";
+    let coin = "";
     let changeKeyPath = "";
     if (this.state.selectedCoin === Coins.BTC) {
-      network = Blockchain.btcMain;
+      coin = Coins.BTC;
       changeKeyPath = this.props.coinInfo.btc.changeKeyPath;
     } else {
-      network = Blockchain.btcTest;
+      coin = Coins.TST;
       changeKeyPath = this.props.coinInfo.tst.changeKeyPath;
     }
 
@@ -129,7 +129,7 @@ class SendTab extends Component {
         this.state.inputSection.inputSection,
         this.state.inputSection.signerKeyPaths
       );
-      await Blockchain.pushTx(res.signedTx, network);
+      await XebaWalletServer.send(coin, res.signedTx);
       AlertBox.info(
         "Sent!",
         this.state.amount + " BTC" + " is sent to \n" + this.state.to

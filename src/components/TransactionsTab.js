@@ -20,7 +20,7 @@ import { connect } from "react-redux";
 import redux from "../redux/redux";
 import BitaWalletCard from "../lib/BitaWalletCard";
 import Coins from "../Coins";
-import Discovery from "../lib/Discovery";
+import XebaWalletServer from "../lib/XebaWalletServer";
 
 class TransactionsTab extends Component {
   constructor(props) {
@@ -45,7 +45,7 @@ class TransactionsTab extends Component {
     });
   }
 
-  onPressRefresh() {
+  async onPressRefresh() {
     let coinInfoElement = "";
     if (this.state.selectedCoin === Coins.BTC)
       coinInfoElement = this.props.coinInfo.btc;
@@ -53,16 +53,17 @@ class TransactionsTab extends Component {
 
     this.setState({ loading: true });
 
-    setTimeout(
-      () =>
-        Discovery.getTransactionHistory(
-          coinInfoElement,
-          this.state.selectedCoin
-        ).then(txs => {
-          this.setState({ loading: false, txs });
-        }),
-      500
-    );
+    try {
+      let txs = await XebaWalletServer.gethistory(
+        this.state.selectedCoin,
+        coinInfoElement.receiveAddressXPub,
+        coinInfoElement.changeAddressXPub
+      );
+
+      this.setState({ loading: false, txs });
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   render() {
@@ -183,7 +184,4 @@ const mapStateToProps = state => {
   };
 };
 
-export default connect(
-  mapStateToProps,
-  null
-)(TransactionsTab);
+export default connect(mapStateToProps, null)(TransactionsTab);
