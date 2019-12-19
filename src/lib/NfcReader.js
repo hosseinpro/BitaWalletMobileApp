@@ -18,7 +18,7 @@ export default class NfcReader {
   }
 
   enableCardDetection = eventFunction => {
-    NativeModules.Nfc.enableReader(eventFunction);
+    setTimeout(() => NativeModules.Nfc.enableReader(eventFunction), 200);
   };
 
   disableCardDetection() {
