@@ -38,93 +38,50 @@ class CardTab extends Component {
 
     this.props.unsetCardInfo();
 
-    global.tapCardModal.show(
-      null,
-      null,
-      this.cardDetected.bind(this),
-      null,
-      this.onWipe.bind(this)
-    );
-  }
-
-  async onWipe() {
-    global.wipeModal.show(
-      null,
-      true,
-      this.startCardDetect.bind(this),
-      this.startCardDetect.bind(this)
-    );
-  }
-
-  async cardDetected(cardInfo) {
-    this.setState({ cardInfo });
-    global.passwordModal.show(
-      "Enter Card Passcode",
-      this.pinEntered.bind(this),
-      this.startCardDetect.bind(this)
-    );
-  }
-
-  async pinEntered(pin) {
     try {
-      let leftTries = await global.bitaWalletCard.verifyPIN(pin);
-      if (leftTries !== undefined) {
-        AlertBox.info(
-          "Incorrect Password",
-          leftTries + " tries left.",
-          this.startCardDetect.bind(this)
-        );
-        return;
-      }
+      const cardInfo = await global.tapCardModal.show(null, null, true);
+      // this.setState({ cardInfo });
+      this.props.setCardInfo(cardInfo);
 
-      this.props.setCardInfo(this.state.cardInfo);
-      this.props.setCardPin(pin);
+      // Get initial copy of coinInfo
+      let str = JSON.stringify(this.props.coinInfo);
+      let coinInfo = JSON.parse(str);
 
-      const coinInfo = await this.discovery(this.props.coinInfo);
+      // Get xPubs for receiving and change addresses for BTC and TST
+      await global.bitaWalletCard.getXPubs(
+        4,
+        "6D2C000000" + "6D2C000001" + "6D2C010000" + "6D2C010001"
+      );
+      const pin = await global.pinModal.show("Enter PIN");
+      let res = await global.bitaWalletCard.verifyPIN(pin);
+      const xpubLen = 97 * 2;
+      coinInfo.btc.receiveAddressXPub = res.substr(0, xpubLen);
+      coinInfo.btc.changeAddressXPub = res.substr(xpubLen, xpubLen);
+      coinInfo.tst.receiveAddressXPub = res.substr(xpubLen * 2, xpubLen);
+      coinInfo.tst.changeAddressXPub = res.substr(xpubLen * 3, xpubLen);
+
+      // Discover address on the Blockchain
+      // BTC
+      coinInfo.btc = await XebaWalletServer.discover(
+        Coins.BTC,
+        coinInfo.btc.receiveAddressXPub,
+        coinInfo.btc.changeAddressXPub
+      );
+      // TST
+      coinInfo.tst = await XebaWalletServer.discover(
+        Coins.TST,
+        coinInfo.tst.receiveAddressXPub,
+        coinInfo.tst.changeAddressXPub
+      );
 
       this.props.setCoinInfo(coinInfo);
       global.waitModal.hide();
     } catch (error) {
+      if (error.error === "Incorrect PIN")
+        await AlertBox.info("Incorrect PIN", error.leftTries + " tries left.");
       console.log(error);
       this.startCardDetect();
     }
-  }
-
-  async discovery(coinInfoInit) {
-    // Get initial copy of coinInfo
-    let str = JSON.stringify(coinInfoInit);
-    let coinInfo = JSON.parse(str);
-
-    // Get xPubs for receiving and change addresses for BTC and TST
-    try {
-      let res;
-      res = await global.bitaWalletCard.getXPub("6D2C000000");
-      coinInfo.btc.receiveAddressXPub = res.xpub;
-      res = await global.bitaWalletCard.getXPub("6D2C000001");
-      coinInfo.btc.changeAddressXPub = res.xpub;
-      res = await global.bitaWalletCard.getXPub("6D2C010000");
-      coinInfo.tst.receiveAddressXPub = res.xpub;
-      res = await global.bitaWalletCard.getXPub("6D2C010001");
-      coinInfo.tst.changeAddressXPub = res.xpub;
-    } catch (error) {
-      throw new Error(error);
-    }
-
-    // Discover address on the Blockchain
-    // BTC
-    coinInfo.btc = await XebaWalletServer.discover(
-      Coins.BTC,
-      coinInfo.btc.receiveAddressXPub,
-      coinInfo.btc.changeAddressXPub
-    );
-
-    coinInfo.tst = await XebaWalletServer.discover(
-      Coins.TST,
-      coinInfo.tst.receiveAddressXPub,
-      coinInfo.tst.changeAddressXPub
-    );
-
-    return coinInfo;
   }
 
   onPressDisconnect() {

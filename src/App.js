@@ -21,7 +21,7 @@ import ChangeLabelStack from "./components/ChangeLabelStack";
 import BackupCardStack from "./components/BackupCardStack";
 import TapCardModal from "./components/TapCardModal";
 import WipeModal from "./components/WipeModal";
-import PasswordModal from "./components/PasswordModal";
+import PinModal from "./components/PinModal";
 import WaitModal from "./components/WaitModal";
 import QRCodeScannerModal from "./components/QRCodeScannerModal";
 
@@ -36,9 +36,7 @@ class App extends Component {
           ref={tapCardModal => (global.tapCardModal = tapCardModal)}
         />
         <WipeModal ref={wipeModal => (global.wipeModal = wipeModal)} />
-        <PasswordModal
-          ref={passwordModal => (global.passwordModal = passwordModal)}
-        />
+        <PinModal ref={pinModal => (global.pinModal = pinModal)} />
         <QRCodeScannerModal
           ref={qrCodeScannerModal =>
             (global.qrCodeScannerModal = qrCodeScannerModal)
@@ -158,7 +156,4 @@ const mapStateToProps = state => {
   };
 };
 
-export default connect(
-  mapStateToProps,
-  null
-)(App);
+export default connect(mapStateToProps, null)(App);

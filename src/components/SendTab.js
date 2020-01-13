@@ -99,10 +99,8 @@ class SendTab extends Component {
         this.state.fee,
         this.state.to
       );
-      global.passwordModal.show(
-        "Enter SEND code",
-        this.confirmSend.bind(this),
-        () => this.cancel()
+      global.pinModal.show("Enter SEND code", this.confirmSend.bind(this), () =>
+        this.cancel()
       );
     } catch (error) {
       this.cancel();

@@ -10,49 +10,63 @@ export default class TabCardModal extends Component {
     showWipe: false,
     onComplete: null,
     onCancel: null,
-    onWipe: null,
     error: false
   };
 
-  // onCancel or onWipe should be not null logically
-  async show(message, cardInfo, onComplete, onCancel = null, onWipe = null) {
-    let showWipe = false;
-    if (onWipe !== null) {
-      showWipe = true;
-    }
-    this.setState({
-      showWipe,
-      message,
-      cardInfo,
-      onComplete,
-      onCancel,
-      onWipe
-    });
+  show(message, cardInfo, showWipe) {
+    return new Promise(async (resolve, reject) => {
+      this.setState({
+        showWipe,
+        message,
+        cardInfo,
+        onComplete: cardInfo => {
+          resolve(cardInfo);
+        },
+        onCancel: () => {
+          reject(new Error("Cancel"));
+        }
+      });
 
-    if (cardInfo !== null) {
       try {
-        let res = await global.bitaWalletCard.getSerialNumber();
+        let res = await global.bitaWalletCard.getInfo();
         if (cardInfo.serialNumber === res.serialNumber) {
           this.state.onComplete(cardInfo);
-        } else {
-          this.show2();
+          return;
         }
-      } catch (error) {
-        this.show2();
-      }
-    } else {
-      this.show2();
-    }
+      } catch {}
+
+      this.setState({ visible: true });
+      global.nfcReader.enableCardDetection(this.cardDetected.bind(this));
+    });
   }
 
-  show2() {
+  async onPressWipe() {
+    global.nfcReader.disableCardDetection();
+    this.setState({ visible: false });
+
+    try {
+      await global.wipeModal.show(null, "m");
+    } catch {}
+
     this.setState({ visible: true });
     global.nfcReader.enableCardDetection(this.cardDetected.bind(this));
   }
 
+  async onPressCancel() {
+    global.nfcReader.disableCardDetection();
+    this.setState({ visible: false });
+    this.state.onCancel();
+  }
+
   async cardDetected() {
     try {
-      let cardInfo = await this.getCardInfo();
+      let res = await global.bitaWalletCard.getInfo();
+      let cardInfo = {};
+      cardInfo.serialNumber = res.serialNumber;
+      cardInfo.type = "";
+      cardInfo.version = res.version;
+      cardInfo.label = res.label;
+
       if (
         this.state.cardInfo !== null &&
         this.state.cardInfo.serialNumber !== cardInfo.serialNumber
@@ -68,20 +82,6 @@ export default class TabCardModal extends Component {
       console.log(error);
       global.nfcReader.enableCardDetection(this.cardDetected.bind(this));
     }
-  }
-
-  async getCardInfo() {
-    let cardInfo = {};
-    await global.bitaWalletCard.selectApplet();
-    let res = await global.bitaWalletCard.getSerialNumber();
-    cardInfo.serialNumber = res.serialNumber;
-    res = await global.bitaWalletCard.getVersion();
-    cardInfo.type = res.type;
-    cardInfo.version = res.version;
-    res = await global.bitaWalletCard.getLabel();
-    cardInfo.label = res.label;
-    this.cardInfo = cardInfo;
-    return cardInfo;
   }
 
   render() {
@@ -137,11 +137,7 @@ export default class TabCardModal extends Component {
               rounded
               block
               style={{ backgroundColor: Colors.secondary, margin: 20 }}
-              onPress={() => {
-                global.nfcReader.disableCardDetection();
-                this.setState({ visible: false });
-                this.state.onWipe();
-              }}
+              onPress={() => this.onPressWipe()}
             >
               <Text style={{ color: Colors.text }}>Wipe</Text>
             </Button>
@@ -151,13 +147,7 @@ export default class TabCardModal extends Component {
               rounded
               block
               style={{ backgroundColor: Colors.secondary, margin: 20 }}
-              onPress={() => {
-                global.nfcReader.disableCardDetection();
-                this.setState({ visible: false });
-                if (this.state.onCancel !== null) {
-                  this.state.onCancel();
-                }
-              }}
+              onPress={() => this.state.onPressCancel()}
             >
               <Text style={{ color: Colors.text }}>Cancel</Text>
             </Button>
