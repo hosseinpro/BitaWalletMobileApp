@@ -147,7 +147,7 @@ export default class TabCardModal extends Component {
               rounded
               block
               style={{ backgroundColor: Colors.secondary, margin: 20 }}
-              onPress={() => this.state.onPressCancel()}
+              onPress={() => this.onPressCancel()}
             >
               <Text style={{ color: Colors.text }}>Cancel</Text>
             </Button>

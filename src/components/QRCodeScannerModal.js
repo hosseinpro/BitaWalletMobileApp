@@ -1,7 +1,7 @@
 "use strict";
 
 import React, { Component } from "react";
-import { Modal, Dimensions } from "react-native";
+import { Modal } from "react-native";
 import { Content, Header, Button, Text } from "native-base";
 import QRCodeScanner from "react-native-qrcode-scanner";
 
@@ -11,8 +11,10 @@ export default class ScanScreen extends Component {
     onComplete: null
   };
 
-  show(onComplete) {
-    this.setState({ visible: true, onComplete });
+  show() {
+    return new Promise((resolve, reject) =>
+      this.setState({ visible: true, onComplete: address => resolve(address) })
+    );
   }
 
   render() {

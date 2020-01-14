@@ -52,7 +52,7 @@ class CardTab extends Component {
         4,
         "6D2C000000" + "6D2C000001" + "6D2C010000" + "6D2C010001"
       );
-      const pin = await global.pinModal.show("Enter PIN");
+      const pin = await global.pinModal.show();
       let res = await global.bitaWalletCard.verifyPIN(pin);
       const xpubLen = 97 * 2;
       coinInfo.btc.receiveAddressXPub = res.substr(0, xpubLen);
@@ -62,17 +62,25 @@ class CardTab extends Component {
 
       // Discover address on the Blockchain
       // BTC
-      coinInfo.btc = await XebaWalletServer.discover(
+      let coinInfoElement = await XebaWalletServer.discover(
         Coins.BTC,
         coinInfo.btc.receiveAddressXPub,
         coinInfo.btc.changeAddressXPub
       );
+      coinInfo.btc = {
+        ...coinInfo.btc,
+        ...coinInfoElement
+      };
       // TST
-      coinInfo.tst = await XebaWalletServer.discover(
+      coinInfoElement = await XebaWalletServer.discover(
         Coins.TST,
         coinInfo.tst.receiveAddressXPub,
         coinInfo.tst.changeAddressXPub
       );
+      coinInfo.tst = {
+        ...coinInfo.tst,
+        ...coinInfoElement
+      };
 
       this.props.setCoinInfo(coinInfo);
       global.waitModal.hide();
@@ -175,7 +183,6 @@ const mapDispatchToProps = dispatch => {
   return {
     setCardInfo: cardInfo => dispatch(redux.setCardInfo(cardInfo)),
     unsetCardInfo: () => dispatch(redux.unsetCardInfo()),
-    setCardPin: pin => dispatch(redux.setCardPin(pin)),
     setCoinInfo: coinInfo => dispatch(redux.setCoinInfo(coinInfo))
   };
 };

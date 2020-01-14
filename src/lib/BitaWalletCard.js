@@ -136,6 +136,14 @@ module.exports = class BitaWalletCard {
     return hex2;
   }
 
+  static validateBitcoinAddress(address) {
+    if (address.length < 26 || address.length > 35) return false;
+
+    if (BitaWalletCard.b58Decode(address) === undefined) return false;
+
+    return true;
+  }
+
   static buildInputSection(spend, fee, addressInfo) {
     const requiredFund = spend + fee;
     let availableFund = 0;

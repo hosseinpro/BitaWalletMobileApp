@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { Modal } from "react-native";
 import { Content, Button, Text, Header } from "native-base";
 import PinView from "react-native-pin-view";
+import Icon from "react-native-vector-icons/Ionicons";
 
 export default class PinModal extends Component {
   state = {
@@ -15,8 +16,8 @@ export default class PinModal extends Component {
       this.setState({
         visible: true,
         message,
-        onComplete: password => {
-          resolve(password);
+        onComplete: pin => {
+          resolve(pin);
         },
         onCancel: () => {
           reject(new Error("Cancel"));
@@ -58,16 +59,17 @@ export default class PinModal extends Component {
             {this.state.message}
           </Text>
           <PinView
-            onComplete={(password, clear) => {
+            onComplete={(pin, clear) => {
               clear();
               this.setState({ visible: false });
-              this.state.onComplete(password);
+              this.state.onComplete(pin);
             }}
             pinLength={4}
             delayBeforeOnComplete={0}
             buttonBgColor={Colors.secondary}
             buttonTextColor={Colors.secondary}
             inputBgColor={Colors.primaryText}
+            // buttonDeleteStyle={<Icon name="ios-backspace" size={32} />}
           />
           <Button
             transparent

@@ -50,93 +50,64 @@ class SendTab extends Component {
     global.waitModal.hide();
   }
 
-  onPressSend() {
+  async onPressSend() {
     if (this.state.amount === "") {
-      AlertBox.info("Send", "Please enter an amount");
+      await AlertBox.info("Send", "Please enter an amount");
+      return;
     } else if (this.state.to === "") {
-      AlertBox.info("Send", "Please enter a receiver address");
-    } else {
-      let addressInfo = "";
-      if (this.state.selectedCoin === Coins.BTC)
-        addressInfo = this.props.coinInfo.btc.addressInfo;
-      else addressInfo = this.props.coinInfo.tst.addressInfo;
+      await AlertBox.info("Send", "Please enter a receiver address");
+      return;
+    }
+    let coinElement = "";
+    if (this.state.selectedCoin === Coins.BTC)
+      coinElement = this.props.coinInfo.btc;
+    else coinElement = this.props.coinInfo.tst;
 
-      const spend = BitaWalletCard.btc2satoshi(parseFloat(this.state.amount));
-      const fee = 8000; //6250;
+    const spend = BitaWalletCard.btc2satoshi(parseFloat(this.state.amount));
+    const fee = 8000; //6250;
 
-      try {
-        const inputSection = BitaWalletCard.buildInputSection(
-          spend,
-          fee,
-          addressInfo
-        );
+    try {
+      const inputSection = BitaWalletCard.buildInputSection(
+        spend,
+        fee,
+        coinElement.addressInfo
+      );
 
-        if (inputSection === null) {
-          AlertBox.info("Error", "Not enough fund");
-          return;
-        }
-        this.setState({ inputSection, spend, fee });
-      } catch (error) {
-        AlertBox.info("Error", error.toString());
+      if (inputSection === null) {
+        await AlertBox.info("Error", "Not enough fund");
         return;
       }
 
-      global.tapCardModal.show(
-        null,
-        this.props.cardInfo,
-        this.requestSend.bind(this)
-      );
-    }
-  }
+      await global.tapCardModal.show(null, this.props.cardInfo, false);
 
-  async requestSend() {
-    global.waitModal.show();
+      global.waitModal.show();
 
-    try {
-      await global.bitaWalletCard.verifyPIN(this.props.pin);
-      await global.bitaWalletCard.requestSignTx(
-        this.state.spend,
-        this.state.fee,
-        this.state.to
+      await global.bitaWalletCard.signTx(
+        spend,
+        fee,
+        this.state.to,
+        inputSection.fund,
+        coinElement.changeKeyPath,
+        inputSection.inputSection,
+        inputSection.signerKeyPaths
       );
-      global.pinModal.show("Enter SEND code", this.confirmSend.bind(this), () =>
-        this.cancel()
-      );
-    } catch (error) {
-      this.cancel();
-      AlertBox.info("Error", error.toString());
-    }
-  }
 
-  async confirmSend(yescode) {
-    let coin = "";
-    let changeKeyPath = "";
-    if (this.state.selectedCoin === Coins.BTC) {
-      coin = Coins.BTC;
-      changeKeyPath = this.props.coinInfo.btc.changeKeyPath;
-    } else {
-      coin = Coins.TST;
-      changeKeyPath = this.props.coinInfo.tst.changeKeyPath;
-    }
+      const pin = await global.pinModal.show();
 
-    try {
-      let res = await global.bitaWalletCard.signTx(
-        yescode,
-        this.state.inputSection.fund,
-        changeKeyPath,
-        this.state.inputSection.inputSection,
-        this.state.inputSection.signerKeyPaths
-      );
-      await XebaWalletServer.send(coin, res.signedTx);
-      AlertBox.info(
+      let tx = await global.bitaWalletCard.verifyPIN(pin);
+
+      await XebaWalletServer.send(coinElement.name, tx);
+      await AlertBox.info(
         "Sent!",
         this.state.amount + " BTC" + " is sent to \n" + this.state.to
       );
 
       this.reset();
     } catch (error) {
+      if (error.error === "Incorrect PIN")
+        await AlertBox.info("Incorrect PIN", error.leftTries + " tries left.");
       this.cancel();
-      AlertBox.info("Error", error.toString());
+      console.log(error);
     }
   }
 
@@ -185,10 +156,11 @@ class SendTab extends Component {
               <IconMaterialCommunityIcons
                 name="qrcode-scan"
                 style={{ width: 30 }}
-                onPress={() => {
-                  global.qrCodeScannerModal.show(address =>
-                    this.setState({ to: address })
-                  );
+                onPress={async () => {
+                  let address = await global.qrCodeScannerModal.show();
+                  if (!BitaWalletCard.validateBitcoinAddress(address))
+                    address = "";
+                  this.setState({ to: address });
                   // Clipboard.getString().then(str => this.setState({ to: str }))
                 }}
               />
@@ -227,7 +199,6 @@ class SendTab extends Component {
 
 const mapStateToProps = state => {
   return {
-    pin: state.pin,
     cardInfo: state.cardInfo,
     coinInfo: state.coinInfo
   };

@@ -28,9 +28,9 @@ class ReceiveTab extends Component {
     });
   }
 
-  onPressCopy() {
+  async onPressCopy() {
     Clipboard.setString(this.state.receiveAddress);
-    AlertBox.info("Receive", "The address is copied");
+    await AlertBox.info("Receive", "The address is copied");
   }
 
   render() {
@@ -97,7 +97,4 @@ const mapStateToProps = state => {
   };
 };
 
-export default connect(
-  mapStateToProps,
-  null
-)(ReceiveTab);
+export default connect(mapStateToProps, null)(ReceiveTab);

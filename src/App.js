@@ -16,7 +16,7 @@ import SendTab from "./components/SendTab";
 import ReceiveTab from "./components/ReceiveTab";
 import TransactionsTab from "./components/TransactionsTab";
 import MoreTab from "./components/MoreTab";
-import ChangePasswordStack from "./components/ChangePasswordStack";
+import ChangePinStack from "./components/ChangePinStack";
 import ChangeLabelStack from "./components/ChangeLabelStack";
 import BackupCardStack from "./components/BackupCardStack";
 import TapCardModal from "./components/TapCardModal";
@@ -71,9 +71,9 @@ const MoreStack = createStackNavigator(
       screen: MoreTab,
       navigationOptions: { header: null }
     },
-    ChangePasswordStack: {
-      screen: ChangePasswordStack,
-      navigationOptions: { title: "Change Password" }
+    ChangePinStack: {
+      screen: ChangePinStack,
+      navigationOptions: { title: "Change PIN" }
     },
     ChangeLabelStack: {
       screen: ChangeLabelStack,

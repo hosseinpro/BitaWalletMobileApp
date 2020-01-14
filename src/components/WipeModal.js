@@ -36,7 +36,7 @@ export default class WipeModal extends Component {
 
   async onPressWipe() {
     if (this.state.newLabel === "") {
-      AlertBox.info("Wipe", "Please enter a label");
+      await AlertBox.info("Wipe", "Please enter a label");
     } else {
       await global.tapCardModal.show(null, this.state.cardInfo);
       try {
@@ -44,17 +44,16 @@ export default class WipeModal extends Component {
           this.state.wipeMode,
           this.state.newLabel
         );
-        let pin = await global.pinModal.show("Sure to WIPE?");
+        let pin = await global.pinModal.show();
         await global.bitaWalletCard.verifyPIN(pin);
-        pin = await global.pinModal.show("");
+        pin = await global.pinModal.show();
         await global.bitaWalletCard.setPIN(pin);
-        pin = await global.pinModal.show("");
+        pin = await global.pinModal.show();
         await global.bitaWalletCard.setPIN(pin);
         await AlertBox.info("Wipe", "Wallet is wiped successfully");
       } catch (error) {
         global.bitaWalletCard.cancel();
         console.log(error);
-        // AlertBox.info("Error", "Something is wrong.");
       }
     }
   }

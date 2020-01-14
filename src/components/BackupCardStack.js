@@ -299,8 +299,7 @@ class BackupCardStack extends Component {
 
 const mapStateToProps = state => {
   return {
-    cardInfo: state.cardInfo,
-    pin: state.pin
+    cardInfo: state.cardInfo
   };
 };
 

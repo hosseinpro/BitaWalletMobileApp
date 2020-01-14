@@ -2,7 +2,6 @@ import { createStore } from "redux";
 
 const SET_CARD_INFO = "SET_CARD_INFO";
 const UNSET_CARD_INFO = "UNSET_CARD_INFO";
-const SET_CARD_PIN = "SET_CARD_PIN";
 const SET_COIN_INFO = "SET_ADDRESS_INFO";
 
 const initialState = {
@@ -12,9 +11,9 @@ const initialState = {
     version: "0.0",
     label: "Unknown"
   },
-  pin: null,
   coinInfo: {
     btc: {
+      name: "BTC",
       addressInfo: [
         {
           address: "0000000000000000000000000000000000",
@@ -36,6 +35,7 @@ const initialState = {
       changeAddressXPub: ""
     },
     tst: {
+      name: "TST",
       addressInfo: [
         {
           address: "0000000000000000000000000000000000",
@@ -67,10 +67,6 @@ function unsetCardInfo() {
   return { type: UNSET_CARD_INFO };
 }
 
-function setCardPin(pin) {
-  return { type: SET_CARD_PIN, pin };
-}
-
 function setCoinInfo(coinInfo) {
   return { type: SET_COIN_INFO, coinInfo };
 }
@@ -85,13 +81,7 @@ function rootReducer(state = initialState, action) {
     case UNSET_CARD_INFO:
       return {
         ...state,
-        cardInfo: initialState.cardInfo,
-        pin: null
-      };
-    case SET_CARD_PIN:
-      return {
-        ...state,
-        pin: action.pin
+        cardInfo: initialState.cardInfo
       };
     case SET_COIN_INFO:
       return {
@@ -108,6 +98,5 @@ export default {
   store,
   setCardInfo,
   unsetCardInfo,
-  setCardPin,
   setCoinInfo
 };

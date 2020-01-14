@@ -9,30 +9,23 @@ class ChangeLabelStack extends Component {
     newLabel: ""
   };
 
-  onPressChange() {
+  async onPressChange() {
     if (this.state.newLabel === "") {
-      AlertBox.info("Label", "Please enter a label");
-    } else {
-      global.tapCardModal.show(
-        null,
-        this.props.cardInfo,
-        this.changeLabel.bind(this)
-      );
+      await AlertBox.info("Label", "Please enter a label");
+      return;
     }
-  }
-
-  async changeLabel(cardInfo) {
+    await global.tapCardModal.show(null, this.props.cardInfo, false);
     try {
-      await global.bitaWalletCard.verifyPIN(this.props.pin);
       await global.bitaWalletCard.setLabel(this.state.newLabel);
+      await global.bitaWalletCard.verifyPIN(this.props.pin);
       const cardInfo = {
         ...this.props.cardInfo,
         label: this.state.newLabel
       };
       this.props.setCardInfo(cardInfo);
-      AlertBox.info("Label", "Label is changed.");
+      await info("Label", "Label is changed.");
     } catch (error) {
-      AlertBox.info("Error", "Something is wrong.");
+      await AlertBox.info("Error", "Something is wrong.");
     }
     this.props.navigation.navigate("MoreTab");
   }
@@ -77,8 +70,7 @@ class ChangeLabelStack extends Component {
 
 const mapStateToProps = state => {
   return {
-    cardInfo: state.cardInfo,
-    pin: state.pin
+    cardInfo: state.cardInfo
   };
 };
 
