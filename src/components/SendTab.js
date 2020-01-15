@@ -104,7 +104,7 @@ class SendTab extends Component {
 
       this.reset();
     } catch (error) {
-      if (error.error === "Incorrect PIN")
+      if (error !== undefined && error.message === "Incorrect PIN")
         await AlertBox.info("Incorrect PIN", error.leftTries + " tries left.");
       this.cancel();
       console.log(error);

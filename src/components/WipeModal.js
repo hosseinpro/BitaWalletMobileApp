@@ -28,7 +28,7 @@ export default class WipeModal extends Component {
         visible: true,
         cardInfo,
         wipeMode,
-        onComplete: () => resolve(),
+        onComplete: transportKeyPublic => resolve(transportKeyPublic),
         onCancel: () => reject()
       });
     });
@@ -45,13 +45,22 @@ export default class WipeModal extends Component {
           this.state.newLabel
         );
         let pin = await global.pinModal.show();
-        await global.bitaWalletCard.verifyPIN(pin);
+        const transportKeyPublic = await global.bitaWalletCard.verifyPIN(pin);
         pin = await global.pinModal.show();
         await global.bitaWalletCard.setPIN(pin);
         pin = await global.pinModal.show();
         await global.bitaWalletCard.setPIN(pin);
         await AlertBox.info("Wipe", "Wallet is wiped successfully");
+        this.setState({ visible: false });
+        this.state.onComplete(transportKeyPublic);
       } catch (error) {
+        if (error !== undefined && error.message === "Incorrect PIN")
+          await AlertBox.info(
+            "Incorrect PIN",
+            error.leftTries + " tries left."
+          );
+        if (error !== undefined && error.message === "PIN mismatch")
+          await AlertBox.info("Error", "PIN mismatch");
         global.bitaWalletCard.cancel();
         console.log(error);
       }

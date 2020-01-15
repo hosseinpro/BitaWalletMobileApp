@@ -81,7 +81,7 @@ const MoreStack = createStackNavigator(
     },
     BackupCardStack: {
       screen: BackupCardStack,
-      navigationOptions: { title: "Backup Card" }
+      navigationOptions: { title: "3-Tap Backup" }
     }
   }
   // {

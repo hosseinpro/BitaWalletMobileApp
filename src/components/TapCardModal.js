@@ -24,7 +24,8 @@ export default class TabCardModal extends Component {
         },
         onCancel: () => {
           reject(new Error("Cancel"));
-        }
+        },
+        error: false
       });
 
       try {

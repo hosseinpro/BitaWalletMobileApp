@@ -39,7 +39,7 @@ export default class MoreTab extends Component {
             onPress={() => this.props.navigation.navigate("BackupCardStack")}
           >
             <Left>
-              <Text>Backup Card</Text>
+              <Text>3-Tap Backup</Text>
             </Left>
             <Right>
               <Icon name="arrow-forward" />

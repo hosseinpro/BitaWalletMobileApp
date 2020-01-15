@@ -84,7 +84,7 @@ class CardTab extends Component {
       this.props.setCoinInfo(coinInfo);
       global.waitModal.hide();
     } catch (error) {
-      if (error.error === "Incorrect PIN")
+      if (error !== undefined && error.message === "Incorrect PIN")
         await AlertBox.info("Incorrect PIN", error.leftTries + " tries left.");
       console.log(error);
       this.startCardDetect();

@@ -19,8 +19,10 @@ class ChangePinStack extends Component {
       await global.bitaWalletCard.setPIN(pin);
       await AlertBox.info("PIN", "PIN is changed.");
     } catch (error) {
-      if (error.error === "Incorrect PIN")
+      if (error !== undefined && error.message === "Incorrect PIN")
         await AlertBox.info("Incorrect PIN", error.leftTries + " tries left.");
+      if (error !== undefined && error.message === "PIN mismatch")
+        await AlertBox.info("Error", "PIN mismatch");
     }
     this.props.navigation.navigate("MoreTab");
   }
@@ -49,6 +51,4 @@ const mapStateToProps = state => {
   };
 };
 
-const mapDispatchToProps = dispatch => {};
-
-export default connect(mapStateToProps, mapDispatchToProps)(ChangePinStack);
+export default connect(mapStateToProps, null)(ChangePinStack);

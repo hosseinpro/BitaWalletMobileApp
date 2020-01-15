@@ -1,158 +1,65 @@
 import React, { Component } from "react";
-import {
-  Content,
-  Text,
-  Button,
-  Left,
-  Body,
-  Right,
-  ListItem,
-  CheckBox
-} from "native-base";
+import { Content, Text, Button } from "native-base";
 import { connect } from "react-redux";
 import redux from "../redux/redux";
 import { NavigationEvents } from "react-navigation";
 import AlertBox from "./AlertBox";
-import BitaWalletCard from "../lib/BitaWalletCard";
 
 class BackupCardStack extends Component {
-  state = {
-    stepBegin: false,
-    step1Complete: false,
-    step2Complete: false,
-    step3Complete: false,
-    step4Complete: false,
-    step5Complete: false,
-
-    backupCardInfo: null,
-    transportKeyPublic: null,
-    kcv1: "",
-    kcv2: "",
-    encryptedMasterSeedAndTransportKeyPublic: null
-  };
+  state = {};
 
   async reset() {
     await global.bitaWalletCard.cancel();
-
-    this.setState({
-      stepBegin: false,
-      step1Complete: false,
-      step2Complete: false,
-      step3Complete: false,
-      step4Complete: false,
-      step5Complete: false,
-      kcv1: "",
-      kcv2: ""
-    });
   }
 
-  onPressBackup() {
-    this.setState({ stepBegin: true });
-    global.tapCardModal.show(
-      "tap your backup card",
-      null,
-      this.backupCardDetected.bind(this),
-      this.reset.bind(this)
-    );
-  }
-
-  async backupCardDetected(backupCardInfo) {
-    this.setState({ backupCardInfo });
+  async onPressBackup() {
     try {
-      let res = await global.bitaWalletCard.generateTransportKey();
-      this.setState({ transportKeyPublic: res.transportKeyPublic });
-      const kcv1 = BitaWalletCard.generateKCV(res.transportKeyPublic);
-      this.setState({ kcv1 });
-      this.setState({ step1Complete: true });
-    } catch (error) {
-      AlertBox.info("Error", "Something is wrong.");
-      this.reset();
-    }
-  }
-
-  onPressMatch1() {
-    this.setState({ step2Complete: true });
-    global.tapCardModal.show(
-      "tap your main card",
-      this.props.cardInfo,
-      this.mainCardDetected.bind(this),
-      this.reset.bind(this)
-    );
-  }
-
-  async mainCardDetected() {
-    try {
-      await global.bitaWalletCard.verifyPIN(this.props.pin);
-      await global.bitaWalletCard.importTransportKeyPublic(
-        this.state.transportKeyPublic
+      const backupCardInfo = await global.tapCardModal.show(
+        "tap your backup card",
+        null,
+        false
       );
-      await global.bitaWalletCard.requestExportMasterSeed();
-      const kcv1 = this.state.kcv1;
-      this.setState({ kcv2: kcv1 });
-      this.setState({ step3Complete: true });
-    } catch (error) {
-      AlertBox.info("Error", "Something is wrong.");
-      this.reset();
-    }
-  }
-
-  onPressMatch2() {
-    this.setState({ step4Complete: true });
-    global.pinModal.show(
-      "Enter BACKUP code",
-      this.mainCardYescodeEntered.bind(this),
-      this.reset.bind(this)
-    );
-  }
-
-  async mainCardYescodeEntered(yescode) {
-    try {
-      let res = await global.bitaWalletCard.exportMasterSeed(yescode);
-      this.setState({
-        encryptedMasterSeedAndTransportKeyPublic:
-          res.encryptedMasterSeedAndTransportKeyPublic
-      });
-      global.tapCardModal.show(
-        "tap your backup card again",
-        this.state.backupCardInfo,
-        this.backupCardDetected2.bind(this),
-        this.reset.bind(this)
-      );
-    } catch (error) {
-      AlertBox.info("Error", "Something is wrong.");
-      this.reset();
-    }
-  }
-
-  backupCardDetected2() {
-    global.wipeModal.show(
-      this.state.backupCardInfo,
-      false,
-      this.backupCardWiped.bind(this),
-      this.reset.bind(this)
-    );
-  }
-
-  async backupCardWiped(pin) {
-    try {
-      await global.bitaWalletCard.verifyPIN(pin);
-      await global.bitaWalletCard.importMasterSeed(
-        this.state.encryptedMasterSeedAndTransportKeyPublic
-      );
-      this.setState({ step5Complete: true });
-      AlertBox.info("Backup", "Your wallet is backed up.");
-      this.reset();
-    } catch (error) {
-      if (error === "6986") {
-        //just for demo because we have only one card
-        this.setState({ step5Complete: true });
-        AlertBox.info("Backup", "Your wallet is backed up.");
+      if (backupCardInfo.serialNumber === this.props.cardInfo.serialNumber) {
+        await AlertBox.info(
+          "Error",
+          "You must use another wallet as a backup."
+        );
         this.reset();
-      } else {
-        AlertBox.info("Error", "Something is wrong.");
-        this.reset();
+        return;
       }
+      const backupCardTransportKeyPublic = await global.wipeModal.show(
+        backupCardInfo,
+        "b"
+      );
+
+      await global.tapCardModal.show(
+        "tap your main card",
+        this.props.cardInfo,
+        false
+      );
+      await bitaWalletCard.exportMasterSeed(backupCardTransportKeyPublic);
+      let pin = await global.pinModal.show();
+      const encryptedMasterSeedAndTransportKeyPublic = await global.bitaWalletCard.verifyPIN(
+        pin
+      );
+
+      await global.tapCardModal.show(
+        "tap your backup card again",
+        backupCardInfo,
+        false
+      );
+      await global.bitaWalletCard.importMasterSeed(
+        encryptedMasterSeedAndTransportKeyPublic
+      );
+      pin = await global.pinModal.show();
+      await global.bitaWalletCard.verifyPIN(pin);
+      await AlertBox.info("Backup", "Your wallet is backed up.");
+    } catch (error) {
+      if (error !== undefined && error.message === "Incorrect PIN")
+        await AlertBox.info("Incorrect PIN", error.leftTries + " tries left.");
+      console.log(error);
     }
+    this.reset();
   }
 
   render() {
@@ -162,127 +69,11 @@ class BackupCardStack extends Component {
         <Content
           contentContainerStyle={{
             flex: 1,
+            alignItems: "center",
+            justifyContent: "center",
             marginRight: 20
           }}
-        >
-          <ListItem icon>
-            <Left>
-              <CheckBox
-                checked={this.state.step1Complete}
-                color={Colors.secondary}
-              />
-            </Left>
-            <Body>
-              <Text
-                style={{
-                  color: this.state.stepBegin ? "black" : Colors.primaryText
-                }}
-              >
-                tap your backup card
-              </Text>
-            </Body>
-          </ListItem>
-          <ListItem icon>
-            <Left>
-              <CheckBox
-                checked={this.state.step2Complete}
-                color={Colors.secondary}
-              />
-            </Left>
-            <Body>
-              <Text
-                // style={{ fontFamily: "monospace", backgroundColor: "#DEDEDE" }}
-                style={{
-                  color: this.state.step1Complete ? "black" : Colors.primaryText
-                }}
-              >
-                backup card vcode: {this.state.kcv1}
-              </Text>
-            </Body>
-            <Right>
-              <Button
-                small
-                style={{
-                  backgroundColor:
-                    !this.state.step1Complete || this.state.step2Complete
-                      ? Colors.primaryText
-                      : Colors.secondary
-                }}
-                disabled={!this.state.step1Complete || this.state.step2Complete}
-                onPress={() => this.onPressMatch1()}
-              >
-                <Text style={{ color: Colors.text }}>Match</Text>
-              </Button>
-            </Right>
-          </ListItem>
-          <ListItem icon>
-            <Left>
-              <CheckBox
-                checked={this.state.step3Complete}
-                color={Colors.secondary}
-              />
-            </Left>
-            <Body>
-              <Text
-                style={{
-                  color: this.state.step2Complete ? "black" : Colors.primaryText
-                }}
-              >
-                tap your main card
-              </Text>
-            </Body>
-          </ListItem>
-          <ListItem icon>
-            <Left>
-              <CheckBox
-                checked={this.state.step4Complete}
-                color={Colors.secondary}
-              />
-            </Left>
-            <Body>
-              <Text
-                // style={{ fontFamily: "monospace", backgroundColor: "#DEDEDE" }}
-                style={{
-                  color: this.state.step3Complete ? "black" : Colors.primaryText
-                }}
-              >
-                main card vcode: {this.state.kcv2}
-              </Text>
-            </Body>
-            <Right>
-              <Button
-                small
-                style={{
-                  backgroundColor:
-                    !this.state.step3Complete || this.state.step4Complete
-                      ? Colors.primaryText
-                      : Colors.secondary
-                }}
-                disabled={!this.state.step3Complete || this.state.step4Complete}
-                onPress={() => this.onPressMatch2()}
-              >
-                <Text style={{ color: Colors.text }}>Match</Text>
-              </Button>
-            </Right>
-          </ListItem>
-          <ListItem icon>
-            <Left>
-              <CheckBox
-                checked={this.state.step5Complete}
-                color={Colors.secondary}
-              />
-            </Left>
-            <Body>
-              <Text
-                style={{
-                  color: this.state.step4Complete ? "black" : Colors.primaryText
-                }}
-              >
-                tap your backup card again
-              </Text>
-            </Body>
-          </ListItem>
-        </Content>
+        ></Content>
         <Button
           rounded
           block
@@ -303,8 +94,4 @@ const mapStateToProps = state => {
   };
 };
 
-const mapDispatchToProps = dispatch => {
-  return {};
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(BackupCardStack);
+export default connect(mapStateToProps, null)(BackupCardStack);
