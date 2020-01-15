@@ -40,7 +40,6 @@ class CardTab extends Component {
 
     try {
       const cardInfo = await global.tapCardModal.show(null, null, true);
-      // this.setState({ cardInfo });
       this.props.setCardInfo(cardInfo);
 
       // Get initial copy of coinInfo

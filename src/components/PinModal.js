@@ -65,11 +65,12 @@ export default class PinModal extends Component {
               this.state.onComplete(pin);
             }}
             pinLength={4}
-            delayBeforeOnComplete={0}
             buttonBgColor={Colors.secondary}
             buttonTextColor={Colors.secondary}
             inputBgColor={Colors.primaryText}
-            // buttonDeleteStyle={<Icon name="ios-backspace" size={32} />}
+            deleteText={<Icon name="ios-backspace" size={50} />}
+            buttonDeleteStyle={{ backgroundColor: Colors.primary }}
+            buttonDeletePosition="right"
           />
           <Button
             transparent
