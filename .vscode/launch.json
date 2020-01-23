@@ -18,7 +18,8 @@
       "request": "launch",
       "platform": "ios",
       "sourceMaps": true,
-      "cwd": "${workspaceRoot}"
+      "cwd": "${workspaceRoot}",
+      "target": "device"
     }
   ]
 }

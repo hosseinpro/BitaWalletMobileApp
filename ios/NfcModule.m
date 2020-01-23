@@ -7,3 +7,11 @@
 //
 
 #import <Foundation/Foundation.h>
+
+#import "React/RCTBridgeModule.h"
+
+@interface RCT_EXTERN_MODULE(NfcModule, NSObject)
+RCT_EXTERN_METHOD(enableReader: (RCTResponseSenderBlock)callback)
+RCT_EXTERN_METHOD(transmit: (NSString)apdu withCallback:(RCTResponseSenderBlock)callback)
+RCT_EXTERN_METHOD(disableReader)
+@end

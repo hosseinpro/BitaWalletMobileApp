@@ -23,7 +23,7 @@ public class NfcModule extends ReactContextBaseJavaModule implements NfcAdapter.
 
     @Override
     public String getName() {
-        return "Nfc";
+        return "NfcModule";
     }
 
     private NfcAdapter nfcAdapter = null;

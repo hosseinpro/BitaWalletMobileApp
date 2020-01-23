@@ -7,7 +7,9 @@ export default class NfcReader {
     return new Promise((resolve, reject) => {
       commandAPDU = commandAPDU.toUpperCase().replace(/\s/g, "");
 
-      NativeModules.Nfc.transmit(commandAPDU, (responseAPDU, error) => {
+      NativeModules.NfcModule.transmit(commandAPDU, (responseAPDU, error) => {
+        console.log("responseAPDU: ", responseAPDU);
+        console.log("error: ", error);
         if (responseAPDU === null) {
           reject(error);
         } else {
@@ -18,10 +20,10 @@ export default class NfcReader {
   }
 
   enableCardDetection = eventFunction => {
-    setTimeout(() => NativeModules.Nfc.enableReader(eventFunction), 200);
+    setTimeout(() => NativeModules.NfcModule.enableReader(eventFunction), 200);
   };
 
   disableCardDetection() {
-    NativeModules.Nfc.disableReader();
+    NativeModules.NfcModule.disableReader();
   }
 }
