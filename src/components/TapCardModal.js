@@ -37,7 +37,7 @@ export default class TabCardModal extends Component {
       } catch {}
 
       this.setState({ visible: true });
-      global.nfcReader.enableCardDetection(this.cardDetected.bind(this));
+      // global.nfcReader.enableCardDetection(this.cardDetected.bind(this));
     });
   }
 

@@ -1,4 +1,4 @@
-// Version: 2.0
+// Version: 2.1
 
 const Base64 = require("./Base64.js");
 
@@ -203,10 +203,15 @@ module.exports = class BitaWalletCard {
   ////Begin of card functions
 
   async getInfo() {
-    const apduSelectApplet = "00 A4 04 00 06 FFBC00000001";
-    await this.transmit(apduSelectApplet);
     const apduGetInfo = "00 11 00 00 00";
-    let responseAPDU = await this.transmit(apduGetInfo);
+    let responseAPDU = "";
+    try {
+      responseAPDU = await this.transmit(apduGetInfo);
+    } catch {
+      const apduSelectApplet = "00 A4 04 00 06 FFBC00000001";
+      await this.transmit(apduSelectApplet);
+      responseAPDU = await this.transmit(apduGetInfo);
+    }
     const serialNumber = responseAPDU.data.substr(0, 16);
     const version = BitaWalletCard.hex2Ascii(responseAPDU.data.substr(16, 10));
     const label = BitaWalletCard.hex2Ascii(responseAPDU.data.substr(26));

@@ -8,6 +8,7 @@ export default class NfcReader {
       commandAPDU = commandAPDU.toUpperCase().replace(/\s/g, "");
 
       NativeModules.NfcModule.transmit(commandAPDU, (responseAPDU, error) => {
+        console.log("commandAPDU: ", commandAPDU);
         console.log("responseAPDU: ", responseAPDU);
         console.log("error: ", error);
         if (responseAPDU === null) {
