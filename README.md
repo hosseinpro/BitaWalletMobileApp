@@ -1,66 +1,12 @@
 # BitaWalletMobileApp
 
-## Enable live reload on Android device
+BitaWallet is a hardware crypto wallet designed with advanced security features, including cryptographic backup and a super-wallet/sub-wallet architecture. Originally conceived as my Ph.D. project over four years, BitaWallet has evolved into a fully-fledged product, laying the foundation for a promising startup. Detailed information on its development and underlying technologies can be found in the publication section, showcasing the research papers published during the project's academic phase.
 
-Simulator: CTRL + M
-Device: adb shell input keyevent 82
+The core cryptography for BitaWallet is implemented using JavaCard technologies. I developed the micro-controller codes in a Java-like language, compiling them to run on the Java Card Runtime Environment (JCRE). These codes have been rigorously tested through simulations and on multiple real chips from various manufacturers.
 
-## Updated Android files
+A standout feature of BitaWallet is its use of ePaper technology, providing a secure, trusted display on the card. This enhances the wallet's security by ensuring that sensitive information is displayed safely and clearly. Additionally, I utilized React Native to develop the accompanying Android and iOS applications, integrating custom native codes to handle the cryptographic operations.
 
-android/app/src/main/AndroidManifest.xml
-android/app/src/main/java/com/bitawalletmobileapp/MainApplication.java
-android/gradle.properties
-android/app/build.gradle
-.babelrc
+BitaWallet leverages the smartphone's NFC antenna to communicate with the smart (IC) chip embedded in a credit card, facilitating secure cryptographic transactions. The backup procedure is both innovative and secure: users can clone their hardware wallet to another hardware wallet using a specialized cryptographic protocol, ensuring that no hacker can intercept the process. This approach eliminates the need for complex paper backups with numerous words, reducing the risk of exposure and enhancing user convenience.
 
-## Generating the release APK
+Experience unparalleled security and ease of use with BitaWallet, the next generation in hardware crypto wallets.
 
-$ cd android
-$ ./gradlew assembleRelease
-output: android/app/build/outputs/apk/release/app-release.apk
-
-Test:
-$ cd ..
-\$ react-native run-android --variant=release
-
-Logging Debug:
-code: Console.log("")
-react-native run-android
-react-native log-android
-
-## ios device
-
-npm install -g ios-sim
-ios-sim showdevicetypes
-ios-sim start --devicetypeid "iPhone-8, 13.3"
-
-npm install -g ios-deploy
-react-native run-ios
-react-native run-ios --device
-
-### if could not find iPhone X simulator
-
-install iPhone X
-edit this file:
-node_modules/react-native/local-cli/runIOS/findMatchingSimulator.js
-!version.includes('iOS')
-simulator.isAvailable !== 'YES' &&
-simulator.isAvailable !== true
-
-edit this file:
-node_modules/react-native/React/Base/RCTModuleMethod.mm
-return RCTReadString(input, "**attribute**((unused))") ||
-RCTReadString(input, "**attribute**((**unused**))") ||
-RCTReadString(input, "\_\_unused");
-
-### Add NFC to iOS
-
-open .xcodeproj in Xcode. Select the project. Select Target. Goto Signing & Capabilities tab. Select a Team. Add Capability. Select NFC (requires Apple Developer Licence). (Add .entitlement)
-
-select info.plist
-Add an item to ISO7816. Write AID of the applet.
-Add Row for "Privacy - NFC Scan Usage Description" with Value "XebaWallet"
-
-### Patched to work for iOS
-
-/Users/hossein/Code/BitaWalletMobileApp/node_modules/react-native/React/Base/RCTBridgeModule.h
